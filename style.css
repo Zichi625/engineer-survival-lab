@@ -1,0 +1,45 @@
+:root {
+  --color-bg: #FFF8F0;
+  --color-bg-gradient-end: #FFE9A8;
+  --color-mint: #CFEFE4;
+  --color-coral: #FFD3C6;
+  --color-coral-strong: #FF9F87;
+  --color-yellow: #FFE9A8;
+  --color-text: #4A3F35;
+  --color-text-soft: #8A7B6C;
+  --color-card-bg: #FFFFFF;
+  --radius-lg: 24px;
+  --radius-md: 16px;
+  --shadow-soft: 0 8px 20px rgba(74, 63, 53, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+  color: var(--color-text);
+  background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-gradient-end) 100%);
+  display: flex;
+  justify-content: center;
+}
+
+#app {
+  width: 100%;
+  max-width: 480px;
+  min-height: 100vh;
+  padding: 24px 20px 40px;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+}

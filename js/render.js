@@ -203,3 +203,70 @@ function buildStatRow(label, value) {
   row.appendChild(starsEl);
   return row;
 }
+
+export function renderLead(root, handlers) {
+  root.innerHTML = '';
+  var screen = createEl('div', 'screen screen--lead');
+
+  var title = createEl('h2', 'lead-title');
+  title.textContent = '🎁 要不要把這次的研究結果寄給你？';
+  screen.appendChild(title);
+
+  var options = [
+    { id: 'report', label: '想收到《2026 工程師生存調查》' },
+    { id: 'jobs', label: '有適合我的職缺也可以找我' },
+    { id: 'jobSeeking', label: '我最近正在找工作' },
+    { id: 'justFun', label: '我只是來玩玩 😂' }
+  ];
+  var checkedState = {};
+  var checkboxList = createEl('div', 'lead-checkboxes');
+  options.forEach(function (opt) {
+    var label = createEl('label', 'lead-checkbox');
+    var input = document.createElement('input');
+    input.type = 'checkbox';
+    input.addEventListener('change', function () {
+      checkedState[opt.id] = input.checked;
+    });
+    label.appendChild(input);
+    label.appendChild(document.createTextNode(opt.label));
+    checkboxList.appendChild(label);
+  });
+  screen.appendChild(checkboxList);
+
+  var emailInput = document.createElement('input');
+  emailInput.type = 'email';
+  emailInput.placeholder = 'Email（選填）';
+  emailInput.className = 'lead-email';
+  screen.appendChild(emailInput);
+
+  var submitBtn = createEl('button', 'btn-primary');
+  submitBtn.type = 'button';
+  submitBtn.textContent = '送出';
+  submitBtn.addEventListener('click', function () {
+    handlers.onSubmit({
+      email: emailInput.value.trim(),
+      interests: options.filter(function (opt) { return checkedState[opt.id]; }).map(function (opt) { return opt.id; })
+    });
+  });
+  screen.appendChild(submitBtn);
+
+  var skipBtn = createEl('button', 'btn-secondary');
+  skipBtn.type = 'button';
+  skipBtn.textContent = '不用了，直接完成';
+  skipBtn.addEventListener('click', handlers.onSkip);
+  screen.appendChild(skipBtn);
+
+  root.appendChild(screen);
+}
+
+export function renderDone(root) {
+  root.innerHTML = '';
+  var screen = createEl('div', 'screen screen--done');
+  var character = createEl('div', 'character character--large');
+  character.textContent = '🎉';
+  var text = createEl('p', 'done-text');
+  text.textContent = '感謝你來體驗工程師生存實驗室！';
+  screen.appendChild(character);
+  screen.appendChild(text);
+  root.appendChild(screen);
+}

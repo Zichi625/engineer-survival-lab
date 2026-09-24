@@ -131,3 +131,75 @@ function indexOfValue(options, value) {
 function pad2(n) {
   return n < 10 ? '0' + n : String(n);
 }
+
+export function renderCalculating(root) {
+  root.innerHTML = '';
+  var screen = createEl('div', 'screen screen--calculating');
+  var text = createEl('p', 'calculating-text');
+  text.textContent = '🔬 分析你的工程師生存數據中……';
+  var track = createEl('div', 'progress-track');
+  var fill = createEl('div', 'progress-fill progress-fill--animated');
+  track.appendChild(fill);
+  screen.appendChild(text);
+  screen.appendChild(track);
+  root.appendChild(screen);
+}
+
+export function renderResult(root, data, handlers) {
+  root.innerHTML = '';
+  var screen = createEl('div', 'screen screen--result');
+  var card = createEl('div', 'result-card');
+
+  var heading = createEl('p', 'result-heading');
+  heading.textContent = '👀 你的工程師生存類型';
+
+  var name = createEl('h2', 'result-name');
+  name.textContent = data.persona.emoji + ' ' + data.persona.name;
+
+  var index = createEl('p', 'result-index');
+  index.textContent = '生存指數 ' + data.survivalIndex + '%';
+
+  var stats = createEl('div', 'result-stats');
+  stats.appendChild(buildStatRow('💰 薪資滿意度', data.dimensions.salary));
+  stats.appendChild(buildStatRow('❤️ 工作穩定度', data.dimensions.stability));
+  stats.appendChild(buildStatRow('🤖 AI 適應度', data.dimensions.aiAdapt));
+  stats.appendChild(buildStatRow('🚀 轉職雷達', data.dimensions.radar));
+
+  var status = createEl('p', 'result-status');
+  status.textContent = data.persona.statusText;
+
+  var bug = createEl('p', 'result-line');
+  bug.textContent = '你的 Career Bug：' + data.careerBugLabel;
+  var buff = createEl('p', 'result-line');
+  buff.textContent = 'AI Buff：' + data.aiBuffLabel;
+  var goal = createEl('p', 'result-line');
+  goal.textContent = '🏆 2027 想解鎖：' + data.goalLabel;
+
+  [heading, name, index, stats, status, bug, buff, goal].forEach(function (el) { card.appendChild(el); });
+  screen.appendChild(card);
+
+  var shareBtn = createEl('button', 'btn-primary');
+  shareBtn.type = 'button';
+  shareBtn.textContent = '產生我的生存卡';
+  shareBtn.addEventListener('click', handlers.onShare);
+  screen.appendChild(shareBtn);
+
+  var continueBtn = createEl('button', 'btn-secondary');
+  continueBtn.type = 'button';
+  continueBtn.textContent = '繼續 →';
+  continueBtn.addEventListener('click', handlers.onContinue);
+  screen.appendChild(continueBtn);
+
+  root.appendChild(screen);
+}
+
+function buildStatRow(label, value) {
+  var row = createEl('div', 'stat-row');
+  var labelEl = createEl('span', 'stat-label');
+  labelEl.textContent = label;
+  var starsEl = createEl('span', 'stat-stars');
+  starsEl.textContent = '★'.repeat(value) + '☆'.repeat(5 - value);
+  row.appendChild(labelEl);
+  row.appendChild(starsEl);
+  return row;
+}

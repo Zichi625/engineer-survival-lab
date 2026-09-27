@@ -132,6 +132,9 @@ function handleGoToLead() {
 }
 
 async function handleLeadSubmit(leadData) {
+  if (state.isSubmitting) return;
+  state.isSubmitting = true;
+  setLeadButtonsSubmitting(true);
   var personaName = PERSONAS[state.persona].name;
   var labeledAnswers = buildLabeledAnswers();
   var promises = [submitResponse(labeledAnswers, personaName, state.survivalIndex)];
@@ -141,16 +144,33 @@ async function handleLeadSubmit(leadData) {
   }
   var results = await Promise.all(promises);
   state.hasSubmitError = results.some(function (r) { return r.status === 'error'; });
+  state.isSubmitting = false;
   state.screen = 'done';
   rerender();
 }
 
 async function handleLeadSkip() {
+  if (state.isSubmitting) return;
+  state.isSubmitting = true;
+  setLeadButtonsSubmitting(true);
   var labeledAnswers = buildLabeledAnswers();
   var result = await submitResponse(labeledAnswers, PERSONAS[state.persona].name, state.survivalIndex);
   state.hasSubmitError = result.status === 'error';
+  state.isSubmitting = false;
   state.screen = 'done';
   rerender();
+}
+
+function setLeadButtonsSubmitting(isSubmitting) {
+  var submitBtn = document.querySelector('.screen--lead .btn-primary');
+  var skipBtn = document.querySelector('.screen--lead .btn-secondary');
+  if (submitBtn) {
+    submitBtn.disabled = isSubmitting;
+    submitBtn.textContent = isSubmitting ? '送出中…' : '送出';
+  }
+  if (skipBtn) {
+    skipBtn.disabled = isSubmitting;
+  }
 }
 
 rerender();

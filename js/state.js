@@ -5,7 +5,9 @@ export function createInitialState() {
     answers: {},
     persona: null,
     survivalIndex: null,
-    dimensions: null
+    dimensions: null,
+    isSubmitting: false,
+    hasSubmitError: false
   };
 }
 

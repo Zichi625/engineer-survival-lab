@@ -86,7 +86,7 @@ export const QUESTIONS = [
     characterMood: 'default',
     prompt: 'Boss 出多少，你願意跳槽？',
     options: [
-      { value: 'noRaise', label: '不加也走😂', emoji: '🪙', personaPoints: { jobHopper: 2 }, dimensionValues: { radar: 5 } },
+      { value: 'noRaise', label: '不加也走', emoji: '🪙', personaPoints: { jobHopper: 2 }, dimensionValues: { radar: 5 } },
       { value: 'plus10', label: '+10%', emoji: '🪙', personaPoints: { jobHopper: 1, radarWatcher: 1 }, dimensionValues: { radar: 4 } },
       { value: 'plus20', label: '+20%', emoji: '🪙', personaPoints: { radarWatcher: 1 }, dimensionValues: { radar: 3 } },
       { value: 'plus30', label: '+30%', emoji: '🪙', personaPoints: { stableGrowth: 1 }, dimensionValues: { radar: 2 } },
@@ -131,7 +131,7 @@ export const QUESTIONS = [
     type: 'multi',
     visualStyle: 'gear',
     characterMood: 'robot',
-    prompt: '你現在最常用哪個 AI Coding 夥伴？',
+    prompt: '你現在最常用哪個 AI Coding 夥伴？（可複選）',
     options: [
       { value: 'chatgpt', label: 'ChatGPT', emoji: '💬', personaPoints: { aiEvolved: 1 } },
       { value: 'claude', label: 'Claude', emoji: '🟣', personaPoints: { aiEvolved: 1 } },
@@ -186,7 +186,7 @@ export const QUESTIONS = [
       { value: 'foreign', label: '進外商', emoji: '🌍', personaPoints: { radarWatcher: 1, jobHopper: 1 } },
       { value: 'remote', label: '全遠端', emoji: '🏡', personaPoints: { stableGrowth: 1 } },
       { value: 'switchToAI', label: '轉AI', emoji: '🤖', personaPoints: { aiEvolved: 2 } },
-      { value: 'wlb', label: 'Work-Life Balance', emoji: '⚖️', personaPoints: { stableGrowth: 1, careerDebugger: 1 } }
+      { value: 'wlb', label: 'WLB', emoji: '⚖️', personaPoints: { stableGrowth: 1, careerDebugger: 1 } }
     ]
   }
 ];

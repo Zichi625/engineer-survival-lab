@@ -5,6 +5,12 @@ import { createInitialState, recordSingleAnswer, toggleMultiAnswer, isLastLevel,
 import { renderIntro, renderLevel, renderCalculating, renderResult, renderLead, renderDone } from './render.js';
 import { exportResultCardImage, shareOrDownloadImage } from './share.js';
 import { submitResponse, submitLead } from './submit.js';
+import { flashClass } from './animations.js';
+
+var SINGLE_SELECT_FIELDS = [
+  'role', 'experience', 'satisfaction', 'salary', 'headhunterReaction',
+  'jumpThreshold', 'careerBug', 'aiFrequency', 'aiImpact', 'aiFear', 'goal2027'
+];
 
 var root = document.getElementById('app');
 var state = createInitialState();
@@ -20,13 +26,12 @@ function rerender() {
     });
   } else if (state.screen === 'calculating') {
     renderCalculating(root);
-    setTimeout(handleCalculatingDone, 1700);
   } else if (state.screen === 'result') {
     renderResult(root, buildResultData(), { onShare: handleShare, onContinue: handleGoToLead });
   } else if (state.screen === 'lead') {
     renderLead(root, { onSubmit: handleLeadSubmit, onSkip: handleLeadSkip });
   } else if (state.screen === 'done') {
-    renderDone(root);
+    renderDone(root, { hasError: state.hasSubmitError });
   }
 }
 
@@ -64,6 +69,17 @@ function findBuffLabel(questionId, value) {
   return option && option.buffLabel ? option.buffLabel : '';
 }
 
+function buildLabeledAnswers() {
+  var labeled = {};
+  SINGLE_SELECT_FIELDS.forEach(function (fieldId) {
+    labeled[fieldId] = findLabel(fieldId, state.answers[fieldId]);
+  });
+  labeled.aiTools = (state.answers.aiTools || []).map(function (value) {
+    return findLabel('aiTools', value);
+  });
+  return labeled;
+}
+
 function handleStart() {
   state.screen = 'level';
   state.levelIndex = 0;
@@ -74,6 +90,8 @@ function handleSingleSelect(value) {
   var question = QUESTIONS[state.levelIndex];
   recordSingleAnswer(state, question.id, value);
   rerender();
+  var characterEl = root.querySelector('.character');
+  if (characterEl) flashClass(characterEl, 'character--pop', 400);
   setTimeout(goToNextLevelOrCalculate, 450);
 }
 
@@ -90,6 +108,7 @@ function handleMultiNext() {
 function goToNextLevelOrCalculate() {
   if (isLastLevel(state, QUESTIONS)) {
     state.screen = 'calculating';
+    setTimeout(handleCalculatingDone, 1700);
   } else {
     advanceLevel(state);
   }
@@ -112,16 +131,24 @@ function handleGoToLead() {
   rerender();
 }
 
-function handleLeadSubmit(leadData) {
+async function handleLeadSubmit(leadData) {
   var personaName = PERSONAS[state.persona].name;
-  submitResponse(state.answers, personaName, state.survivalIndex);
-  submitLead(leadData, personaName, state.survivalIndex);
+  var labeledAnswers = buildLabeledAnswers();
+  var promises = [submitResponse(labeledAnswers, personaName, state.survivalIndex)];
+  var hasLeadInfo = Boolean(leadData.email) || leadData.interests.length > 0;
+  if (hasLeadInfo) {
+    promises.push(submitLead(leadData, personaName, state.survivalIndex));
+  }
+  var results = await Promise.all(promises);
+  state.hasSubmitError = results.some(function (r) { return r.status === 'error'; });
   state.screen = 'done';
   rerender();
 }
 
-function handleLeadSkip() {
-  submitResponse(state.answers, PERSONAS[state.persona].name, state.survivalIndex);
+async function handleLeadSkip() {
+  var labeledAnswers = buildLabeledAnswers();
+  var result = await submitResponse(labeledAnswers, PERSONAS[state.persona].name, state.survivalIndex);
+  state.hasSubmitError = result.status === 'error';
   state.screen = 'done';
   rerender();
 }

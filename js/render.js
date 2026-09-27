@@ -245,7 +245,7 @@ export function renderLead(root, handlers) {
   submitBtn.addEventListener('click', function () {
     handlers.onSubmit({
       email: emailInput.value.trim(),
-      interests: options.filter(function (opt) { return checkedState[opt.id]; }).map(function (opt) { return opt.id; })
+      interests: options.filter(function (opt) { return checkedState[opt.id]; }).map(function (opt) { return opt.label; })
     });
   });
   screen.appendChild(submitBtn);
@@ -259,13 +259,16 @@ export function renderLead(root, handlers) {
   root.appendChild(screen);
 }
 
-export function renderDone(root) {
+export function renderDone(root, options) {
+  var hasError = Boolean(options && options.hasError);
   root.innerHTML = '';
   var screen = createEl('div', 'screen screen--done');
   var character = createEl('div', 'character character--large');
   character.textContent = '🎉';
   var text = createEl('p', 'done-text');
-  text.textContent = '感謝你來體驗工程師生存實驗室！';
+  text.textContent = hasError
+    ? '網路好像不太順，資料可能沒送出成功，麻煩跟工作人員說一聲 🙏'
+    : '感謝你來體驗工程師生存實驗室！';
   screen.appendChild(character);
   screen.appendChild(text);
   root.appendChild(screen);

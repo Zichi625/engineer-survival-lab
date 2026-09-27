@@ -2,26 +2,37 @@ var SHARED_SECRET = 'REPLACE_WITH_YOUR_OWN_SECRET';
 var RESPONSES_SHEET_NAME = '問卷回答';
 var LEADS_SHEET_NAME = '名單';
 
+function doGet(e) {
+  return ContentService.createTextOutput('工程師生存實驗室後端運作中 ✅').setMimeType(ContentService.MimeType.TEXT);
+}
+
 function doPost(e) {
-  var body = JSON.parse(e.postData.contents);
-  if (body.secret !== SHARED_SECRET) {
-    return respond({ status: 'error', message: 'invalid secret' });
-  }
+  try {
+    var body = JSON.parse(e.postData.contents);
+    if (body.secret !== SHARED_SECRET) {
+      return respond({ status: 'error', message: 'invalid secret' });
+    }
 
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  if (body.sheet === 'responses') {
-    appendResponse(ss, body.payload || {});
-  } else if (body.sheet === 'leads') {
-    appendLead(ss, body.payload || {});
-  } else {
-    return respond({ status: 'error', message: 'unknown sheet' });
-  }
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    if (body.sheet === 'responses') {
+      appendResponse(ss, body.payload || {});
+    } else if (body.sheet === 'leads') {
+      appendLead(ss, body.payload || {});
+    } else {
+      return respond({ status: 'error', message: 'unknown sheet' });
+    }
 
-  return respond({ status: 'ok' });
+    return respond({ status: 'ok' });
+  } catch (err) {
+    return respond({ status: 'error', message: String(err) });
+  }
 }
 
 function appendResponse(ss, payload) {
   var sheet = ss.getSheetByName(RESPONSES_SHEET_NAME);
+  if (!sheet) {
+    throw new Error('找不到分頁：' + RESPONSES_SHEET_NAME);
+  }
   sheet.appendRow([
     new Date(),
     payload.role || '',
@@ -43,6 +54,9 @@ function appendResponse(ss, payload) {
 
 function appendLead(ss, payload) {
   var sheet = ss.getSheetByName(LEADS_SHEET_NAME);
+  if (!sheet) {
+    throw new Error('找不到分頁：' + LEADS_SHEET_NAME);
+  }
   sheet.appendRow([
     new Date(),
     payload.email || '',

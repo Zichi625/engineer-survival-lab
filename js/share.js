@@ -17,8 +17,10 @@ export function shareOrDownloadImage(canvas) {
     if (!blob) return;
     var file = new File([blob], 'engineer-survival-card.png', { type: 'image/png' });
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      navigator.share({ files: [file], title: '我的工程師生存卡' }).catch(function () {
-        downloadBlob(blob);
+      navigator.share({ files: [file], title: '我的工程師生存卡' }).catch(function (err) {
+        if (err && err.name !== 'AbortError') {
+          downloadBlob(blob);
+        }
       });
     } else {
       downloadBlob(blob);

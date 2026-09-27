@@ -1,8 +1,32 @@
 # 工程師生存實驗室
 
-攤位問卷遊戲。設計文件：`../docs/superpowers/specs/2026-09-24-engineer-survival-lab-design.md`（在 Ai-chief 主專案裡）。
+攤位問卷遊戲。若你的資料夾是放在 `Ai-chief` 主專案底下，可以參考設計文件：`../docs/superpowers/specs/2026-09-24-engineer-survival-lab-design.md`（這份是背景說明用的延伸閱讀，不是必要文件，單獨拿走這個資料夾也不影響網站運作，沒有這份文件也沒關係）。
 
-## 活動前的一次性設定（約 5 分鐘）
+## 本機預覽（開發用）
+
+這個網站有用到瀏覽器的「模組」功能（ES modules），**用滑鼠直接雙擊 `index.html`打開是打不開的**（會整頁空白），一定要透過一個本機小型網頁伺服器來看：
+
+1. 打開終端機（Terminal），切換到這個資料夾。
+2. 執行：
+   ```
+   python3 -m http.server
+   ```
+3. 瀏覽器打開 `http://localhost:8000` 就能看到網站了。
+4. 按 `Ctrl + C` 可以關掉這個本機伺服器。
+
+## 部署到 GitHub Pages
+
+這個專案已經推上 GitHub 了，要讓它變成一個大家都能打開的公開網址，只需要：
+
+1. 打開這個 repo 在 GitHub 網頁上的頁面，點上方的「Settings」。
+2. 左邊選單點「Pages」。
+3. 在「Build and deployment」底下，「Source」選「Deploy from a branch」。
+4. Branch 選「main」，資料夾選「/ (root)」，按「Save」。
+5. 等 1–2 分鐘，網站就會上線，網址是 `https://<你的 GitHub 帳號>.github.io/<這個 repo 的名字>/`。
+
+## Google 試算表 + Apps Script 一次性設定（約 5 分鐘）
+
+這一段是要讓玩過問卷的人的回答，自動寫進你的 Google 試算表裡，只要設定一次就好。
 
 1. 開一個新的 Google 試算表。
 2. 在試算表最下面建立兩個工作表（分頁），名稱要完全一樣：
@@ -13,17 +37,22 @@
 4. 在「名單」分頁的第一列，貼上：
    `時間 / Email / 意願 / 人設 / 生存指數`
 5. 上方選單「擴充功能 → Apps Script」，把跳出來的編輯器裡的範例程式碼全部刪掉，貼上 `apps-script/Code.gs` 的內容。
-6. 把程式碼裡第一行的 `REPLACE_WITH_YOUR_OWN_SECRET` 改成你自己隨便打的一串英數字（例如 `esl2026secret`），記下來。
+6. 把程式碼裡第一行的 `REPLACE_WITH_YOUR_OWN_SECRET` 改成你自己隨便打的一串英數字（例如 `esl2026secret`），記下來，等一下會用到。
+
+   > 這組字串不是真正的密碼保護（因為網站原始碼任何人都看得到），只是用來擋掉隨便亂打網址亂送資料的人；如果之後真的有奇怪的資料跑進來，把這組字串換掉、Apps Script 跟 `config.js` 兩邊都要改，再重新部署一次就好。
+
 7. 點右上角「部署 → 新增部署作業」，類型選「網頁應用程式」，「執行身分」選「我」，「誰可以存取」選「所有人」，按「部署」。
 8. 第一次部署會要求你授權，照畫面指示允許即可。
-9. 部署完成後會出現一個網址（結尾是 `/exec`），複製起來。
-10. 回到這個資料夾，複製 `config.example.js` 為 `config.js`，把網址貼到 `GAS_WEB_APP_URL`，把你在步驟 6 設定的字串貼到 `GAS_SHARED_SECRET`：
+9. 部署完成後會出現一個網址（結尾是 `/exec`），複製起來。你可以直接把這個網址貼到瀏覽器打開看看，如果看到「工程師生存實驗室後端運作中 ✅」就表示部署成功了。
+10. 回到這個資料夾，直接編輯 `config.js`（不是 `config.example.js`，那個檔案只是留著給你對照格式用），把網址貼到 `GAS_WEB_APP_URL`，把你在步驟 6 設定的字串貼到 `GAS_SHARED_SECRET`：
 
-```js
-export const GAS_WEB_APP_URL = '貼上你的網址';
-export const GAS_SHARED_SECRET = '貼上你的密碼字串';
-```
+    ```js
+    export const GAS_WEB_APP_URL = '貼上你的網址';
+    export const GAS_SHARED_SECRET = '貼上你在步驟 6 設定的字串';
+    ```
 
-11. 把同一組密碼字串也貼回 Apps Script 編輯器裡的 `SHARED_SECRET`，兩邊要一模一樣，然後在 Apps Script 裡「部署 → 管理部署作業」，用小鉛筆圖示更新這次的部署（不然新的程式碼不會生效）。
+    填好之後記得要 `git add config.js`、commit、再 push 上去，這樣正式上線的 GitHub Pages 網站才會拿到真正的網址和密碼字串——只在自己電腦上改 `config.js` 而沒有推上去，現場真正的訪客看到的網站還是舊的（空白）設定。
 
-設定好之後，正式玩一次問卷、按下最後的「送出」，回到 Google 試算表確認「問卷回答」跟「名單」兩個分頁都有出現對應的新資料列。
+    > **小提醒（重要）：** 之後不管是改了 Apps Script 裡的哪一行程式碼（不只是密碼字串），都要重新回到 Apps Script 編輯器，點「部署 → 管理部署作業」，用小鉛筆圖示更新這次的部署，不然新的程式碼不會生效，Google 試算表還是會照舊的邏輯運作。
+
+設定好之後，正式玩一次問卷、按下最後的「送出」（或「不用了，直接完成」），回到 Google 試算表確認「問卷回答」跟「名單」兩個分頁都有出現對應的新資料列。

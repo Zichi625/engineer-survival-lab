@@ -453,6 +453,28 @@ button {
   color: #F8FAFC;
 }
 
+.result-detail-toggle {
+  align-self: center;
+  margin-top: -8px;
+  padding: 4px 10px;
+  background: transparent;
+  color: #7DD3FC;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.result-detail-toggle:hover {
+  text-decoration: underline;
+}
+
+.result-detail-text {
+  margin: -8px 0 0;
+  text-align: left;
+  line-height: 1.8;
+  color: var(--color-text-soft);
+}
+
 .result-tags {
   display: flex;
   flex-direction: column;

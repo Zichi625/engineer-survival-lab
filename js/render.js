@@ -193,6 +193,18 @@ export function renderResult(root, data, handlers) {
   highlightText.textContent = data.persona.highlight;
   highlight.appendChild(highlightText);
 
+  var detailText = createEl('p', 'result-detail-text');
+  detailText.textContent = data.persona.statusText;
+  detailText.hidden = true;
+
+  var detailToggle = createEl('button', 'result-detail-toggle');
+  detailToggle.type = 'button';
+  detailToggle.textContent = '深入解讀 ▾';
+  detailToggle.addEventListener('click', function () {
+    detailText.hidden = !detailText.hidden;
+    detailToggle.textContent = detailText.hidden ? '深入解讀 ▾' : '收合 ▴';
+  });
+
   var tags = createEl('div', 'result-tags');
   tags.appendChild(buildTag('bug', 'result-tag--bug', 'Career Bug：' + data.careerBugLabel));
   tags.appendChild(buildTag('zap', 'result-tag--buff', 'AI Buff：' + data.aiBuffLabel));
@@ -203,7 +215,7 @@ export function renderResult(root, data, handlers) {
   goalText.textContent = '2027 想解鎖：' + data.goalLabel;
   goal.appendChild(goalText);
 
-  [badge, name, index, indexBar, stats, highlight, tags, goal].forEach(function (el) { card.appendChild(el); });
+  [badge, name, index, indexBar, stats, highlight, detailToggle, detailText, tags, goal].forEach(function (el) { card.appendChild(el); });
   screen.appendChild(card);
 
   var shareBtn = createEl('button', 'btn-primary');

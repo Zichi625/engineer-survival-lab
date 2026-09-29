@@ -193,16 +193,18 @@ export function renderResult(root, data, handlers) {
   highlightText.textContent = data.persona.highlight;
   highlight.appendChild(highlightText);
 
-  var detailText = createEl('p', 'result-detail-text');
-  detailText.textContent = data.persona.statusText;
-  detailText.hidden = true;
+  var detailSections = createEl('div', 'result-detail-sections');
+  detailSections.appendChild(buildDetailSection('核心動機', data.persona.deepDive.motivation));
+  detailSections.appendChild(buildDetailSection('潛在風險', data.persona.deepDive.risk));
+  detailSections.appendChild(buildDetailSection('建議行動', data.persona.deepDive.action));
+  detailSections.hidden = true;
 
   var detailToggle = createEl('button', 'result-detail-toggle');
   detailToggle.type = 'button';
   detailToggle.textContent = '深入解讀 ▾';
   detailToggle.addEventListener('click', function () {
-    detailText.hidden = !detailText.hidden;
-    detailToggle.textContent = detailText.hidden ? '深入解讀 ▾' : '收合 ▴';
+    detailSections.hidden = !detailSections.hidden;
+    detailToggle.textContent = detailSections.hidden ? '深入解讀 ▾' : '收合 ▴';
   });
 
   var tags = createEl('div', 'result-tags');
@@ -215,7 +217,7 @@ export function renderResult(root, data, handlers) {
   goalText.textContent = '2027 想解鎖：' + data.goalLabel;
   goal.appendChild(goalText);
 
-  [badge, name, index, indexBar, stats, highlight, detailToggle, detailText, tags, goal].forEach(function (el) { card.appendChild(el); });
+  [badge, name, index, indexBar, stats, highlight, detailToggle, detailSections, tags, goal].forEach(function (el) { card.appendChild(el); });
   screen.appendChild(card);
 
   var shareBtn = createEl('button', 'btn-primary');
@@ -256,6 +258,17 @@ function buildStatRow(iconKey, label, value) {
   info.appendChild(bar);
   row.appendChild(info);
   return row;
+}
+
+function buildDetailSection(label, text) {
+  var section = createEl('div', 'result-detail-section');
+  var labelEl = createEl('p', 'result-detail-label');
+  labelEl.textContent = label;
+  var textEl = createEl('p', 'result-detail-text');
+  textEl.textContent = text;
+  section.appendChild(labelEl);
+  section.appendChild(textEl);
+  return section;
 }
 
 function buildTag(iconKey, className, text) {

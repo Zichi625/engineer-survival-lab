@@ -1,4 +1,5 @@
 import { QUESTIONS } from './questions.js';
+import { ROLE_ICONS } from './icons.js';
 
 var TOTAL_LEVELS = QUESTIONS.length;
 
@@ -104,11 +105,18 @@ function buildOptionsGrid(question, state, handlers) {
     btn.type = 'button';
     btn.disabled = !isMulti && Boolean(selectedValue);
 
-    var emoji = createEl('span', 'option-emoji');
-    emoji.textContent = option.emoji;
+    var iconMarkup = question.id === 'role' ? ROLE_ICONS[option.value] : null;
+    if (iconMarkup) {
+      var icon = createEl('span', 'option-icon');
+      icon.innerHTML = iconMarkup;
+      btn.appendChild(icon);
+    } else {
+      var emoji = createEl('span', 'option-emoji');
+      emoji.textContent = option.emoji;
+      btn.appendChild(emoji);
+    }
     var label = createEl('span', 'option-label');
     label.textContent = option.label;
-    btn.appendChild(emoji);
     btn.appendChild(label);
 
     btn.addEventListener('click', function () {

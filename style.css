@@ -264,10 +264,13 @@ button {
 }
 
 .option-icon {
-  width: 34px;
-  height: 34px;
-  color: #38BDF8;
-  filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.65));
+  width: 40px;
+  height: 40px;
+  color: #7DD3FC;
+  filter:
+    drop-shadow(0 0 1px rgba(224, 242, 254, 0.95))
+    drop-shadow(0 0 6px rgba(56, 189, 248, 0.75))
+    drop-shadow(0 0 16px rgba(56, 189, 248, 0.4));
 }
 
 .option-icon svg {

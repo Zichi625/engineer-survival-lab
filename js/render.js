@@ -12,8 +12,18 @@ var CHARACTER_EMOJI = {
 export function renderIntro(root, handlers) {
   root.innerHTML = '';
   var screen = createEl('div', 'screen screen--intro');
-  var character = createEl('div', 'character character--large');
-  character.textContent = CHARACTER_EMOJI.default;
+  var hero = createEl('div', 'hero-illustration');
+  var heroImg = document.createElement('img');
+  heroImg.src = 'assets/hero-character.png';
+  heroImg.alt = '工程師生存實驗室主視覺';
+  heroImg.addEventListener('error', function () {
+    hero.remove();
+    var fallback = createEl('div', 'character character--large');
+    fallback.textContent = CHARACTER_EMOJI.default;
+    screen.insertBefore(fallback, title);
+  });
+  hero.appendChild(heroImg);
+  screen.appendChild(hero);
   var title = createEl('h1', 'intro-title');
   title.textContent = '歡迎進入工程師生存實驗室';
   var body = createEl('p', 'intro-body');
@@ -25,7 +35,7 @@ export function renderIntro(root, handlers) {
   startBtn.textContent = '開始生存測驗 🚀';
   startBtn.addEventListener('click', handlers.onStart);
 
-  [character, title, body, timeHint, startBtn].forEach(function (el) { screen.appendChild(el); });
+  [title, body, timeHint, startBtn].forEach(function (el) { screen.appendChild(el); });
   root.appendChild(screen);
 }
 

@@ -30,20 +30,28 @@ export function shareOrDownloadImage(canvas) {
 
 function drawBackground(ctx, canvas) {
   var gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-  gradient.addColorStop(0, '#FFF8F0');
-  gradient.addColorStop(1, '#FFE9A8');
+  gradient.addColorStop(0, '#12161A');
+  gradient.addColorStop(1, '#1A1F26');
   ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  var glow = ctx.createRadialGradient(220, 200, 0, 220, 200, 500);
+  glow.addColorStop(0, 'rgba(255, 107, 107, 0.18)');
+  glow.addColorStop(1, 'rgba(255, 107, 107, 0)');
+  ctx.fillStyle = glow;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
 function drawHeading(ctx, data) {
-  ctx.fillStyle = '#4A3F35';
+  ctx.fillStyle = '#94A3B8';
   ctx.textAlign = 'center';
-  ctx.font = '48px "PingFang TC", "Noto Sans TC", sans-serif';
+  ctx.font = '48px "Inter", "PingFang TC", "Noto Sans TC", sans-serif';
   ctx.fillText('你的工程師生存類型', 540, 220);
-  ctx.font = 'bold 72px "PingFang TC", "Noto Sans TC", sans-serif';
+  ctx.fillStyle = '#F8FAFC';
+  ctx.font = 'bold 72px "Inter", "PingFang TC", "Noto Sans TC", sans-serif';
   ctx.fillText(data.persona.emoji + ' ' + data.persona.name, 540, 340);
-  ctx.font = '44px "PingFang TC", "Noto Sans TC", sans-serif';
+  ctx.fillStyle = '#FF6B6B';
+  ctx.font = '44px "Inter", "PingFang TC", "Noto Sans TC", sans-serif';
   ctx.fillText('生存指數 ' + data.survivalIndex + '%', 540, 420);
 }
 
@@ -56,19 +64,23 @@ function drawStats(ctx, data) {
   ];
   var startY = 560;
 
-  ctx.font = '36px "PingFang TC", "Noto Sans TC", sans-serif';
+  ctx.font = '36px "Inter", "PingFang TC", "Noto Sans TC", sans-serif';
   rows.forEach(function (row, index) {
     var y = startY + index * 80;
     ctx.textAlign = 'left';
+    ctx.fillStyle = '#E2E8F0';
     ctx.fillText(row[0], 140, y);
     ctx.textAlign = 'right';
+    ctx.fillStyle = '#FF6B6B';
     ctx.fillText('★'.repeat(row[1]) + '☆'.repeat(5 - row[1]), 940, y);
   });
 
   ctx.textAlign = 'left';
-  ctx.font = '32px "PingFang TC", "Noto Sans TC", sans-serif';
+  ctx.fillStyle = '#94A3B8';
+  ctx.font = '32px "Inter", "PingFang TC", "Noto Sans TC", sans-serif';
   var textY = startY + rows.length * 80 + 60;
   textY = wrapText(ctx, data.persona.statusText, 140, textY, 800, 46);
+  ctx.fillStyle = '#E2E8F0';
   ctx.fillText('你的 Career Bug：' + data.careerBugLabel, 140, textY + 60);
   ctx.fillText('AI Buff：' + data.aiBuffLabel, 140, textY + 120);
   ctx.fillText('🏆 2027 想解鎖：' + data.goalLabel, 140, textY + 180);
@@ -76,8 +88,8 @@ function drawStats(ctx, data) {
 
 function drawFooter(ctx) {
   ctx.textAlign = 'center';
-  ctx.font = '28px "PingFang TC", "Noto Sans TC", sans-serif';
-  ctx.fillStyle = '#8A7B6C';
+  ctx.font = '28px "Inter", "PingFang TC", "Noto Sans TC", sans-serif';
+  ctx.fillStyle = '#94A3B8';
   ctx.fillText('多角人才 × 工程師真心話研究所', 540, 1520);
 }
 

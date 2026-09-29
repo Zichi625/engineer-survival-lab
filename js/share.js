@@ -1,13 +1,13 @@
 export function exportResultCardImage(data) {
   var canvas = document.createElement('canvas');
   canvas.width = 1080;
-  canvas.height = 1600;
+  canvas.height = 1850;
   var ctx = canvas.getContext('2d');
 
   drawBackground(ctx, canvas);
   drawHeading(ctx, data);
-  drawStats(ctx, data);
-  drawFooter(ctx);
+  var goalLineY = drawStats(ctx, data);
+  drawFooter(ctx, Math.max(1520, goalLineY + 100));
 
   return Promise.resolve(canvas);
 }
@@ -84,13 +84,14 @@ function drawStats(ctx, data) {
   ctx.fillText('你的 Career Bug：' + data.careerBugLabel, 140, textY + 60);
   ctx.fillText('AI Buff：' + data.aiBuffLabel, 140, textY + 120);
   ctx.fillText('🏆 2027 想解鎖：' + data.goalLabel, 140, textY + 180);
+  return textY + 180;
 }
 
-function drawFooter(ctx) {
+function drawFooter(ctx, y) {
   ctx.textAlign = 'center';
   ctx.font = '28px "Inter", "PingFang TC", "Noto Sans TC", sans-serif';
   ctx.fillStyle = '#94A3B8';
-  ctx.fillText('多角人才 × 工程師真心話研究所', 540, 1520);
+  ctx.fillText('多角人才 × 工程師真心話研究所', 540, y);
 }
 
 function wrapText(ctx, text, x, y, maxWidth, lineHeight) {

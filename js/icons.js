@@ -104,3 +104,57 @@ export var ROLE_ICONS = {
     '<path d="M40 30l1 2.2 2.2 1-2.2 1-1 2.2-1-2.2-2.2-1 2.2-1z" fill="currentColor" stroke="none" opacity="0.7"/>' +
     '</svg>'
 };
+
+export var STAT_ICONS = {
+  wallet:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+    '<rect x="2" y="6" width="20" height="12" rx="2"/>' +
+    '<circle cx="12" cy="12" r="2.3"/>' +
+    '<line x1="6" y1="9" x2="6" y2="9.01"/><line x1="18" y1="15" x2="18" y2="15.01"/>' +
+    '</svg>',
+
+  heart:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+    '<path d="M20.8 4.9a5.5 5.5 0 0 0-7.8 0L12 5.9l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21.5l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"/>' +
+    '</svg>',
+
+  cpu:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+    '<rect x="6" y="6" width="12" height="12" rx="2"/><rect x="9" y="9" width="6" height="6"/>' +
+    '<line x1="12" y1="1.5" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22.5"/>' +
+    '<line x1="1.5" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22.5" y2="12"/>' +
+    '</svg>',
+
+  radar:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+    '<path d="M12 3a9 9 0 1 0 9 9"/>' +
+    '<path d="M12 12l5-3"/>' +
+    '<path d="M12 7.5a4.5 4.5 0 0 1 4.5 4.5" opacity="0.6"/>' +
+    '<circle cx="12" cy="12" r="1.1" fill="currentColor" stroke="none"/>' +
+    '</svg>',
+
+  bug:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+    '<rect x="8" y="8" width="8" height="10" rx="4"/>' +
+    '<line x1="12" y1="4" x2="12" y2="8"/>' +
+    '<line x1="9" y1="3" x2="10.3" y2="5"/><line x1="15" y1="3" x2="13.7" y2="5"/>' +
+    '<line x1="6" y1="10" x2="8.3" y2="11.3"/><line x1="18" y1="10" x2="15.7" y2="11.3"/>' +
+    '<line x1="6" y1="18" x2="8.3" y2="16.7"/><line x1="18" y1="18" x2="15.7" y2="16.7"/>' +
+    '<line x1="8.3" y1="14" x2="15.7" y2="14"/>' +
+    '</svg>',
+
+  zap:
+    '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">' +
+    '<path d="M13 2L4 14h6l-1 8 9-12h-6z"/>' +
+    '</svg>',
+
+  trophy:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+    '<path d="M8 3.5h8v5a4 4 0 0 1-8 0v-5z"/>' +
+    '<path d="M8 4.5H5.2a2 2 0 0 0 0 4H8"/>' +
+    '<path d="M16 4.5h2.8a2 2 0 0 1 0 4H16"/>' +
+    '<line x1="12" y1="12.5" x2="12" y2="16.5"/>' +
+    '<line x1="8" y1="20.5" x2="16" y2="20.5"/>' +
+    '<line x1="12" y1="16.5" x2="12" y2="20.5"/>' +
+    '</svg>'
+};

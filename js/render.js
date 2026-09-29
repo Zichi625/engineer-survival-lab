@@ -1,5 +1,5 @@
 import { QUESTIONS } from './questions.js';
-import { ROLE_ICONS } from './icons.js';
+import { ROLE_ICONS, STAT_ICONS } from './icons.js';
 
 var TOTAL_LEVELS = QUESTIONS.length;
 
@@ -168,8 +168,8 @@ export function renderResult(root, data, handlers) {
   var screen = createEl('div', 'screen screen--result');
   var card = createEl('div', 'result-card');
 
-  var heading = createEl('p', 'result-heading');
-  heading.textContent = '👀 你的工程師生存類型';
+  var badge = createEl('div', 'result-badge');
+  badge.textContent = 'SURVIVAL TYPE';
 
   var name = createEl('h2', 'result-name');
   name.textContent = data.persona.emoji + ' ' + data.persona.name;
@@ -177,23 +177,33 @@ export function renderResult(root, data, handlers) {
   var index = createEl('p', 'result-index');
   index.textContent = '生存指數 ' + data.survivalIndex + '%';
 
+  var indexBar = createEl('div', 'progress-track progress-track--index');
+  var indexFill = createEl('div', 'progress-fill');
+  indexFill.style.width = data.survivalIndex + '%';
+  indexBar.appendChild(indexFill);
+
   var stats = createEl('div', 'result-stats');
-  stats.appendChild(buildStatRow('💰 薪資滿意度', data.dimensions.salary));
-  stats.appendChild(buildStatRow('❤️ 工作穩定度', data.dimensions.stability));
-  stats.appendChild(buildStatRow('🤖 AI 適應度', data.dimensions.aiAdapt));
-  stats.appendChild(buildStatRow('🚀 轉職雷達', data.dimensions.radar));
+  stats.appendChild(buildStatRow('wallet', '薪資滿意度', data.dimensions.salary));
+  stats.appendChild(buildStatRow('heart', '工作穩定度', data.dimensions.stability));
+  stats.appendChild(buildStatRow('cpu', 'AI 適應度', data.dimensions.aiAdapt));
+  stats.appendChild(buildStatRow('radar', '轉職雷達', data.dimensions.radar));
 
-  var status = createEl('p', 'result-status');
-  status.textContent = data.persona.statusText;
+  var highlight = createEl('div', 'result-highlight');
+  var highlightText = createEl('p', 'result-highlight-text');
+  highlightText.textContent = data.persona.highlight;
+  highlight.appendChild(highlightText);
 
-  var bug = createEl('p', 'result-line');
-  bug.textContent = '你的 Career Bug：' + data.careerBugLabel;
-  var buff = createEl('p', 'result-line');
-  buff.textContent = 'AI Buff：' + data.aiBuffLabel;
-  var goal = createEl('p', 'result-line');
-  goal.textContent = '🏆 2027 想解鎖：' + data.goalLabel;
+  var tags = createEl('div', 'result-tags');
+  tags.appendChild(buildTag('bug', 'result-tag--bug', 'Career Bug：' + data.careerBugLabel));
+  tags.appendChild(buildTag('zap', 'result-tag--buff', 'AI Buff：' + data.aiBuffLabel));
 
-  [heading, name, index, stats, status, bug, buff, goal].forEach(function (el) { card.appendChild(el); });
+  var goal = createEl('p', 'result-goal');
+  goal.appendChild(buildIconSpan(STAT_ICONS.trophy, 'result-goal-icon'));
+  var goalText = createEl('span');
+  goalText.textContent = '2027 想解鎖：' + data.goalLabel;
+  goal.appendChild(goalText);
+
+  [badge, name, index, indexBar, stats, highlight, tags, goal].forEach(function (el) { card.appendChild(el); });
   screen.appendChild(card);
 
   var shareBtn = createEl('button', 'btn-primary');
@@ -211,15 +221,44 @@ export function renderResult(root, data, handlers) {
   root.appendChild(screen);
 }
 
-function buildStatRow(label, value) {
+function buildStatRow(iconKey, label, value) {
+  var percent = Math.round((value / 5) * 100);
   var row = createEl('div', 'stat-row');
+  row.appendChild(buildIconSpan(STAT_ICONS[iconKey], 'stat-icon'));
+
+  var info = createEl('div', 'stat-info');
+  var labelRow = createEl('div', 'stat-label-row');
   var labelEl = createEl('span', 'stat-label');
   labelEl.textContent = label;
-  var starsEl = createEl('span', 'stat-stars');
-  starsEl.textContent = '★'.repeat(value) + '☆'.repeat(5 - value);
-  row.appendChild(labelEl);
-  row.appendChild(starsEl);
+  var percentEl = createEl('span', 'stat-percent');
+  percentEl.textContent = percent + '%';
+  labelRow.appendChild(labelEl);
+  labelRow.appendChild(percentEl);
+
+  var bar = createEl('div', 'stat-bar');
+  var fill = createEl('div', 'stat-bar-fill');
+  fill.style.width = percent + '%';
+  bar.appendChild(fill);
+
+  info.appendChild(labelRow);
+  info.appendChild(bar);
+  row.appendChild(info);
   return row;
+}
+
+function buildTag(iconKey, className, text) {
+  var tag = createEl('div', 'result-tag ' + className);
+  tag.appendChild(buildIconSpan(STAT_ICONS[iconKey], 'result-tag-icon'));
+  var label = createEl('span', 'result-tag-label');
+  label.textContent = text;
+  tag.appendChild(label);
+  return tag;
+}
+
+function buildIconSpan(svgMarkup, className) {
+  var span = createEl('span', className);
+  span.innerHTML = svgMarkup;
+  return span;
 }
 
 export function renderLead(root, handlers) {

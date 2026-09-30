@@ -480,5 +480,10 @@ export var UI_ICONS = {
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
     '<circle cx="12" cy="12" r="9"/>' +
     '<polyline points="12 7 12 12 15.5 14"/>' +
+    '</svg>',
+
+  check:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">' +
+    '<polyline points="4 12 9 17 20 6"/>' +
     '</svg>'
 };

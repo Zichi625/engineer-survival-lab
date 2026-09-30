@@ -8,6 +8,138 @@ function mascotSrc(mood) {
   return 'assets/mascot/mascot-' + (mood || 'coding') + '.png';
 }
 
+function buildSystemStatus() {
+  var statusBar = createEl('div', 'intro-status-bar');
+  var statusOnline = createEl('div', 'status-online');
+  statusOnline.appendChild(createEl('span', 'status-dot'));
+  statusOnline.appendChild(document.createTextNode('SYSTEM ONLINE'));
+  var statusLab = createEl('div', 'status-lab');
+  statusLab.appendChild(document.createTextNode('SURVIVAL LAB / 2026 '));
+  var statusGlyph = createEl('span', 'status-glyph');
+  statusGlyph.textContent = '</>';
+  statusLab.appendChild(statusGlyph);
+  statusBar.appendChild(statusOnline);
+  statusBar.appendChild(statusLab);
+  return statusBar;
+}
+
+function buildMascotScanner() {
+  var hudWrap = createEl('div', 'intro-hud-wrap');
+  var parts = [
+    createEl('div', 'hud-ticks'),
+    createEl('div', 'hud-arc'),
+    createEl('div', 'hud-ring hud-ring--1'),
+    createEl('div', 'hud-ring hud-ring--2'),
+    createEl('div', 'hud-ring hud-ring--3'),
+    createEl('div', 'hud-crosshair')
+  ];
+  ['n', 'e', 's', 'w'].forEach(function (dir) {
+    parts.push(createEl('div', 'hud-dot hud-dot--' + dir));
+  });
+  var hero = createEl('div', 'hero-illustration');
+  var heroImg = document.createElement('img');
+  heroImg.src = mascotSrc('cheering');
+  heroImg.alt = '多角龍研究員';
+  hero.appendChild(heroImg);
+  parts.push(hero);
+  var scanningLabel = createEl('div', 'hud-scanning-label');
+  scanningLabel.textContent = 'SCANNING...';
+  parts.push(scanningLabel);
+  var codeSymbolA = createEl('span', 'hud-code-symbol hud-code-symbol--1');
+  codeSymbolA.textContent = '</>';
+  var codeSymbolB = createEl('span', 'hud-code-symbol hud-code-symbol--2');
+  codeSymbolB.textContent = '01';
+  parts.push(codeSymbolA, codeSymbolB);
+
+  parts.forEach(function (el) { hudWrap.appendChild(el); });
+  return hudWrap;
+}
+
+function buildTechBadge(label, variant) {
+  var tagEl = createEl('span', 'intro-tag intro-tag--' + variant);
+  var icon = createEl('span', 'intro-tag-icon');
+  icon.innerHTML = variant === 'a' ? STAT_ICONS.cpu : variant === 'b' ? ROLE_ICONS.ai : STAT_ICONS.radar;
+  tagEl.appendChild(icon);
+  tagEl.appendChild(document.createTextNode(label));
+  return tagEl;
+}
+
+function buildGameInfoCard(def) {
+  var card = createEl('div', 'info-card');
+  var icon = createEl('div', 'info-icon');
+  icon.innerHTML = def.icon;
+  var value = createEl('div', 'info-value');
+  value.textContent = def.value;
+  var label = createEl('div', 'info-label');
+  label.textContent = def.label;
+  var sub = createEl('div', 'info-sub');
+  sub.textContent = def.sub;
+  [icon, value, label, sub].forEach(function (el) { card.appendChild(el); });
+  return card;
+}
+
+function buildHudPanel(variant, content) {
+  var panel = createEl('div', 'hud-panel hud-panel--' + variant);
+  panel.setAttribute('aria-hidden', 'true');
+  panel.appendChild(content);
+  return panel;
+}
+
+function buildCodePanel() {
+  var pre = createEl('pre', 'hud-panel-code');
+  pre.textContent = "const future = {\n  career: 'You',\n  ai: 'Opportunity',\n  status: 'Loading...'\n}";
+  return pre;
+}
+
+function buildChecklistPanel() {
+  var list = createEl('div', 'hud-panel-checklist');
+  ['AI', 'CAREER', 'SKILLS', 'OPPORTUNITY'].forEach(function (label) {
+    var row = createEl('div', 'hud-checklist-row');
+    var check = createEl('span', 'hud-checklist-icon');
+    check.innerHTML = UI_ICONS.check;
+    row.appendChild(check);
+    row.appendChild(document.createTextNode(label));
+    list.appendChild(row);
+  });
+  return list;
+}
+
+function buildBarChartPanel() {
+  var chart = createEl('div', 'hud-panel-bars');
+  [40, 65, 50, 85].forEach(function (h) {
+    var bar = createEl('span', 'hud-bar');
+    bar.style.height = h + '%';
+    chart.appendChild(bar);
+  });
+  return chart;
+}
+
+function buildDonutPanel() {
+  var wrap = createEl('div', 'hud-panel-donut');
+  var donut = createEl('div', 'hud-donut');
+  var label = createEl('span', 'hud-donut-label');
+  label.textContent = '72%';
+  wrap.appendChild(donut);
+  wrap.appendChild(label);
+  return wrap;
+}
+
+function buildInitializeButton(handlers) {
+  var startBtn = createEl('button', 'btn-cta');
+  startBtn.type = 'button';
+  var ctaMain = createEl('span', 'btn-cta-main');
+  ctaMain.appendChild(document.createTextNode('INITIALIZE TEST '));
+  var ctaArrow = createEl('span', 'btn-cta-arrow');
+  ctaArrow.textContent = '→';
+  ctaMain.appendChild(ctaArrow);
+  var ctaSub = createEl('span', 'btn-cta-sub');
+  ctaSub.textContent = '開始生存測驗';
+  startBtn.appendChild(ctaMain);
+  startBtn.appendChild(ctaSub);
+  startBtn.addEventListener('click', handlers.onStart);
+  return startBtn;
+}
+
 export function renderIntro(root, handlers) {
   root.innerHTML = '';
   var screen = createEl('div', 'screen screen--intro');
@@ -19,34 +151,15 @@ export function renderIntro(root, handlers) {
     return el;
   }
 
-  var statusBar = createEl('div', 'intro-status-bar');
-  var statusOnline = createEl('div', 'status-online');
-  var statusDot = createEl('span', 'status-dot');
-  statusOnline.appendChild(statusDot);
-  statusOnline.appendChild(document.createTextNode('SYSTEM ONLINE'));
-  var statusLab = createEl('div', 'status-lab');
-  statusLab.textContent = 'SURVIVAL LAB / 2026';
-  statusBar.appendChild(statusOnline);
-  statusBar.appendChild(statusLab);
-  screen.appendChild(fadeUp(statusBar));
+  screen.appendChild(fadeUp(buildSystemStatus()));
 
-  var hudWrap = createEl('div', 'intro-hud-wrap');
-  var hudTicks = createEl('div', 'hud-ticks');
-  var hudRing1 = createEl('div', 'hud-ring hud-ring--1');
-  var hudRing2 = createEl('div', 'hud-ring hud-ring--2');
-  var hudRing3 = createEl('div', 'hud-ring hud-ring--3');
-  var hudCrosshair = createEl('div', 'hud-crosshair');
-  var hero = createEl('div', 'hero-illustration');
-  var heroImg = document.createElement('img');
-  heroImg.src = mascotSrc('cheering');
-  heroImg.alt = '多角龍研究員';
-  hero.appendChild(heroImg);
-  var scanningLabel = createEl('div', 'hud-scanning-label');
-  scanningLabel.textContent = 'SCANNING...';
-  [hudTicks, hudRing1, hudRing2, hudRing3, hudCrosshair, hero, scanningLabel].forEach(function (el) {
-    hudWrap.appendChild(el);
-  });
-  screen.appendChild(fadeUp(hudWrap));
+  var heroStage = createEl('div', 'intro-hero-stage');
+  heroStage.appendChild(buildHudPanel('code', buildCodePanel()));
+  heroStage.appendChild(buildHudPanel('chart-left', buildBarChartPanel()));
+  heroStage.appendChild(buildMascotScanner());
+  heroStage.appendChild(buildHudPanel('checklist', buildChecklistPanel()));
+  heroStage.appendChild(buildHudPanel('chart-right', buildDonutPanel()));
+  screen.appendChild(fadeUp(heroStage));
 
   var eyebrowRow = createEl('div', 'intro-eyebrow-row');
   eyebrowRow.appendChild(createEl('span', 'eyebrow-line'));
@@ -77,21 +190,11 @@ export function renderIntro(root, handlers) {
   screen.appendChild(fadeUp(bodyTags));
 
   var tagRow = createEl('div', 'intro-tag-row');
-  var tagDefs = [
-    { label: '工作狀態', variant: 'a' },
-    { label: 'AI 適應度', variant: 'b' },
-    { label: '轉職雷達', variant: 'c' }
-  ];
-  tagDefs.forEach(function (tag, i) {
-    if (i > 0) {
-      var sep = createEl('span', 'intro-tag-sep');
-      sep.textContent = '×';
-      tagRow.appendChild(sep);
-    }
-    var tagEl = createEl('span', 'intro-tag intro-tag--' + tag.variant);
-    tagEl.textContent = tag.label;
-    tagRow.appendChild(tagEl);
-  });
+  tagRow.appendChild(buildTechBadge('工作狀態', 'a'));
+  tagRow.appendChild((function () { var s = createEl('span', 'intro-tag-sep'); s.textContent = '×'; return s; })());
+  tagRow.appendChild(buildTechBadge('AI 適應度', 'b'));
+  tagRow.appendChild((function () { var s = createEl('span', 'intro-tag-sep'); s.textContent = '×'; return s; })());
+  tagRow.appendChild(buildTechBadge('轉職雷達', 'c'));
   screen.appendChild(fadeUp(tagRow));
 
   var infoGrid = createEl('div', 'intro-info-grid');
@@ -100,34 +203,10 @@ export function renderIntro(root, handlers) {
     { icon: UI_ICONS.clock, value: '60–90s', label: 'EST. TIME', sub: '預計完成時間' },
     { icon: STAT_ICONS.lock, value: 'ANONYMOUS MODE', label: 'NO LOGIN REQUIRED', sub: '前 12 題完全匿名' }
   ];
-  infoDefs.forEach(function (def) {
-    var card = createEl('div', 'info-card');
-    var icon = createEl('div', 'info-icon');
-    icon.innerHTML = def.icon;
-    var value = createEl('div', 'info-value');
-    value.textContent = def.value;
-    var label = createEl('div', 'info-label');
-    label.textContent = def.label;
-    var sub = createEl('div', 'info-sub');
-    sub.textContent = def.sub;
-    [icon, value, label, sub].forEach(function (el) { card.appendChild(el); });
-    infoGrid.appendChild(card);
-  });
+  infoDefs.forEach(function (def) { infoGrid.appendChild(buildGameInfoCard(def)); });
   screen.appendChild(fadeUp(infoGrid));
 
-  var startBtn = createEl('button', 'btn-cta');
-  startBtn.type = 'button';
-  var ctaMain = createEl('span', 'btn-cta-main');
-  ctaMain.appendChild(document.createTextNode('INITIALIZE TEST '));
-  var ctaArrow = createEl('span', 'btn-cta-arrow');
-  ctaArrow.textContent = '→';
-  ctaMain.appendChild(ctaArrow);
-  var ctaSub = createEl('span', 'btn-cta-sub');
-  ctaSub.textContent = '開始生存測驗';
-  startBtn.appendChild(ctaMain);
-  startBtn.appendChild(ctaSub);
-  startBtn.addEventListener('click', handlers.onStart);
-  screen.appendChild(fadeUp(startBtn));
+  screen.appendChild(fadeUp(buildInitializeButton(handlers)));
 
   var footer = createEl('p', 'intro-footer');
   footer.textContent = 'ENGINEER SURVIVAL LAB // EXPERIMENT 2026';

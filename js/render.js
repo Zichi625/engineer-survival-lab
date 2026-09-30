@@ -4,26 +4,17 @@ import { flashClass } from './animations.js';
 
 var TOTAL_LEVELS = QUESTIONS.length;
 
-var CHARACTER_EMOJI = {
-  default: '🧑🏻‍💻',
-  sweat: '🧑🏻‍💻💦',
-  robot: '🤖',
-  happy: '🧑🏻‍💻🎉'
-};
+function mascotSrc(mood) {
+  return 'assets/mascot/mascot-' + (mood || 'coding') + '.png';
+}
 
 export function renderIntro(root, handlers) {
   root.innerHTML = '';
   var screen = createEl('div', 'screen screen--intro');
   var hero = createEl('div', 'hero-illustration');
   var heroImg = document.createElement('img');
-  heroImg.src = 'assets/hero-character.png';
-  heroImg.alt = '工程師生存實驗室主視覺';
-  heroImg.addEventListener('error', function () {
-    hero.remove();
-    var fallback = createEl('div', 'character character--large');
-    fallback.textContent = CHARACTER_EMOJI.default;
-    screen.insertBefore(fallback, title);
-  });
+  heroImg.src = mascotSrc('cheering');
+  heroImg.alt = '多角龍研究員';
   hero.appendChild(heroImg);
   screen.appendChild(hero);
   var title = createEl('h1', 'intro-title');
@@ -48,8 +39,10 @@ export function renderLevel(root, question, state, handlers) {
   var screen = createEl('div', 'screen screen--level');
   screen.appendChild(buildLevelHeader(question));
 
-  var character = createEl('div', 'character');
-  character.textContent = CHARACTER_EMOJI[question.characterMood] || CHARACTER_EMOJI.default;
+  var character = document.createElement('img');
+  character.className = 'character';
+  character.src = mascotSrc(question.characterMood);
+  character.alt = '多角龍研究員';
   screen.appendChild(character);
 
   var prompt = createEl('h2', 'level-prompt');
@@ -115,7 +108,13 @@ function buildOptionsGrid(question, state, handlers) {
     btn.disabled = !isMulti && Boolean(selectedValue);
 
     var iconMarkup = question.id === 'role' ? ROLE_ICONS[option.value] : null;
-    if (iconMarkup) {
+    if (option.image) {
+      var optionImg = document.createElement('img');
+      optionImg.className = 'option-image';
+      optionImg.src = option.image;
+      optionImg.alt = option.label;
+      btn.appendChild(optionImg);
+    } else if (iconMarkup) {
       var icon = createEl('span', 'option-icon');
       icon.innerHTML = iconMarkup;
       btn.appendChild(icon);
@@ -257,10 +256,10 @@ export function renderResult(root, data, handlers) {
   });
 
   var tags = createEl('div', 'result-tags');
-  tags.appendChild(buildTag('bug', 'result-tag--bug', 'Career Bug：' + data.careerBugLabel));
+  tags.appendChild(buildTag('bug', 'result-tag--bug', 'Career Bug：' + data.careerBugLabel, data.careerBugImage));
   tags.appendChild(buildTag('zap', 'result-tag--buff', 'AI Buff：' + data.aiBuffLabel));
 
-  var mission = buildMissionCard(data.goalLabel);
+  var mission = buildMissionCard(data.goalLabel, data.goalImage);
 
   [badge, name, englishName, scoreBlock, stats, highlight, detailToggle, detailSections, tags, mission].forEach(function (el) { card.appendChild(el); });
   screen.appendChild(card);
@@ -322,9 +321,17 @@ function buildDetailSection(label, text) {
   return section;
 }
 
-function buildTag(iconKey, className, text) {
+function buildTag(iconKey, className, text, image) {
   var tag = createEl('div', 'result-tag ' + className);
-  tag.appendChild(buildIconSpan(STAT_ICONS[iconKey], 'result-tag-icon'));
+  if (image) {
+    var img = document.createElement('img');
+    img.className = 'result-tag-image';
+    img.src = image;
+    img.alt = '';
+    tag.appendChild(img);
+  } else {
+    tag.appendChild(buildIconSpan(STAT_ICONS[iconKey], 'result-tag-icon'));
+  }
   var label = createEl('span', 'result-tag-label');
   label.textContent = text;
   tag.appendChild(label);
@@ -337,7 +344,7 @@ function buildIconSpan(svgMarkup, className) {
   return span;
 }
 
-function buildMissionCard(goalLabel) {
+function buildMissionCard(goalLabel, goalImage) {
   var mission = createEl('div', 'result-mission');
   var label = createEl('p', 'result-mission-label');
   label.textContent = 'NEXT MISSION · 2027';
@@ -353,8 +360,19 @@ function buildMissionCard(goalLabel) {
   mission.appendChild(content);
 
   setTimeout(function () {
-    icon.innerHTML = STAT_ICONS.unlock;
-    flashClass(icon, 'result-mission-icon--pop', 400);
+    icon.remove();
+    if (goalImage) {
+      var badgeImg = document.createElement('img');
+      badgeImg.className = 'result-mission-badge';
+      badgeImg.src = goalImage;
+      badgeImg.alt = '';
+      content.insertBefore(badgeImg, text);
+      flashClass(badgeImg, 'result-mission-icon--pop', 400);
+    } else {
+      var unlockIcon = buildIconSpan(STAT_ICONS.unlock, 'result-mission-icon');
+      content.insertBefore(unlockIcon, text);
+      flashClass(unlockIcon, 'result-mission-icon--pop', 400);
+    }
     text.textContent = goalLabel;
     text.classList.add('result-mission-text--revealed');
   }, 650);
@@ -431,8 +449,10 @@ export function renderDone(root, options) {
   var hasError = Boolean(options && options.hasError);
   root.innerHTML = '';
   var screen = createEl('div', 'screen screen--done');
-  var character = createEl('div', 'character character--large');
-  character.textContent = '🎉';
+  var character = document.createElement('img');
+  character.className = 'character character--large';
+  character.src = mascotSrc('celebrate');
+  character.alt = '多角龍研究員';
   var text = createEl('p', 'done-text');
   text.textContent = hasError
     ? '網路好像不太順，資料可能沒送出成功，麻煩跟工作人員說一聲 🙏'

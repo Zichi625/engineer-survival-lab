@@ -46,8 +46,10 @@ function buildResultData() {
     dimensions: state.dimensions,
     survivalIndex: state.survivalIndex,
     careerBugLabel: findLabel('careerBug', state.answers.careerBug),
+    careerBugImage: findImage('careerBug', state.answers.careerBug),
     aiBuffLabel: findBuffLabel('aiFrequency', state.answers.aiFrequency),
-    goalLabel: findLabel('goal2027', state.answers.goal2027)
+    goalLabel: findLabel('goal2027', state.answers.goal2027),
+    goalImage: findImage('goal2027', state.answers.goal2027)
   };
 }
 
@@ -55,17 +57,24 @@ function findQuestion(questionId) {
   return QUESTIONS.filter(function (q) { return q.id === questionId; })[0] || null;
 }
 
-function findLabel(questionId, value) {
+function findOption(questionId, value) {
   var question = findQuestion(questionId);
-  if (!question) return '';
-  var option = question.options.filter(function (o) { return o.value === value; })[0];
+  if (!question) return null;
+  return question.options.filter(function (o) { return o.value === value; })[0] || null;
+}
+
+function findLabel(questionId, value) {
+  var option = findOption(questionId, value);
   return option ? option.label : '';
 }
 
+function findImage(questionId, value) {
+  var option = findOption(questionId, value);
+  return option && option.image ? option.image : '';
+}
+
 function findBuffLabel(questionId, value) {
-  var question = findQuestion(questionId);
-  if (!question) return '';
-  var option = question.options.filter(function (o) { return o.value === value; })[0];
+  var option = findOption(questionId, value);
   return option && option.buffLabel ? option.buffLabel : '';
 }
 

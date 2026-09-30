@@ -1,12 +1,21 @@
 var CARD_X = 60;
 var CARD_RIGHT = 1020;
 var CARD_TOP = 90;
-var CARD_BOTTOM = 1270;
+var CARD_BOTTOM = 1260;
 var CANVAS_WIDTH = 1080;
 var CANVAS_HEIGHT = 1350;
 var FONT = '"Inter", "PingFang TC", "Noto Sans TC", sans-serif';
 
-export function exportResultCardImage(data) {
+function loadImage(src) {
+  return new Promise(function (resolve) {
+    var img = new Image();
+    img.onload = function () { resolve(img); };
+    img.onerror = function () { resolve(null); };
+    img.src = src;
+  });
+}
+
+export async function exportResultCardImage(data) {
   var canvas = document.createElement('canvas');
   canvas.width = CANVAS_WIDTH;
   canvas.height = CANVAS_HEIGHT;
@@ -14,8 +23,11 @@ export function exportResultCardImage(data) {
   var accent = data.persona.accent || '#FF6B6B';
   var accentStrong = data.persona.accentStrong || '#7DD3FC';
 
+  var mascotImg = data.persona.mascotImage ? await loadImage(data.persona.mascotImage) : null;
+
   drawBackground(ctx, canvas, accent, accentStrong);
   drawCardPanel(ctx, accent, accentStrong);
+  drawMascot(ctx, mascotImg);
   drawBadgeAndHeading(ctx, data, accent, accentStrong);
   drawStats(ctx, data, accent, accentStrong);
   drawHighlight(ctx, data, accent);
@@ -23,7 +35,7 @@ export function exportResultCardImage(data) {
   drawMission(ctx, data);
   drawFooter(ctx);
 
-  return Promise.resolve(canvas);
+  return canvas;
 }
 
 export function shareOrDownloadImage(canvas) {
@@ -77,12 +89,25 @@ function drawCardPanel(ctx, accent, accentStrong) {
   ctx.stroke();
 }
 
+function drawMascot(ctx, img) {
+  if (!img) return;
+  var targetH = 150;
+  var targetW = (img.width / img.height) * targetH;
+  var x = 540 - targetW / 2;
+  var y = 98;
+  ctx.save();
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
+  ctx.shadowBlur = 24;
+  ctx.drawImage(img, x, y, targetW, targetH);
+  ctx.restore();
+}
+
 function drawBadgeAndHeading(ctx, data, accent, accentStrong) {
   ctx.font = 'bold 22px ' + FONT;
   var badgeText = 'SURVIVAL TYPE';
   var badgeWidth = ctx.measureText(badgeText).width + 56;
   var badgeX = 540 - badgeWidth / 2;
-  var badgeY = 138;
+  var badgeY = 258;
   roundRectPath(ctx, badgeX, badgeY, badgeWidth, 44, 22);
   ctx.fillStyle = hexToRgba(accent, 0.12);
   ctx.fill();
@@ -97,32 +122,32 @@ function drawBadgeAndHeading(ctx, data, accent, accentStrong) {
   ctx.textBaseline = 'alphabetic';
 
   ctx.fillStyle = '#F8FAFC';
-  ctx.font = 'bold 58px ' + FONT;
-  ctx.fillText(data.persona.emoji + ' ' + data.persona.name, 540, 250);
-
-  ctx.fillStyle = '#94A3B8';
-  ctx.font = 'bold 22px ' + FONT;
-  ctx.fillText(data.persona.englishName || '', 540, 288);
+  ctx.font = 'bold 52px ' + FONT;
+  ctx.fillText(data.persona.emoji + ' ' + data.persona.name, 540, 362);
 
   ctx.fillStyle = '#94A3B8';
   ctx.font = 'bold 20px ' + FONT;
-  ctx.fillText('SURVIVAL SCORE', 540, 345);
+  ctx.fillText(data.persona.englishName || '', 540, 396);
+
+  ctx.fillStyle = '#94A3B8';
+  ctx.font = 'bold 18px ' + FONT;
+  ctx.fillText('SURVIVAL SCORE', 540, 446);
 
   ctx.fillStyle = accent;
-  ctx.font = 'bold 64px ' + FONT;
-  ctx.fillText(String(data.survivalIndex), 540, 415);
+  ctx.font = 'bold 56px ' + FONT;
+  ctx.fillText(String(data.survivalIndex), 540, 510);
   var scoreWidth = ctx.measureText(String(data.survivalIndex)).width;
-  ctx.font = 'bold 26px ' + FONT;
+  ctx.font = 'bold 24px ' + FONT;
   ctx.fillStyle = '#94A3B8';
-  ctx.fillText('/100', 540 + scoreWidth / 2 + 34, 415);
+  ctx.fillText('/100', 540 + scoreWidth / 2 + 30, 510);
 
-  roundRectPath(ctx, 140, 440, 800, 14, 7);
+  roundRectPath(ctx, 140, 532, 800, 14, 7);
   ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
   ctx.fill();
   var indexGradient = ctx.createLinearGradient(140, 0, 940, 0);
   indexGradient.addColorStop(0, accent);
   indexGradient.addColorStop(1, accentStrong);
-  roundRectPath(ctx, 140, 440, 800 * (data.survivalIndex / 100), 14, 7);
+  roundRectPath(ctx, 140, 532, 800 * (data.survivalIndex / 100), 14, 7);
   ctx.fillStyle = indexGradient;
   ctx.fill();
 }
@@ -134,8 +159,8 @@ function drawStats(ctx, data, accent, accentStrong) {
     ['轉職雷達', data.dimensions.radar],
     ['Career Bug 指數', data.dimensions.careerBugIndex]
   ];
-  var startY = 520;
-  var rowHeight = 105;
+  var startY = 610;
+  var rowHeight = 96;
 
   rows.forEach(function (row, i) {
     var labelY = startY + i * rowHeight;
@@ -143,14 +168,14 @@ function drawStats(ctx, data, accent, accentStrong) {
 
     ctx.textAlign = 'left';
     ctx.fillStyle = '#E2E8F0';
-    ctx.font = '30px ' + FONT;
+    ctx.font = '28px ' + FONT;
     ctx.fillText(row[0], 140, labelY);
     ctx.textAlign = 'right';
     ctx.fillStyle = accent;
-    ctx.font = 'bold 30px ' + FONT;
+    ctx.font = 'bold 28px ' + FONT;
     ctx.fillText(percent + '%', 940, labelY);
 
-    var barY = labelY + 22;
+    var barY = labelY + 20;
     roundRectPath(ctx, 140, barY, 800, 14, 7);
     ctx.fillStyle = 'rgba(255, 255, 255, 0.06)';
     ctx.fill();
@@ -166,8 +191,8 @@ function drawStats(ctx, data, accent, accentStrong) {
 }
 
 function drawHighlight(ctx, data, accent) {
-  var boxY = 970;
-  var boxH = 110;
+  var boxY = 990;
+  var boxH = 100;
   roundRectPath(ctx, 140, boxY, 800, boxH, 12);
   ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
   ctx.fill();
@@ -175,13 +200,13 @@ function drawHighlight(ctx, data, accent) {
   ctx.fillRect(140, boxY, 6, boxH);
 
   ctx.fillStyle = '#F8FAFC';
-  ctx.font = 'bold 30px ' + FONT;
-  wrapText(ctx, data.persona.highlight, 176, boxY + 46, 720, 42);
+  ctx.font = 'bold 28px ' + FONT;
+  wrapText(ctx, data.persona.highlight, 176, boxY + 42, 720, 38);
 }
 
 function drawTags(ctx, data) {
-  var bugY = 1105;
-  var tagH = 64;
+  var bugY = 1110;
+  var tagH = 58;
   roundRectPath(ctx, 140, bugY, 390, tagH, 14);
   ctx.fillStyle = 'rgba(255, 77, 77, 0.08)';
   ctx.fill();
@@ -190,10 +215,10 @@ function drawTags(ctx, data) {
   roundRectPath(ctx, 140, bugY, 390, tagH, 14);
   ctx.stroke();
   ctx.fillStyle = '#FF8A8A';
-  ctx.font = '24px ' + FONT;
+  ctx.font = '22px ' + FONT;
   ctx.textBaseline = 'middle';
   ctx.textAlign = 'left';
-  wrapText(ctx, '🐛 ' + data.careerBugLabel, 160, bugY + tagH / 2 - 4, 350, 24);
+  wrapText(ctx, '🐛 ' + data.careerBugLabel, 160, bugY + tagH / 2 - 4, 350, 22);
   ctx.textBaseline = 'alphabetic';
 
   var buffX = 550;
@@ -205,25 +230,25 @@ function drawTags(ctx, data) {
   ctx.stroke();
   ctx.fillStyle = '#C4B5FD';
   ctx.textBaseline = 'middle';
-  wrapText(ctx, '⚡ ' + data.aiBuffLabel, buffX + 20, bugY + tagH / 2 - 4, 350, 24);
+  wrapText(ctx, '⚡ ' + data.aiBuffLabel, buffX + 20, bugY + tagH / 2 - 4, 350, 22);
   ctx.textBaseline = 'alphabetic';
 }
 
 function drawMission(ctx, data) {
   ctx.textAlign = 'center';
   ctx.fillStyle = '#94A3B8';
-  ctx.font = 'bold 18px ' + FONT;
-  ctx.fillText('NEXT MISSION · 2027', 540, 1215);
+  ctx.font = 'bold 16px ' + FONT;
+  ctx.fillText('NEXT MISSION · 2027', 540, 1210);
   ctx.fillStyle = '#F8FAFC';
-  ctx.font = 'bold 30px ' + FONT;
-  ctx.fillText('🏆 ' + data.goalLabel, 540, 1252);
+  ctx.font = 'bold 28px ' + FONT;
+  ctx.fillText('🏆 ' + data.goalLabel, 540, 1244);
 }
 
 function drawFooter(ctx) {
   ctx.textAlign = 'center';
-  ctx.font = '24px ' + FONT;
+  ctx.font = '22px ' + FONT;
   ctx.fillStyle = '#94A3B8';
-  ctx.fillText('多角人才 × 工程師真心話研究所', 540, 1315);
+  ctx.fillText('多角人才 × 工程師真心話研究所', 540, 1310);
 }
 
 function hexToRgba(hex, alpha) {

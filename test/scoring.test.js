@@ -9,7 +9,7 @@ function baseAnswers(overrides) {
     satisfaction: 'great',
     salary: 'over100',
     headhunterReaction: 'ignore',
-    jumpThreshold: 'workMatters',
+    jumpThreshold: 'jobFit',
     careerBug: 'skill',
     aiFrequency: 'sometimes',
     aiTools: ['chatgpt'],
@@ -22,14 +22,25 @@ function baseAnswers(overrides) {
 
 test('computeDimensions averages the relevant question values per dimension', function () {
   var dims = computeDimensions(baseAnswers());
-  assert.equal(dims.salary, 5);
   assert.equal(dims.stability, 5);
-  assert.equal(dims.aiAdapt, 3);
   assert.equal(dims.radar, 1);
+  assert.equal(dims.aiAdapt, 3);
+  assert.equal(dims.careerBugIndex, 2);
 });
 
-test('computeSurvivalIndex is the four-dimension average scaled to a percentage', function () {
-  assert.equal(computeSurvivalIndex(baseAnswers()), 70);
+test('computeSurvivalIndex is the four-dimension average scaled to a percentage, with careerBugIndex inverted', function () {
+  assert.equal(computeSurvivalIndex(baseAnswers()), 65);
+});
+
+test('a high career-bug profile produces a high careerBugIndex that pulls survivalIndex down', function () {
+  var answers = baseAnswers({
+    satisfaction: 'terrible',
+    careerBug: 'boss',
+    aiFear: 'workloadSurge'
+  });
+  var dims = computeDimensions(answers);
+  assert.equal(dims.careerBugIndex, 5);
+  assert.equal(computeSurvivalIndex(answers), 30);
 });
 
 test('computePersona picks stableGrowth for a content, low-radar profile', function () {

@@ -31,12 +31,14 @@ export function renderIntro(root, handlers) {
   body.textContent = '聽說工程師每天都在 Debug，但最大的 Bug 好像是自己的職涯？回答 12 個問題，看看你在 AI 時代的工程師生存狀態。';
   var timeHint = createEl('p', 'intro-time');
   timeHint.textContent = '⏱ 約 60–90 秒';
+  var privacyHint = createEl('p', 'intro-time');
+  privacyHint.textContent = '🔒 前 12 題完全匿名';
   var startBtn = createEl('button', 'btn-primary');
   startBtn.type = 'button';
   startBtn.textContent = '開始生存測驗 🚀';
   startBtn.addEventListener('click', handlers.onStart);
 
-  [title, body, timeHint, startBtn].forEach(function (el) { screen.appendChild(el); });
+  [title, body, timeHint, privacyHint, startBtn].forEach(function (el) { screen.appendChild(el); });
   root.appendChild(screen);
 }
 
@@ -52,6 +54,12 @@ export function renderLevel(root, question, state, handlers) {
   var prompt = createEl('h2', 'level-prompt');
   prompt.textContent = question.prompt;
   screen.appendChild(prompt);
+
+  if (question.subtitle) {
+    var subtitle = createEl('p', 'level-subtitle');
+    subtitle.textContent = question.subtitle;
+    screen.appendChild(subtitle);
+  }
 
   screen.appendChild(buildOptionsGrid(question, state, handlers));
 
@@ -150,15 +158,34 @@ function pad2(n) {
   return n < 10 ? '0' + n : String(n);
 }
 
+var CALCULATING_ITEMS = ['工作穩定度', 'AI Buff', 'Career Bug', '轉職雷達', '2027 任務'];
+var CALCULATING_STAGGER_MS = 250;
+
 export function renderCalculating(root) {
   root.innerHTML = '';
   var screen = createEl('div', 'screen screen--calculating');
   var text = createEl('p', 'calculating-text');
   text.textContent = '🔬 分析你的工程師生存數據中……';
+  screen.appendChild(text);
+
+  var checklist = createEl('div', 'calculating-checklist');
+  CALCULATING_ITEMS.forEach(function (label, i) {
+    var item = createEl('div', 'calculating-item');
+    item.style.animationDelay = (i * CALCULATING_STAGGER_MS) + 'ms';
+    var labelEl = createEl('span');
+    labelEl.textContent = label;
+    var check = createEl('span', 'calculating-check');
+    check.textContent = '✓';
+    check.style.animationDelay = (i * CALCULATING_STAGGER_MS + 150) + 'ms';
+    item.appendChild(labelEl);
+    item.appendChild(check);
+    checklist.appendChild(item);
+  });
+  screen.appendChild(checklist);
+
   var track = createEl('div', 'progress-track');
   var fill = createEl('div', 'progress-fill progress-fill--animated');
   track.appendChild(fill);
-  screen.appendChild(text);
   screen.appendChild(track);
   root.appendChild(screen);
 }
@@ -183,10 +210,10 @@ export function renderResult(root, data, handlers) {
   indexBar.appendChild(indexFill);
 
   var stats = createEl('div', 'result-stats');
-  stats.appendChild(buildStatRow('wallet', '薪資滿意度', data.dimensions.salary));
   stats.appendChild(buildStatRow('heart', '工作穩定度', data.dimensions.stability));
   stats.appendChild(buildStatRow('cpu', 'AI 適應度', data.dimensions.aiAdapt));
   stats.appendChild(buildStatRow('radar', '轉職雷達', data.dimensions.radar));
+  stats.appendChild(buildStatRow('bug', 'Career Bug 指數', data.dimensions.careerBugIndex));
 
   var highlight = createEl('div', 'result-highlight');
   var highlightText = createEl('p', 'result-highlight-text');

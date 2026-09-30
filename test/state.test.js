@@ -17,15 +17,51 @@ test('recordSingleAnswer stores the value under the question id', function () {
 
 test('toggleMultiAnswer adds a value the first time it is toggled', function () {
   var state = createInitialState();
-  toggleMultiAnswer(state, 'aiTools', 'chatgpt');
+  toggleMultiAnswer(state, { id: 'aiTools' }, 'chatgpt');
   assert.deepEqual(state.answers.aiTools, ['chatgpt']);
 });
 
 test('toggleMultiAnswer removes a value the second time it is toggled', function () {
   var state = createInitialState();
-  toggleMultiAnswer(state, 'aiTools', 'chatgpt');
-  toggleMultiAnswer(state, 'aiTools', 'chatgpt');
+  toggleMultiAnswer(state, { id: 'aiTools' }, 'chatgpt');
+  toggleMultiAnswer(state, { id: 'aiTools' }, 'chatgpt');
   assert.deepEqual(state.answers.aiTools, []);
+});
+
+test('toggleMultiAnswer selecting the exclusive option clears other selections', function () {
+  var state = createInitialState();
+  var question = { id: 'aiTools', exclusiveOption: 'none' };
+  toggleMultiAnswer(state, question, 'chatgpt');
+  toggleMultiAnswer(state, question, 'none');
+  assert.deepEqual(state.answers.aiTools, ['none']);
+});
+
+test('toggleMultiAnswer selecting a normal option clears a prior exclusive selection', function () {
+  var state = createInitialState();
+  var question = { id: 'aiTools', exclusiveOption: 'none' };
+  toggleMultiAnswer(state, question, 'none');
+  toggleMultiAnswer(state, question, 'chatgpt');
+  assert.deepEqual(state.answers.aiTools, ['chatgpt']);
+});
+
+test('toggleMultiAnswer ignores a new selection once maxSelections is reached', function () {
+  var state = createInitialState();
+  var question = { id: 'aiTools', maxSelections: 3 };
+  toggleMultiAnswer(state, question, 'a');
+  toggleMultiAnswer(state, question, 'b');
+  toggleMultiAnswer(state, question, 'c');
+  toggleMultiAnswer(state, question, 'd');
+  assert.deepEqual(state.answers.aiTools, ['a', 'b', 'c']);
+});
+
+test('toggleMultiAnswer still allows deselecting when at maxSelections', function () {
+  var state = createInitialState();
+  var question = { id: 'aiTools', maxSelections: 3 };
+  toggleMultiAnswer(state, question, 'a');
+  toggleMultiAnswer(state, question, 'b');
+  toggleMultiAnswer(state, question, 'c');
+  toggleMultiAnswer(state, question, 'b');
+  assert.deepEqual(state.answers.aiTools, ['a', 'c']);
 });
 
 test('isLastLevel is false before the final question', function () {

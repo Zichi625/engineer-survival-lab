@@ -2,7 +2,7 @@ import { QUESTIONS } from './questions.js';
 import { PERSONA_PRIORITY } from './results.js';
 
 export function computeDimensions(answers) {
-  var dims = { salary: [], stability: [], aiAdapt: [], radar: [] };
+  var dims = { stability: [], radar: [], aiAdapt: [], careerBugIndex: [] };
 
   QUESTIONS.forEach(function (question) {
     if (question.type === 'single') {
@@ -28,8 +28,8 @@ export function computeDimensions(answers) {
 
 export function computeSurvivalIndex(answers) {
   var dims = computeDimensions(answers);
-  var avg = (dims.salary + dims.stability + dims.aiAdapt + dims.radar) / 4;
-  return Math.round((avg / 5) * 100);
+  var goodness = (dims.stability + dims.radar + dims.aiAdapt + (6 - dims.careerBugIndex)) / 4;
+  return Math.round((goodness / 5) * 100);
 }
 
 export function computePersona(answers) {
@@ -82,9 +82,8 @@ function addPersonaPoints(totals, option) {
 
 function toolCountToValue(count) {
   if (count <= 0) return 1;
-  if (count === 1) return 2;
-  if (count === 2) return 3;
-  if (count === 3) return 4;
+  if (count === 1) return 3;
+  if (count === 2) return 4;
   return 5;
 }
 

@@ -14,6 +14,7 @@ export const QUESTIONS = [
       { value: 'ai', label: 'AI', emoji: '🤖', personaPoints: { aiEvolved: 1 } },
       { value: 'data', label: 'Data', emoji: '📊' },
       { value: 'devops', label: 'DevOps', emoji: '🛠️' },
+      { value: 'qa', label: 'QA / 測試', emoji: '🔍' },
       { value: 'other', label: '其他', emoji: '✨' }
     ]
   },
@@ -41,11 +42,11 @@ export const QUESTIONS = [
     characterMood: 'default',
     prompt: '現在這份工作，你還好嗎？',
     options: [
-      { value: 'great', label: '很滿意', emoji: '😄', personaPoints: { stableGrowth: 2 }, dimensionValues: { salary: 5, stability: 5 } },
-      { value: 'good', label: '滿意', emoji: '🙂', personaPoints: { stableGrowth: 1 }, dimensionValues: { salary: 4, stability: 4 } },
-      { value: 'ok', label: '普通', emoji: '😐', personaPoints: { radarWatcher: 1 }, dimensionValues: { salary: 3, stability: 3 } },
-      { value: 'bad', label: '不太好', emoji: '😣', personaPoints: { careerDebugger: 1, jobHopper: 1 }, dimensionValues: { salary: 2, stability: 2 } },
-      { value: 'terrible', label: '我快不行了', emoji: '🥵', personaPoints: { jobHopper: 2, careerDebugger: 1 }, dimensionValues: { salary: 1, stability: 1 } }
+      { value: 'great', label: '很滿意', emoji: '😄', personaPoints: { stableGrowth: 2 }, dimensionValues: { stability: 5, careerBugIndex: 1 } },
+      { value: 'good', label: '滿意', emoji: '🙂', personaPoints: { stableGrowth: 1 }, dimensionValues: { stability: 4, careerBugIndex: 2 } },
+      { value: 'ok', label: '普通', emoji: '😐', personaPoints: { radarWatcher: 1 }, dimensionValues: { stability: 3, careerBugIndex: 3 } },
+      { value: 'bad', label: '不太好', emoji: '😣', personaPoints: { careerDebugger: 1, jobHopper: 1 }, dimensionValues: { stability: 2, careerBugIndex: 4 } },
+      { value: 'terrible', label: '我快不行了', emoji: '🥵', personaPoints: { jobHopper: 2, careerDebugger: 1 }, dimensionValues: { stability: 1, careerBugIndex: 5 } }
     ]
   },
   {
@@ -55,13 +56,14 @@ export const QUESTIONS = [
     visualStyle: 'coins',
     characterMood: 'default',
     prompt: '目前薪資落在哪個補給區？',
+    subtitle: '月薪，新台幣',
     options: [
-      { value: 'under40', label: '<40K', emoji: '🪙', personaPoints: { careerDebugger: 2 }, dimensionValues: { salary: 1 } },
-      { value: '40to60', label: '40–60K', emoji: '🪙', personaPoints: { careerDebugger: 1 }, dimensionValues: { salary: 2 } },
-      { value: '60to80', label: '60–80K', emoji: '🪙', personaPoints: { radarWatcher: 1 }, dimensionValues: { salary: 3 } },
-      { value: '80to100', label: '80–100K', emoji: '🪙', personaPoints: { stableGrowth: 1 }, dimensionValues: { salary: 4 } },
-      { value: 'over100', label: '100K+', emoji: '🪙', personaPoints: { stableGrowth: 1 }, dimensionValues: { salary: 5 } },
-      { value: 'secret', label: '秘密', emoji: '🤐', personaPoints: { radarWatcher: 1 }, dimensionValues: { salary: 3 } }
+      { value: 'under40', label: '<40K', emoji: '🪙', personaPoints: { careerDebugger: 2 } },
+      { value: '40to60', label: '40–60K', emoji: '🪙', personaPoints: { careerDebugger: 1 } },
+      { value: '60to80', label: '60–80K', emoji: '🪙', personaPoints: { radarWatcher: 1 } },
+      { value: '80to100', label: '80–100K', emoji: '🪙', personaPoints: { stableGrowth: 1 } },
+      { value: 'over100', label: '100K+', emoji: '🪙', personaPoints: { stableGrowth: 1 } },
+      { value: 'secret', label: '秘密', emoji: '🤐', personaPoints: { radarWatcher: 1 } }
     ]
   },
   {
@@ -72,10 +74,10 @@ export const QUESTIONS = [
     characterMood: 'default',
     prompt: '現在有人敲你 LinkedIn，你會？',
     options: [
-      { value: 'ignore', label: '不理', emoji: '🙅', personaPoints: { stableGrowth: 2 }, dimensionValues: { stability: 5, radar: 1 } },
-      { value: 'peek', label: '看看', emoji: '👀', personaPoints: { radarWatcher: 2 }, dimensionValues: { stability: 4, radar: 3 } },
-      { value: 'chat', label: '聊聊', emoji: '💬', personaPoints: { radarWatcher: 1, jobHopper: 1 }, dimensionValues: { stability: 2, radar: 4 } },
-      { value: 'please', label: '拜託快找我', emoji: '🙏', personaPoints: { jobHopper: 2 }, dimensionValues: { stability: 1, radar: 5 } }
+      { value: 'ignore', label: '不理', emoji: '🙅', personaPoints: { stableGrowth: 2 }, dimensionValues: { radar: 1 } },
+      { value: 'peek', label: '看看', emoji: '👀', personaPoints: { radarWatcher: 2 }, dimensionValues: { radar: 3 } },
+      { value: 'chat', label: '聊聊', emoji: '💬', personaPoints: { radarWatcher: 1, jobHopper: 1 }, dimensionValues: { radar: 4 } },
+      { value: 'please', label: '拜託快找我', emoji: '🙏', personaPoints: { jobHopper: 2 }, dimensionValues: { radar: 5 } }
     ]
   },
   {
@@ -90,7 +92,8 @@ export const QUESTIONS = [
       { value: 'plus10', label: '+10%', emoji: '🪙', personaPoints: { jobHopper: 1, radarWatcher: 1 }, dimensionValues: { radar: 4 } },
       { value: 'plus20', label: '+20%', emoji: '🪙', personaPoints: { radarWatcher: 1 }, dimensionValues: { radar: 3 } },
       { value: 'plus30', label: '+30%', emoji: '🪙', personaPoints: { stableGrowth: 1 }, dimensionValues: { radar: 2 } },
-      { value: 'workMatters', label: '工作好比較重要', emoji: '💼', personaPoints: { stableGrowth: 2 }, dimensionValues: { radar: 1 } }
+      { value: 'jobFit', label: '工作適合比較重要', emoji: '❤️', personaPoints: { stableGrowth: 2 }, dimensionValues: { radar: 1 } },
+      { value: 'remoteFlex', label: '遠端／彈性比薪水重要', emoji: '🏠', personaPoints: { stableGrowth: 1, radarWatcher: 1 }, dimensionValues: { radar: 2 } }
     ]
   },
   {
@@ -101,13 +104,14 @@ export const QUESTIONS = [
     characterMood: 'sweat',
     prompt: '抓到你的 Career Bug！',
     options: [
-      { value: 'salary', label: '薪資卡住', emoji: '🐛', personaPoints: { careerDebugger: 2 } },
-      { value: 'boss', label: '主管問題', emoji: '🐛', personaPoints: { careerDebugger: 2 } },
-      { value: 'hours', label: '工時太長', emoji: '🐛', personaPoints: { careerDebugger: 1, jobHopper: 1 } },
-      { value: 'skill', label: '技術焦慮', emoji: '🐛', personaPoints: { careerDebugger: 1, aiEvolved: -1 } },
-      { value: 'promotion', label: '升遷卡關', emoji: '🐛', personaPoints: { careerDebugger: 1, radarWatcher: 1 } },
-      { value: 'noOpportunity', label: '沒好機會', emoji: '🐛', personaPoints: { jobHopper: 1, careerDebugger: 1 } },
-      { value: 'aiAnxiety', label: 'AI焦慮', emoji: '🐛', personaPoints: { careerDebugger: 2, aiEvolved: -2 } }
+      { value: 'salary', label: '薪資卡住', emoji: '🐛', personaPoints: { careerDebugger: 2 }, dimensionValues: { careerBugIndex: 4 } },
+      { value: 'boss', label: '主管問題', emoji: '🐛', personaPoints: { careerDebugger: 2 }, dimensionValues: { careerBugIndex: 5 } },
+      { value: 'hours', label: '工時太長', emoji: '🐛', personaPoints: { careerDebugger: 1, jobHopper: 1 }, dimensionValues: { careerBugIndex: 4 } },
+      { value: 'skill', label: '技術焦慮', emoji: '🐛', personaPoints: { careerDebugger: 1, aiEvolved: -1 }, dimensionValues: { careerBugIndex: 3 } },
+      { value: 'promotion', label: '升遷卡關', emoji: '🐛', personaPoints: { careerDebugger: 1, radarWatcher: 1 }, dimensionValues: { careerBugIndex: 3 } },
+      { value: 'noOpportunity', label: '沒好機會', emoji: '🐛', personaPoints: { jobHopper: 1, careerDebugger: 1 }, dimensionValues: { careerBugIndex: 4 } },
+      { value: 'aiAnxiety', label: 'AI焦慮', emoji: '🐛', personaPoints: { careerDebugger: 2, aiEvolved: -2 }, dimensionValues: { careerBugIndex: 5 } },
+      { value: 'noBug', label: '目前沒什麼Bug', emoji: '✨', personaPoints: { stableGrowth: 2 }, dimensionValues: { careerBugIndex: 1 } }
     ]
   },
   {
@@ -131,13 +135,16 @@ export const QUESTIONS = [
     type: 'multi',
     visualStyle: 'gear',
     characterMood: 'robot',
-    prompt: '你現在最常用哪個 AI Coding 夥伴？（可複選）',
+    prompt: '你現在最常用哪個 AI Coding 夥伴？（最多選 3 個）',
+    maxSelections: 3,
+    exclusiveOption: 'none',
     options: [
       { value: 'chatgpt', label: 'ChatGPT', emoji: '💬', personaPoints: { aiEvolved: 1 } },
       { value: 'claude', label: 'Claude', emoji: '🟣', personaPoints: { aiEvolved: 1 } },
       { value: 'cursor', label: 'Cursor', emoji: '⌨️', personaPoints: { aiEvolved: 1 } },
       { value: 'copilot', label: 'Copilot', emoji: '🧑‍✈️', personaPoints: { aiEvolved: 1 } },
       { value: 'gemini', label: 'Gemini', emoji: '♊', personaPoints: { aiEvolved: 1 } },
+      { value: 'windsurf', label: 'Windsurf', emoji: '🏄', personaPoints: { aiEvolved: 1 } },
       { value: 'other', label: '其他', emoji: '✨', personaPoints: { aiEvolved: 1 } },
       { value: 'none', label: '沒使用', emoji: '🚫', personaPoints: { careerDebugger: 1, aiEvolved: -1 } }
     ]
@@ -165,11 +172,11 @@ export const QUESTIONS = [
     characterMood: 'robot',
     prompt: 'AI 時代，你最怕哪件事？',
     options: [
-      { value: 'skillGap', label: '技術跟不上', emoji: '👹', personaPoints: { careerDebugger: 1, aiEvolved: -1 } },
-      { value: 'juniorOpportunity', label: 'Junior機會減少', emoji: '👹', personaPoints: { careerDebugger: 1 } },
-      { value: 'salaryPressure', label: '薪資被壓縮', emoji: '👹', personaPoints: { careerDebugger: 1, jobHopper: 1 } },
-      { value: 'workloadSurge', label: '公司要求產能暴增', emoji: '👹', personaPoints: { careerDebugger: 1, jobHopper: 1 } },
-      { value: 'notScared', label: '其實不怕', emoji: '💪', personaPoints: { aiEvolved: 2, stableGrowth: 1 } }
+      { value: 'skillGap', label: '技術跟不上', emoji: '👹', personaPoints: { careerDebugger: 1, aiEvolved: -1 }, dimensionValues: { careerBugIndex: 4 } },
+      { value: 'juniorOpportunity', label: 'Junior機會減少', emoji: '👹', personaPoints: { careerDebugger: 1 }, dimensionValues: { careerBugIndex: 3 } },
+      { value: 'salaryPressure', label: '薪資被壓縮', emoji: '👹', personaPoints: { careerDebugger: 1, jobHopper: 1 }, dimensionValues: { careerBugIndex: 4 } },
+      { value: 'workloadSurge', label: '公司要求產能暴增', emoji: '👹', personaPoints: { careerDebugger: 1, jobHopper: 1 }, dimensionValues: { careerBugIndex: 4 } },
+      { value: 'notScared', label: '其實不怕', emoji: '💪', personaPoints: { aiEvolved: 2, stableGrowth: 1 }, dimensionValues: { careerBugIndex: 1 } }
     ]
   },
   {
@@ -186,6 +193,7 @@ export const QUESTIONS = [
       { value: 'foreign', label: '進外商', emoji: '🌍', personaPoints: { radarWatcher: 1, jobHopper: 1 } },
       { value: 'remote', label: '全遠端', emoji: '🏡', personaPoints: { stableGrowth: 1 } },
       { value: 'switchToAI', label: '轉AI', emoji: '🤖', personaPoints: { aiEvolved: 2 } },
+      { value: 'techLevelUp', label: '技術大升級', emoji: '🧠', personaPoints: { aiEvolved: 1, stableGrowth: 1 } },
       { value: 'wlb', label: 'WLB', emoji: '⚖️', personaPoints: { stableGrowth: 1, careerDebugger: 1 } }
     ]
   }

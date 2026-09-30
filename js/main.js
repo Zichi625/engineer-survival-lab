@@ -97,7 +97,7 @@ function handleSingleSelect(value) {
 
 function handleMultiToggle(value) {
   var question = QUESTIONS[state.levelIndex];
-  toggleMultiAnswer(state, question.id, value);
+  toggleMultiAnswer(state, question, value);
   rerender();
 }
 

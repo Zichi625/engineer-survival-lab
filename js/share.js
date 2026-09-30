@@ -114,10 +114,10 @@ function drawBadgeAndHeading(ctx, data) {
 
 function drawStats(ctx, data) {
   var rows = [
-    ['薪資滿意度', data.dimensions.salary],
     ['工作穩定度', data.dimensions.stability],
     ['AI 適應度', data.dimensions.aiAdapt],
-    ['轉職雷達', data.dimensions.radar]
+    ['轉職雷達', data.dimensions.radar],
+    ['Career Bug 指數', data.dimensions.careerBugIndex]
   ];
   var startY = 500;
   var rowHeight = 130;

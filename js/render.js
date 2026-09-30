@@ -396,6 +396,20 @@ export function renderLead(root, handlers) {
   root.innerHTML = '';
   var screen = createEl('div', 'screen screen--lead');
 
+  var feedbackTitle = createEl('h2', 'lead-title');
+  feedbackTitle.textContent = '💬 還有什麼想說的嗎？';
+  screen.appendChild(feedbackTitle);
+
+  var feedbackHint = createEl('p', 'lead-feedback-hint');
+  feedbackHint.textContent = '選填，前面選項沒問到、但你最在意的事都可以打在這裡';
+  screen.appendChild(feedbackHint);
+
+  var feedbackInput = document.createElement('textarea');
+  feedbackInput.className = 'lead-feedback';
+  feedbackInput.placeholder = '例如：希望公司多重視什麼、面試時最想被問到什麼⋯⋯';
+  feedbackInput.rows = 3;
+  screen.appendChild(feedbackInput);
+
   var title = createEl('h2', 'lead-title');
   title.textContent = '🎁 要不要把這次的研究結果寄給你？';
   screen.appendChild(title);
@@ -433,7 +447,8 @@ export function renderLead(root, handlers) {
   submitBtn.addEventListener('click', function () {
     handlers.onSubmit({
       email: emailInput.value.trim(),
-      interests: options.filter(function (opt) { return checkedState[opt.id]; }).map(function (opt) { return opt.label; })
+      interests: options.filter(function (opt) { return checkedState[opt.id]; }).map(function (opt) { return opt.label; }),
+      openFeedback: feedbackInput.value.trim()
     });
   });
   screen.appendChild(submitBtn);
@@ -441,7 +456,9 @@ export function renderLead(root, handlers) {
   var skipBtn = createEl('button', 'btn-secondary');
   skipBtn.type = 'button';
   skipBtn.textContent = '不用了，直接完成';
-  skipBtn.addEventListener('click', handlers.onSkip);
+  skipBtn.addEventListener('click', function () {
+    handlers.onSkip(feedbackInput.value.trim());
+  });
   screen.appendChild(skipBtn);
 
   root.appendChild(screen);

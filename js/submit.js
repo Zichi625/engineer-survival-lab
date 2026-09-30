@@ -1,6 +1,6 @@
 import { GAS_WEB_APP_URL, GAS_SHARED_SECRET } from '../config.js';
 
-export function submitResponse(answers, persona, survivalIndex) {
+export function submitResponse(answers, persona, survivalIndex, openFeedback) {
   return postToSheet('responses', {
     role: answers.role || '',
     experience: answers.experience || '',
@@ -15,7 +15,8 @@ export function submitResponse(answers, persona, survivalIndex) {
     aiFear: answers.aiFear || '',
     goal2027: answers.goal2027 || '',
     persona: persona || '',
-    survivalIndex: survivalIndex
+    survivalIndex: survivalIndex,
+    openFeedback: openFeedback || ''
   });
 }
 

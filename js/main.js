@@ -151,7 +151,7 @@ async function handleLeadSubmit(leadData) {
   setLeadButtonsSubmitting(true);
   var personaName = PERSONAS[state.persona].name;
   var labeledAnswers = buildLabeledAnswers();
-  var promises = [submitResponse(labeledAnswers, personaName, state.survivalIndex)];
+  var promises = [submitResponse(labeledAnswers, personaName, state.survivalIndex, leadData.openFeedback)];
   var hasLeadInfo = Boolean(leadData.email) || leadData.interests.length > 0;
   if (hasLeadInfo) {
     promises.push(submitLead(leadData, personaName, state.survivalIndex));
@@ -163,12 +163,12 @@ async function handleLeadSubmit(leadData) {
   rerender();
 }
 
-async function handleLeadSkip() {
+async function handleLeadSkip(openFeedback) {
   if (state.isSubmitting) return;
   state.isSubmitting = true;
   setLeadButtonsSubmitting(true);
   var labeledAnswers = buildLabeledAnswers();
-  var result = await submitResponse(labeledAnswers, PERSONAS[state.persona].name, state.survivalIndex);
+  var result = await submitResponse(labeledAnswers, PERSONAS[state.persona].name, state.survivalIndex, openFeedback);
   state.hasSubmitError = result.status === 'error';
   state.isSubmitting = false;
   state.screen = 'done';

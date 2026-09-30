@@ -48,7 +48,8 @@ function appendResponse(ss, payload) {
     payload.aiFear || '',
     payload.goal2027 || '',
     payload.persona || '',
-    payload.survivalIndex || ''
+    payload.survivalIndex || '',
+    payload.openFeedback || ''
   ]);
 }
 

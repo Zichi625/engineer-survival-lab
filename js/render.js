@@ -1,5 +1,6 @@
 import { QUESTIONS } from './questions.js';
 import { ROLE_ICONS, STAT_ICONS } from './icons.js';
+import { flashClass } from './animations.js';
 
 var TOTAL_LEVELS = QUESTIONS.length;
 
@@ -194,6 +195,9 @@ export function renderResult(root, data, handlers) {
   root.innerHTML = '';
   var screen = createEl('div', 'screen screen--result');
   var card = createEl('div', 'result-card');
+  card.style.setProperty('--persona-accent', data.persona.accent);
+  card.style.setProperty('--persona-accent-strong', data.persona.accentStrong);
+  card.style.setProperty('--persona-glow', data.persona.accentGlow);
 
   var badge = createEl('div', 'result-badge');
   badge.textContent = 'SURVIVAL TYPE';
@@ -201,13 +205,31 @@ export function renderResult(root, data, handlers) {
   var name = createEl('h2', 'result-name');
   name.textContent = data.persona.emoji + ' ' + data.persona.name;
 
-  var index = createEl('p', 'result-index');
-  index.textContent = '生存指數 ' + data.survivalIndex + '%';
+  var englishName = createEl('p', 'result-english-name');
+  englishName.textContent = data.persona.englishName;
 
+  var scoreBlock = createEl('div', 'result-score');
+  var scoreLabel = createEl('p', 'result-score-label');
+  scoreLabel.textContent = 'SURVIVAL SCORE';
+  var scoreNumberRow = createEl('div', 'result-score-number-row');
+  var scoreNumber = createEl('span', 'result-score-number');
+  scoreNumber.textContent = '0';
+  var scoreMax = createEl('span', 'result-score-max');
+  scoreMax.textContent = '/100';
+  scoreNumberRow.appendChild(scoreNumber);
+  scoreNumberRow.appendChild(scoreMax);
   var indexBar = createEl('div', 'progress-track progress-track--index');
   var indexFill = createEl('div', 'progress-fill');
-  indexFill.style.width = data.survivalIndex + '%';
+  indexFill.style.width = '0%';
   indexBar.appendChild(indexFill);
+  scoreBlock.appendChild(scoreLabel);
+  scoreBlock.appendChild(scoreNumberRow);
+  scoreBlock.appendChild(indexBar);
+
+  setTimeout(function () {
+    indexFill.style.width = data.survivalIndex + '%';
+    animateCountUp(scoreNumber, data.survivalIndex, 900);
+  }, 30);
 
   var stats = createEl('div', 'result-stats');
   stats.appendChild(buildStatRow('heart', '工作穩定度', data.dimensions.stability));
@@ -238,13 +260,9 @@ export function renderResult(root, data, handlers) {
   tags.appendChild(buildTag('bug', 'result-tag--bug', 'Career Bug：' + data.careerBugLabel));
   tags.appendChild(buildTag('zap', 'result-tag--buff', 'AI Buff：' + data.aiBuffLabel));
 
-  var goal = createEl('p', 'result-goal');
-  goal.appendChild(buildIconSpan(STAT_ICONS.trophy, 'result-goal-icon'));
-  var goalText = createEl('span');
-  goalText.textContent = '2027 想解鎖：' + data.goalLabel;
-  goal.appendChild(goalText);
+  var mission = buildMissionCard(data.goalLabel);
 
-  [badge, name, index, indexBar, stats, highlight, detailToggle, detailSections, tags, goal].forEach(function (el) { card.appendChild(el); });
+  [badge, name, englishName, scoreBlock, stats, highlight, detailToggle, detailSections, tags, mission].forEach(function (el) { card.appendChild(el); });
   screen.appendChild(card);
 
   var shareBtn = createEl('button', 'btn-primary');
@@ -255,9 +273,15 @@ export function renderResult(root, data, handlers) {
 
   var continueBtn = createEl('button', 'btn-secondary');
   continueBtn.type = 'button';
-  continueBtn.textContent = '繼續 →';
+  continueBtn.textContent = '看看 2026 工程師生存調查 →';
   continueBtn.addEventListener('click', handlers.onContinue);
   screen.appendChild(continueBtn);
+
+  var restartBtn = createEl('button', 'btn-secondary');
+  restartBtn.type = 'button';
+  restartBtn.textContent = '再測一次';
+  restartBtn.addEventListener('click', handlers.onRestart);
+  screen.appendChild(restartBtn);
 
   root.appendChild(screen);
 }
@@ -311,6 +335,41 @@ function buildIconSpan(svgMarkup, className) {
   var span = createEl('span', className);
   span.innerHTML = svgMarkup;
   return span;
+}
+
+function buildMissionCard(goalLabel) {
+  var mission = createEl('div', 'result-mission');
+  var label = createEl('p', 'result-mission-label');
+  label.textContent = 'NEXT MISSION · 2027';
+
+  var content = createEl('div', 'result-mission-content');
+  var icon = buildIconSpan(STAT_ICONS.lock, 'result-mission-icon');
+  var text = createEl('span', 'result-mission-text');
+  text.textContent = '解鎖中……';
+  content.appendChild(icon);
+  content.appendChild(text);
+
+  mission.appendChild(label);
+  mission.appendChild(content);
+
+  setTimeout(function () {
+    icon.innerHTML = STAT_ICONS.unlock;
+    flashClass(icon, 'result-mission-icon--pop', 400);
+    text.textContent = goalLabel;
+    text.classList.add('result-mission-text--revealed');
+  }, 650);
+
+  return mission;
+}
+
+function animateCountUp(el, target, duration) {
+  var start = Date.now();
+  var STEP_MS = 30;
+  var timer = setInterval(function () {
+    var progress = Math.min(1, (Date.now() - start) / duration);
+    el.textContent = Math.round(progress * target);
+    if (progress >= 1) clearInterval(timer);
+  }, STEP_MS);
 }
 
 export function renderLead(root, handlers) {

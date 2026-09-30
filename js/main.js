@@ -27,7 +27,7 @@ function rerender() {
   } else if (state.screen === 'calculating') {
     renderCalculating(root);
   } else if (state.screen === 'result') {
-    renderResult(root, buildResultData(), { onShare: handleShare, onContinue: handleGoToLead });
+    renderResult(root, buildResultData(), { onShare: handleShare, onContinue: handleGoToLead, onRestart: handleRestart });
   } else if (state.screen === 'lead') {
     renderLead(root, { onSubmit: handleLeadSubmit, onSkip: handleLeadSkip });
   } else if (state.screen === 'done') {
@@ -124,6 +124,11 @@ function handleShare() {
   exportResultCardImage(buildResultData()).then(function (canvas) {
     shareOrDownloadImage(canvas);
   });
+}
+
+function handleRestart() {
+  Object.assign(state, createInitialState());
+  rerender();
 }
 
 function handleGoToLead() {

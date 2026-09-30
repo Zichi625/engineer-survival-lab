@@ -1,23 +1,26 @@
 var CARD_X = 60;
 var CARD_RIGHT = 1020;
-var CARD_TOP = 110;
-var CARD_BOTTOM = 1480;
-var CANVAS_HEIGHT = 1600;
+var CARD_TOP = 90;
+var CARD_BOTTOM = 1270;
+var CANVAS_WIDTH = 1080;
+var CANVAS_HEIGHT = 1350;
 var FONT = '"Inter", "PingFang TC", "Noto Sans TC", sans-serif';
 
 export function exportResultCardImage(data) {
   var canvas = document.createElement('canvas');
-  canvas.width = 1080;
+  canvas.width = CANVAS_WIDTH;
   canvas.height = CANVAS_HEIGHT;
   var ctx = canvas.getContext('2d');
+  var accent = data.persona.accent || '#FF6B6B';
+  var accentStrong = data.persona.accentStrong || '#7DD3FC';
 
-  drawBackground(ctx, canvas);
-  drawCardPanel(ctx);
-  drawBadgeAndHeading(ctx, data);
-  drawStats(ctx, data);
-  drawHighlight(ctx, data);
+  drawBackground(ctx, canvas, accent, accentStrong);
+  drawCardPanel(ctx, accent, accentStrong);
+  drawBadgeAndHeading(ctx, data, accent, accentStrong);
+  drawStats(ctx, data, accent, accentStrong);
+  drawHighlight(ctx, data, accent);
   drawTags(ctx, data);
-  drawGoal(ctx, data);
+  drawMission(ctx, data);
   drawFooter(ctx);
 
   return Promise.resolve(canvas);
@@ -39,88 +42,100 @@ export function shareOrDownloadImage(canvas) {
   }, 'image/png');
 }
 
-function drawBackground(ctx, canvas) {
+function drawBackground(ctx, canvas, accent, accentStrong) {
   var gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
   gradient.addColorStop(0, '#12161A');
   gradient.addColorStop(1, '#1A1F26');
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  var glow = ctx.createRadialGradient(220, 200, 0, 220, 200, 500);
-  glow.addColorStop(0, 'rgba(255, 107, 107, 0.18)');
-  glow.addColorStop(1, 'rgba(255, 107, 107, 0)');
+  var glow = ctx.createRadialGradient(220, 180, 0, 220, 180, 480);
+  glow.addColorStop(0, hexToRgba(accent, 0.18));
+  glow.addColorStop(1, hexToRgba(accent, 0));
   ctx.fillStyle = glow;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  var glow2 = ctx.createRadialGradient(900, 120, 0, 900, 120, 500);
-  glow2.addColorStop(0, 'rgba(56, 189, 248, 0.14)');
-  glow2.addColorStop(1, 'rgba(56, 189, 248, 0)');
+  var glow2 = ctx.createRadialGradient(900, 100, 0, 900, 100, 480);
+  glow2.addColorStop(0, hexToRgba(accentStrong, 0.14));
+  glow2.addColorStop(1, hexToRgba(accentStrong, 0));
   ctx.fillStyle = glow2;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
-function drawCardPanel(ctx) {
-  var r = 40;
+function drawCardPanel(ctx, accent, accentStrong) {
+  var r = 36;
   roundRectPath(ctx, CARD_X, CARD_TOP, CARD_RIGHT - CARD_X, CARD_BOTTOM - CARD_TOP, r);
   ctx.fillStyle = 'rgba(255, 255, 255, 0.045)';
   ctx.fill();
 
   var borderGradient = ctx.createLinearGradient(CARD_X, CARD_TOP, CARD_RIGHT, CARD_BOTTOM);
-  borderGradient.addColorStop(0, 'rgba(255, 107, 107, 0.8)');
-  borderGradient.addColorStop(1, 'rgba(56, 189, 248, 0.7)');
+  borderGradient.addColorStop(0, hexToRgba(accent, 0.8));
+  borderGradient.addColorStop(1, hexToRgba(accentStrong, 0.7));
   ctx.lineWidth = 3;
   ctx.strokeStyle = borderGradient;
   roundRectPath(ctx, CARD_X, CARD_TOP, CARD_RIGHT - CARD_X, CARD_BOTTOM - CARD_TOP, r);
   ctx.stroke();
 }
 
-function drawBadgeAndHeading(ctx, data) {
-  ctx.font = 'bold 26px ' + FONT;
+function drawBadgeAndHeading(ctx, data, accent, accentStrong) {
+  ctx.font = 'bold 22px ' + FONT;
   var badgeText = 'SURVIVAL TYPE';
-  var badgeWidth = ctx.measureText(badgeText).width + 64;
+  var badgeWidth = ctx.measureText(badgeText).width + 56;
   var badgeX = 540 - badgeWidth / 2;
-  var badgeY = 168;
-  roundRectPath(ctx, badgeX, badgeY, badgeWidth, 52, 26);
-  ctx.fillStyle = 'rgba(56, 189, 248, 0.12)';
+  var badgeY = 138;
+  roundRectPath(ctx, badgeX, badgeY, badgeWidth, 44, 22);
+  ctx.fillStyle = hexToRgba(accent, 0.12);
   ctx.fill();
   ctx.lineWidth = 2;
-  ctx.strokeStyle = 'rgba(56, 189, 248, 0.5)';
-  roundRectPath(ctx, badgeX, badgeY, badgeWidth, 52, 26);
+  ctx.strokeStyle = hexToRgba(accent, 0.5);
+  roundRectPath(ctx, badgeX, badgeY, badgeWidth, 44, 22);
   ctx.stroke();
-  ctx.fillStyle = '#7DD3FC';
+  ctx.fillStyle = accent;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText(badgeText, 540, badgeY + 27);
+  ctx.fillText(badgeText, 540, badgeY + 23);
   ctx.textBaseline = 'alphabetic';
 
   ctx.fillStyle = '#F8FAFC';
-  ctx.font = 'bold 66px ' + FONT;
-  ctx.fillText(data.persona.emoji + ' ' + data.persona.name, 540, 320);
+  ctx.font = 'bold 58px ' + FONT;
+  ctx.fillText(data.persona.emoji + ' ' + data.persona.name, 540, 250);
 
-  ctx.fillStyle = '#FF6B6B';
-  ctx.font = 'bold 38px ' + FONT;
-  ctx.fillText('生存指數 ' + data.survivalIndex + '%', 540, 390);
+  ctx.fillStyle = '#94A3B8';
+  ctx.font = 'bold 22px ' + FONT;
+  ctx.fillText(data.persona.englishName || '', 540, 288);
 
-  roundRectPath(ctx, 140, 410, 800, 14, 7);
+  ctx.fillStyle = '#94A3B8';
+  ctx.font = 'bold 20px ' + FONT;
+  ctx.fillText('SURVIVAL SCORE', 540, 345);
+
+  ctx.fillStyle = accent;
+  ctx.font = 'bold 64px ' + FONT;
+  ctx.fillText(String(data.survivalIndex), 540, 415);
+  var scoreWidth = ctx.measureText(String(data.survivalIndex)).width;
+  ctx.font = 'bold 26px ' + FONT;
+  ctx.fillStyle = '#94A3B8';
+  ctx.fillText('/100', 540 + scoreWidth / 2 + 34, 415);
+
+  roundRectPath(ctx, 140, 440, 800, 14, 7);
   ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
   ctx.fill();
   var indexGradient = ctx.createLinearGradient(140, 0, 940, 0);
-  indexGradient.addColorStop(0, '#FF6B6B');
-  indexGradient.addColorStop(1, '#7DD3FC');
-  roundRectPath(ctx, 140, 410, 800 * (data.survivalIndex / 100), 14, 7);
+  indexGradient.addColorStop(0, accent);
+  indexGradient.addColorStop(1, accentStrong);
+  roundRectPath(ctx, 140, 440, 800 * (data.survivalIndex / 100), 14, 7);
   ctx.fillStyle = indexGradient;
   ctx.fill();
 }
 
-function drawStats(ctx, data) {
+function drawStats(ctx, data, accent, accentStrong) {
   var rows = [
     ['工作穩定度', data.dimensions.stability],
     ['AI 適應度', data.dimensions.aiAdapt],
     ['轉職雷達', data.dimensions.radar],
     ['Career Bug 指數', data.dimensions.careerBugIndex]
   ];
-  var startY = 500;
-  var rowHeight = 130;
+  var startY = 520;
+  var rowHeight = 105;
 
   rows.forEach(function (row, i) {
     var labelY = startY + i * rowHeight;
@@ -128,21 +143,21 @@ function drawStats(ctx, data) {
 
     ctx.textAlign = 'left';
     ctx.fillStyle = '#E2E8F0';
-    ctx.font = '34px ' + FONT;
+    ctx.font = '30px ' + FONT;
     ctx.fillText(row[0], 140, labelY);
     ctx.textAlign = 'right';
-    ctx.fillStyle = '#FF6B6B';
-    ctx.font = 'bold 34px ' + FONT;
+    ctx.fillStyle = accent;
+    ctx.font = 'bold 30px ' + FONT;
     ctx.fillText(percent + '%', 940, labelY);
 
-    var barY = labelY + 24;
-    roundRectPath(ctx, 140, barY, 800, 16, 8);
+    var barY = labelY + 22;
+    roundRectPath(ctx, 140, barY, 800, 14, 7);
     ctx.fillStyle = 'rgba(255, 255, 255, 0.06)';
     ctx.fill();
     var barGradient = ctx.createLinearGradient(140, 0, 940, 0);
-    barGradient.addColorStop(0, '#FF6B6B');
-    barGradient.addColorStop(1, '#7DD3FC');
-    roundRectPath(ctx, 140, barY, 800 * (percent / 100), 16, 8);
+    barGradient.addColorStop(0, accent);
+    barGradient.addColorStop(1, accentStrong);
+    roundRectPath(ctx, 140, barY, 800 * (percent / 100), 14, 7);
     ctx.fillStyle = barGradient;
     ctx.fill();
   });
@@ -150,59 +165,73 @@ function drawStats(ctx, data) {
   ctx.textAlign = 'left';
 }
 
-function drawHighlight(ctx, data) {
-  var boxY = 1000;
-  var boxH = 150;
+function drawHighlight(ctx, data, accent) {
+  var boxY = 970;
+  var boxH = 110;
   roundRectPath(ctx, 140, boxY, 800, boxH, 12);
   ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
   ctx.fill();
-  ctx.fillStyle = 'rgba(255, 107, 107, 0.9)';
+  ctx.fillStyle = hexToRgba(accent, 0.9);
   ctx.fillRect(140, boxY, 6, boxH);
 
   ctx.fillStyle = '#F8FAFC';
-  ctx.font = 'bold 34px ' + FONT;
-  wrapText(ctx, data.persona.highlight, 176, boxY + 60, 720, 48);
+  ctx.font = 'bold 30px ' + FONT;
+  wrapText(ctx, data.persona.highlight, 176, boxY + 46, 720, 42);
 }
 
 function drawTags(ctx, data) {
-  var bugY = 1190;
-  var tagH = 90;
-  roundRectPath(ctx, 140, bugY, 800, tagH, 16);
+  var bugY = 1105;
+  var tagH = 64;
+  roundRectPath(ctx, 140, bugY, 390, tagH, 14);
   ctx.fillStyle = 'rgba(255, 77, 77, 0.08)';
   ctx.fill();
   ctx.lineWidth = 2;
   ctx.strokeStyle = 'rgba(255, 77, 77, 0.35)';
-  roundRectPath(ctx, 140, bugY, 800, tagH, 16);
+  roundRectPath(ctx, 140, bugY, 390, tagH, 14);
   ctx.stroke();
   ctx.fillStyle = '#FF8A8A';
-  ctx.font = '32px ' + FONT;
+  ctx.font = '24px ' + FONT;
   ctx.textBaseline = 'middle';
-  ctx.fillText('🐛 Career Bug：' + data.careerBugLabel, 172, bugY + tagH / 2);
+  ctx.textAlign = 'left';
+  wrapText(ctx, '🐛 ' + data.careerBugLabel, 160, bugY + tagH / 2 - 4, 350, 24);
+  ctx.textBaseline = 'alphabetic';
 
-  var buffY = bugY + tagH + 20;
-  roundRectPath(ctx, 140, buffY, 800, tagH, tagH / 2);
+  var buffX = 550;
+  roundRectPath(ctx, buffX, bugY, 390, tagH, tagH / 2);
   ctx.fillStyle = 'rgba(139, 92, 246, 0.12)';
   ctx.fill();
   ctx.strokeStyle = 'rgba(139, 92, 246, 0.4)';
-  roundRectPath(ctx, 140, buffY, 800, tagH, tagH / 2);
+  roundRectPath(ctx, buffX, bugY, 390, tagH, tagH / 2);
   ctx.stroke();
   ctx.fillStyle = '#C4B5FD';
-  ctx.fillText('⚡ AI Buff：' + data.aiBuffLabel, 172, buffY + tagH / 2);
+  ctx.textBaseline = 'middle';
+  wrapText(ctx, '⚡ ' + data.aiBuffLabel, buffX + 20, bugY + tagH / 2 - 4, 350, 24);
   ctx.textBaseline = 'alphabetic';
 }
 
-function drawGoal(ctx, data) {
+function drawMission(ctx, data) {
   ctx.textAlign = 'center';
+  ctx.fillStyle = '#94A3B8';
+  ctx.font = 'bold 18px ' + FONT;
+  ctx.fillText('NEXT MISSION · 2027', 540, 1215);
   ctx.fillStyle = '#F8FAFC';
-  ctx.font = 'bold 32px ' + FONT;
-  ctx.fillText('🏆 2027 想解鎖：' + data.goalLabel, 540, 1420);
+  ctx.font = 'bold 30px ' + FONT;
+  ctx.fillText('🏆 ' + data.goalLabel, 540, 1252);
 }
 
 function drawFooter(ctx) {
   ctx.textAlign = 'center';
-  ctx.font = '26px ' + FONT;
+  ctx.font = '24px ' + FONT;
   ctx.fillStyle = '#94A3B8';
-  ctx.fillText('多角人才 × 工程師真心話研究所', 540, 1550);
+  ctx.fillText('多角人才 × 工程師真心話研究所', 540, 1315);
+}
+
+function hexToRgba(hex, alpha) {
+  var normalized = hex.replace('#', '');
+  var r = parseInt(normalized.substring(0, 2), 16);
+  var g = parseInt(normalized.substring(2, 4), 16);
+  var b = parseInt(normalized.substring(4, 6), 16);
+  return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
 }
 
 function roundRectPath(ctx, x, y, width, height, radius) {

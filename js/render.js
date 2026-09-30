@@ -1,5 +1,5 @@
 import { QUESTIONS } from './questions.js';
-import { ROLE_ICONS, STAT_ICONS } from './icons.js';
+import { ROLE_ICONS, STAT_ICONS, OPTION_ICONS } from './icons.js';
 import { flashClass } from './animations.js';
 
 var TOTAL_LEVELS = QUESTIONS.length;
@@ -107,7 +107,9 @@ function buildOptionsGrid(question, state, handlers) {
     btn.type = 'button';
     btn.disabled = !isMulti && Boolean(selectedValue);
 
-    var iconMarkup = question.id === 'role' ? ROLE_ICONS[option.value] : null;
+    var iconMarkup = question.id === 'role'
+      ? ROLE_ICONS[option.value]
+      : OPTION_ICONS[question.id + ':' + option.value];
     if (option.image) {
       var optionImg = document.createElement('img');
       optionImg.className = 'option-image';

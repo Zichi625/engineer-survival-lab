@@ -1,10 +1,21 @@
 var CARD_X = 60;
 var CARD_RIGHT = 1020;
 var CARD_TOP = 90;
-var CARD_BOTTOM = 1260;
 var CANVAS_WIDTH = 1080;
-var CANVAS_HEIGHT = 1350;
 var FONT = '"Inter", "PingFang TC", "Noto Sans TC", sans-serif';
+
+var HIGHLIGHT_Y = 990;
+var HIGHLIGHT_H = 100;
+var DEEP_DIVE_SECTIONS = [
+  { icon: '🎯', label: '核心動機', color: '#7DD3FC', key: 'motivation' },
+  { icon: '⚠️', label: '潛在風險', color: '#F87171', key: 'risk' },
+  { icon: '🧭', label: '建議行動', color: '#34D399', key: 'action' }
+];
+var DEEP_DIVE_BLOCK_GAP = 40;
+var DEEP_DIVE_LABEL_HEIGHT = 34;
+var DEEP_DIVE_LINE_HEIGHT = 32;
+var DEEP_DIVE_TITLE_HEIGHT = 44;
+var TAG_H = 58;
 
 function loadImage(src) {
   return new Promise(function (resolve) {
@@ -16,24 +27,36 @@ function loadImage(src) {
 }
 
 export async function exportResultCardImage(data) {
-  var canvas = document.createElement('canvas');
-  canvas.width = CANVAS_WIDTH;
-  canvas.height = CANVAS_HEIGHT;
-  var ctx = canvas.getContext('2d');
   var accent = data.persona.accent || '#FF6B6B';
   var accentStrong = data.persona.accentStrong || '#7DD3FC';
-
   var mascotImg = data.persona.mascotImage ? await loadImage(data.persona.mascotImage) : null;
 
+  var measureCtx = document.createElement('canvas').getContext('2d');
+  var deepDiveHeight = measureDeepDiveHeight(measureCtx, data.persona.deepDive);
+
+  var deepDiveY = HIGHLIGHT_Y + HIGHLIGHT_H + 55;
+  var tagsY = deepDiveY + deepDiveHeight + 30;
+  var missionLabelY = tagsY + TAG_H + 55;
+  var missionContentY = missionLabelY + 34;
+  var cardBottom = missionContentY + 46;
+  var footerY = cardBottom + 55;
+  var canvasHeight = footerY + 40;
+
+  var canvas = document.createElement('canvas');
+  canvas.width = CANVAS_WIDTH;
+  canvas.height = canvasHeight;
+  var ctx = canvas.getContext('2d');
+
   drawBackground(ctx, canvas, accent, accentStrong);
-  drawCardPanel(ctx, accent, accentStrong);
+  drawCardPanel(ctx, accent, accentStrong, cardBottom);
   drawMascot(ctx, mascotImg);
   drawBadgeAndHeading(ctx, data, accent, accentStrong);
   drawStats(ctx, data, accent, accentStrong);
   drawHighlight(ctx, data, accent);
-  drawTags(ctx, data);
-  drawMission(ctx, data);
-  drawFooter(ctx);
+  drawDeepDive(ctx, data.persona.deepDive, accent, deepDiveY);
+  drawTags(ctx, data, tagsY);
+  drawMission(ctx, data, missionLabelY, missionContentY);
+  drawFooter(ctx, footerY);
 
   return canvas;
 }
@@ -74,18 +97,18 @@ function drawBackground(ctx, canvas, accent, accentStrong) {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
-function drawCardPanel(ctx, accent, accentStrong) {
+function drawCardPanel(ctx, accent, accentStrong, cardBottom) {
   var r = 36;
-  roundRectPath(ctx, CARD_X, CARD_TOP, CARD_RIGHT - CARD_X, CARD_BOTTOM - CARD_TOP, r);
+  roundRectPath(ctx, CARD_X, CARD_TOP, CARD_RIGHT - CARD_X, cardBottom - CARD_TOP, r);
   ctx.fillStyle = 'rgba(255, 255, 255, 0.045)';
   ctx.fill();
 
-  var borderGradient = ctx.createLinearGradient(CARD_X, CARD_TOP, CARD_RIGHT, CARD_BOTTOM);
+  var borderGradient = ctx.createLinearGradient(CARD_X, CARD_TOP, CARD_RIGHT, cardBottom);
   borderGradient.addColorStop(0, hexToRgba(accent, 0.8));
   borderGradient.addColorStop(1, hexToRgba(accentStrong, 0.7));
   ctx.lineWidth = 3;
   ctx.strokeStyle = borderGradient;
-  roundRectPath(ctx, CARD_X, CARD_TOP, CARD_RIGHT - CARD_X, CARD_BOTTOM - CARD_TOP, r);
+  roundRectPath(ctx, CARD_X, CARD_TOP, CARD_RIGHT - CARD_X, cardBottom - CARD_TOP, r);
   ctx.stroke();
 }
 
@@ -191,64 +214,91 @@ function drawStats(ctx, data, accent, accentStrong) {
 }
 
 function drawHighlight(ctx, data, accent) {
-  var boxY = 990;
-  var boxH = 100;
-  roundRectPath(ctx, 140, boxY, 800, boxH, 12);
+  roundRectPath(ctx, 140, HIGHLIGHT_Y, 800, HIGHLIGHT_H, 12);
   ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
   ctx.fill();
   ctx.fillStyle = hexToRgba(accent, 0.9);
-  ctx.fillRect(140, boxY, 6, boxH);
+  ctx.fillRect(140, HIGHLIGHT_Y, 6, HIGHLIGHT_H);
 
   ctx.fillStyle = '#F8FAFC';
   ctx.font = 'bold 28px ' + FONT;
-  wrapText(ctx, data.persona.highlight, 176, boxY + 42, 720, 38);
+  wrapText(ctx, data.persona.highlight, 176, HIGHLIGHT_Y + 42, 720, 38);
 }
 
-function drawTags(ctx, data) {
-  var bugY = 1110;
-  var tagH = 58;
-  roundRectPath(ctx, 140, bugY, 390, tagH, 14);
+function measureDeepDiveHeight(ctx, deepDive) {
+  var total = DEEP_DIVE_TITLE_HEIGHT;
+  DEEP_DIVE_SECTIONS.forEach(function (section, i) {
+    ctx.font = '23px ' + FONT;
+    var lines = measureWrappedLines(ctx, deepDive[section.key], 800);
+    total += DEEP_DIVE_LABEL_HEIGHT + lines * DEEP_DIVE_LINE_HEIGHT;
+    if (i < DEEP_DIVE_SECTIONS.length - 1) total += DEEP_DIVE_BLOCK_GAP;
+  });
+  return total;
+}
+
+function drawDeepDive(ctx, deepDive, accent, startY) {
+  ctx.textAlign = 'left';
+  ctx.fillStyle = accent;
+  ctx.font = 'bold 26px ' + FONT;
+  ctx.fillText('🔍 深入解讀', 140, startY);
+
+  var cursorY = startY + DEEP_DIVE_TITLE_HEIGHT;
+  DEEP_DIVE_SECTIONS.forEach(function (section, i) {
+    ctx.fillStyle = section.color;
+    ctx.font = 'bold 24px ' + FONT;
+    ctx.fillText(section.icon + ' ' + section.label, 140, cursorY);
+    cursorY += DEEP_DIVE_LABEL_HEIGHT;
+
+    ctx.fillStyle = '#E2E8F0';
+    ctx.font = '23px ' + FONT;
+    cursorY = wrapText(ctx, deepDive[section.key], 140, cursorY, 800, DEEP_DIVE_LINE_HEIGHT);
+    if (i < DEEP_DIVE_SECTIONS.length - 1) cursorY += DEEP_DIVE_BLOCK_GAP;
+  });
+}
+
+function drawTags(ctx, data, bugY) {
+  roundRectPath(ctx, 140, bugY, 390, TAG_H, 14);
   ctx.fillStyle = 'rgba(255, 77, 77, 0.08)';
   ctx.fill();
   ctx.lineWidth = 2;
   ctx.strokeStyle = 'rgba(255, 77, 77, 0.35)';
-  roundRectPath(ctx, 140, bugY, 390, tagH, 14);
+  roundRectPath(ctx, 140, bugY, 390, TAG_H, 14);
   ctx.stroke();
   ctx.fillStyle = '#FF8A8A';
   ctx.font = '22px ' + FONT;
   ctx.textBaseline = 'middle';
   ctx.textAlign = 'left';
-  wrapText(ctx, '🐛 ' + data.careerBugLabel, 160, bugY + tagH / 2 - 4, 350, 22);
+  wrapText(ctx, '🐛 ' + data.careerBugLabel, 160, bugY + TAG_H / 2 - 4, 350, 22);
   ctx.textBaseline = 'alphabetic';
 
   var buffX = 550;
-  roundRectPath(ctx, buffX, bugY, 390, tagH, tagH / 2);
+  roundRectPath(ctx, buffX, bugY, 390, TAG_H, TAG_H / 2);
   ctx.fillStyle = 'rgba(139, 92, 246, 0.12)';
   ctx.fill();
   ctx.strokeStyle = 'rgba(139, 92, 246, 0.4)';
-  roundRectPath(ctx, buffX, bugY, 390, tagH, tagH / 2);
+  roundRectPath(ctx, buffX, bugY, 390, TAG_H, TAG_H / 2);
   ctx.stroke();
   ctx.fillStyle = '#C4B5FD';
   ctx.textBaseline = 'middle';
-  wrapText(ctx, '⚡ ' + data.aiBuffLabel, buffX + 20, bugY + tagH / 2 - 4, 350, 22);
+  wrapText(ctx, '⚡ ' + data.aiBuffLabel, buffX + 20, bugY + TAG_H / 2 - 4, 350, 22);
   ctx.textBaseline = 'alphabetic';
 }
 
-function drawMission(ctx, data) {
+function drawMission(ctx, data, labelY, contentY) {
   ctx.textAlign = 'center';
   ctx.fillStyle = '#94A3B8';
   ctx.font = 'bold 16px ' + FONT;
-  ctx.fillText('NEXT MISSION · 2027', 540, 1210);
+  ctx.fillText('NEXT MISSION · 2027', 540, labelY);
   ctx.fillStyle = '#F8FAFC';
   ctx.font = 'bold 28px ' + FONT;
-  ctx.fillText('🏆 ' + data.goalLabel, 540, 1244);
+  ctx.fillText('🏆 ' + data.goalLabel, 540, contentY);
 }
 
-function drawFooter(ctx) {
+function drawFooter(ctx, footerY) {
   ctx.textAlign = 'center';
   ctx.font = '22px ' + FONT;
   ctx.fillStyle = '#94A3B8';
-  ctx.fillText('多角人才 × 工程師真心話研究所', 540, 1310);
+  ctx.fillText('多角人才 × 工程師真心話研究所', 540, footerY);
 }
 
 function hexToRgba(hex, alpha) {
@@ -268,6 +318,22 @@ function roundRectPath(ctx, x, y, width, height, radius) {
   ctx.arcTo(x, y + height, x, y, r);
   ctx.arcTo(x, y, x + width, y, r);
   ctx.closePath();
+}
+
+function measureWrappedLines(ctx, text, maxWidth) {
+  var chars = text.split('');
+  var lines = 1;
+  var line = '';
+  chars.forEach(function (char) {
+    var testLine = line + char;
+    if (ctx.measureText(testLine).width > maxWidth && line.length > 0) {
+      lines += 1;
+      line = char;
+    } else {
+      line = testLine;
+    }
+  });
+  return lines;
 }
 
 function wrapText(ctx, text, x, y, maxWidth, lineHeight) {

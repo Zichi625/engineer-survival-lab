@@ -513,14 +513,14 @@ export function renderLead(root, handlers) {
   screen.appendChild(feedbackInput);
 
   var title = createEl('h2', 'lead-title');
-  title.textContent = '🎁 要不要把這次的研究結果寄給你？';
+  title.textContent = '📮 想收到後續消息嗎？';
   screen.appendChild(title);
 
   var options = [
+    { id: 'hexschoolInfo', label: '想收到六角學院的課程/活動資訊' },
     { id: 'report', label: '想收到《2026 工程師生存調查》' },
     { id: 'jobs', label: '有適合我的職缺也可以找我' },
     { id: 'jobSeeking', label: '我最近正在找工作' },
-    { id: 'hexschoolInfo', label: '想收到六角學院的課程/活動資訊' },
     { id: 'justFun', label: '我只是來玩玩 😂' }
   ];
   var checkedState = {};

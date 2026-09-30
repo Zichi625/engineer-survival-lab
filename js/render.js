@@ -1,5 +1,5 @@
 import { QUESTIONS } from './questions.js';
-import { ROLE_ICONS, STAT_ICONS, OPTION_ICONS } from './icons.js';
+import { ROLE_ICONS, STAT_ICONS, OPTION_ICONS, UI_ICONS } from './icons.js';
 import { flashClass } from './animations.js';
 
 var TOTAL_LEVELS = QUESTIONS.length;
@@ -11,26 +11,128 @@ function mascotSrc(mood) {
 export function renderIntro(root, handlers) {
   root.innerHTML = '';
   var screen = createEl('div', 'screen screen--intro');
+  var fadeIndex = 0;
+  function fadeUp(el) {
+    el.classList.add('intro-fade-up');
+    el.style.animationDelay = (fadeIndex * 70) + 'ms';
+    fadeIndex += 1;
+    return el;
+  }
+
+  var statusBar = createEl('div', 'intro-status-bar');
+  var statusOnline = createEl('div', 'status-online');
+  var statusDot = createEl('span', 'status-dot');
+  statusOnline.appendChild(statusDot);
+  statusOnline.appendChild(document.createTextNode('SYSTEM ONLINE'));
+  var statusLab = createEl('div', 'status-lab');
+  statusLab.textContent = 'SURVIVAL LAB / 2026';
+  statusBar.appendChild(statusOnline);
+  statusBar.appendChild(statusLab);
+  screen.appendChild(fadeUp(statusBar));
+
+  var hudWrap = createEl('div', 'intro-hud-wrap');
+  var hudTicks = createEl('div', 'hud-ticks');
+  var hudRing1 = createEl('div', 'hud-ring hud-ring--1');
+  var hudRing2 = createEl('div', 'hud-ring hud-ring--2');
+  var hudRing3 = createEl('div', 'hud-ring hud-ring--3');
+  var hudCrosshair = createEl('div', 'hud-crosshair');
   var hero = createEl('div', 'hero-illustration');
   var heroImg = document.createElement('img');
   heroImg.src = mascotSrc('cheering');
   heroImg.alt = '多角龍研究員';
   hero.appendChild(heroImg);
-  screen.appendChild(hero);
-  var title = createEl('h1', 'intro-title');
-  title.textContent = '歡迎進入工程師生存實驗室';
-  var body = createEl('p', 'intro-body');
-  body.textContent = '聽說工程師每天都在 Debug，但最大的 Bug 好像是自己的職涯？回答 12 個問題，看看你在 AI 時代的工程師生存狀態。';
-  var timeHint = createEl('p', 'intro-time');
-  timeHint.textContent = '⏱ 約 60–90 秒';
-  var privacyHint = createEl('p', 'intro-time');
-  privacyHint.textContent = '🔒 前 12 題完全匿名';
-  var startBtn = createEl('button', 'btn-primary');
-  startBtn.type = 'button';
-  startBtn.textContent = '開始生存測驗 🚀';
-  startBtn.addEventListener('click', handlers.onStart);
+  var scanningLabel = createEl('div', 'hud-scanning-label');
+  scanningLabel.textContent = 'SCANNING...';
+  [hudTicks, hudRing1, hudRing2, hudRing3, hudCrosshair, hero, scanningLabel].forEach(function (el) {
+    hudWrap.appendChild(el);
+  });
+  screen.appendChild(fadeUp(hudWrap));
 
-  [title, body, timeHint, privacyHint, startBtn].forEach(function (el) { screen.appendChild(el); });
+  var eyebrowRow = createEl('div', 'intro-eyebrow-row');
+  eyebrowRow.appendChild(createEl('span', 'eyebrow-line'));
+  var eyebrow = createEl('span', 'intro-eyebrow');
+  eyebrow.textContent = 'ENGINEER SURVIVAL LAB';
+  eyebrowRow.appendChild(eyebrow);
+  eyebrowRow.appendChild(createEl('span', 'eyebrow-line'));
+  screen.appendChild(fadeUp(eyebrowRow));
+
+  var title = createEl('h1', 'intro-title');
+  title.textContent = '工程師生存實驗室';
+  screen.appendChild(fadeUp(title));
+
+  var subtitle = createEl('p', 'intro-subtitle');
+  subtitle.textContent = 'AI 時代，你是哪一種工程師生存者？';
+  screen.appendChild(fadeUp(subtitle));
+
+  var brand = createEl('p', 'intro-brand');
+  brand.textContent = '六角學院 X 多角人才開發';
+  screen.appendChild(fadeUp(brand));
+
+  var body = createEl('p', 'intro-body');
+  body.innerHTML = '工程師每天都在 Debug，<br>這次換你的職涯上機測試。';
+  screen.appendChild(fadeUp(body));
+
+  var bodyTags = createEl('p', 'intro-body intro-body--tags');
+  bodyTags.appendChild(document.createTextNode('完成 12 個生存關卡，分析你的'));
+  screen.appendChild(fadeUp(bodyTags));
+
+  var tagRow = createEl('div', 'intro-tag-row');
+  var tagDefs = [
+    { label: '工作狀態', variant: 'a' },
+    { label: 'AI 適應度', variant: 'b' },
+    { label: '轉職雷達', variant: 'c' }
+  ];
+  tagDefs.forEach(function (tag, i) {
+    if (i > 0) {
+      var sep = createEl('span', 'intro-tag-sep');
+      sep.textContent = '×';
+      tagRow.appendChild(sep);
+    }
+    var tagEl = createEl('span', 'intro-tag intro-tag--' + tag.variant);
+    tagEl.textContent = tag.label;
+    tagRow.appendChild(tagEl);
+  });
+  screen.appendChild(fadeUp(tagRow));
+
+  var infoGrid = createEl('div', 'intro-info-grid');
+  var infoDefs = [
+    { icon: UI_ICONS.layers, value: '12', label: 'LEVELS', sub: '生存關卡' },
+    { icon: UI_ICONS.clock, value: '60–90s', label: 'EST. TIME', sub: '預計完成時間' },
+    { icon: STAT_ICONS.lock, value: 'ANONYMOUS MODE', label: 'NO LOGIN REQUIRED', sub: '前 12 題完全匿名' }
+  ];
+  infoDefs.forEach(function (def) {
+    var card = createEl('div', 'info-card');
+    var icon = createEl('div', 'info-icon');
+    icon.innerHTML = def.icon;
+    var value = createEl('div', 'info-value');
+    value.textContent = def.value;
+    var label = createEl('div', 'info-label');
+    label.textContent = def.label;
+    var sub = createEl('div', 'info-sub');
+    sub.textContent = def.sub;
+    [icon, value, label, sub].forEach(function (el) { card.appendChild(el); });
+    infoGrid.appendChild(card);
+  });
+  screen.appendChild(fadeUp(infoGrid));
+
+  var startBtn = createEl('button', 'btn-cta');
+  startBtn.type = 'button';
+  var ctaMain = createEl('span', 'btn-cta-main');
+  ctaMain.appendChild(document.createTextNode('INITIALIZE TEST '));
+  var ctaArrow = createEl('span', 'btn-cta-arrow');
+  ctaArrow.textContent = '→';
+  ctaMain.appendChild(ctaArrow);
+  var ctaSub = createEl('span', 'btn-cta-sub');
+  ctaSub.textContent = '開始生存測驗';
+  startBtn.appendChild(ctaMain);
+  startBtn.appendChild(ctaSub);
+  startBtn.addEventListener('click', handlers.onStart);
+  screen.appendChild(fadeUp(startBtn));
+
+  var footer = createEl('p', 'intro-footer');
+  footer.textContent = 'ENGINEER SURVIVAL LAB // EXPERIMENT 2026';
+  screen.appendChild(fadeUp(footer));
+
   root.appendChild(screen);
 }
 
@@ -418,6 +520,7 @@ export function renderLead(root, handlers) {
     { id: 'report', label: '想收到《2026 工程師生存調查》' },
     { id: 'jobs', label: '有適合我的職缺也可以找我' },
     { id: 'jobSeeking', label: '我最近正在找工作' },
+    { id: 'hexschoolInfo', label: '想收到六角學院的課程/活動資訊' },
     { id: 'justFun', label: '我只是來玩玩 😂' }
   ];
   var checkedState = {};

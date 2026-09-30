@@ -467,3 +467,18 @@ export var STAT_ICONS = {
     '<path d="M8 11V7a4 4 0 0 1 7.5-2.3"/>' +
     '</svg>'
 };
+
+export var UI_ICONS = {
+  layers:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+    '<polygon points="12 2 2 7 12 12 22 7 12 2"/>' +
+    '<polyline points="2 17 12 22 22 17"/>' +
+    '<polyline points="2 12 12 17 22 12"/>' +
+    '</svg>',
+
+  clock:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+    '<circle cx="12" cy="12" r="9"/>' +
+    '<polyline points="12 7 12 12 15.5 14"/>' +
+    '</svg>'
+};

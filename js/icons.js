@@ -465,6 +465,28 @@ export var STAT_ICONS = {
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
     '<rect x="5" y="11" width="14" height="9" rx="2"/>' +
     '<path d="M8 11V7a4 4 0 0 1 7.5-2.3"/>' +
+    '</svg>',
+
+  crosshair:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+    '<circle cx="12" cy="12" r="10"/>' +
+    '<line x1="22" y1="12" x2="18" y2="12"/>' +
+    '<line x1="6" y1="12" x2="2" y2="12"/>' +
+    '<line x1="12" y1="6" x2="12" y2="2"/>' +
+    '<line x1="12" y1="22" x2="12" y2="18"/>' +
+    '</svg>',
+
+  triangleAlert:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+    '<path d="M10.3 3.9 1.9 18a2 2 0 0 0 1.7 3h16.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/>' +
+    '<line x1="12" y1="9" x2="12" y2="13"/>' +
+    '<line x1="12" y1="17" x2="12.01" y2="17"/>' +
+    '</svg>',
+
+  moveUpRight:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+    '<line x1="7" y1="17" x2="17" y2="7"/>' +
+    '<polyline points="7 7 17 7 17 17"/>' +
     '</svg>'
 };
 

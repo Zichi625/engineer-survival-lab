@@ -432,32 +432,20 @@ export function renderResult(root, data, handlers) {
   stats.appendChild(buildStatRow('radar', '轉職雷達', data.dimensions.radar));
   stats.appendChild(buildStatRow('bug', '職涯卡點指數', data.dimensions.careerBugIndex));
 
-  var highlight = createEl('div', 'result-highlight');
-  var highlightText = createEl('p', 'result-highlight-text');
-  highlightText.textContent = data.persona.highlight;
-  highlight.appendChild(highlightText);
+  var insightHero = buildInsightHero(data.persona.highlight);
 
-  var detailSections = createEl('div', 'result-detail-sections');
-  detailSections.appendChild(buildDetailSection('核心動機', data.persona.deepDive.motivation));
-  detailSections.appendChild(buildDetailSection('潛在風險', data.persona.deepDive.risk));
-  detailSections.appendChild(buildDetailSection('建議行動', data.persona.deepDive.action));
-  detailSections.hidden = true;
+  var insightGrid = createEl('div', 'result-insight-grid');
+  insightGrid.appendChild(buildInsightCard('crosshair', 'CORE DRIVE', data.persona.deepDive.motivationTitle, data.persona.deepDive.motivation));
+  insightGrid.appendChild(buildInsightCard('triangleAlert', 'RISK', data.persona.deepDive.riskTitle, data.persona.deepDive.risk));
+  insightGrid.appendChild(buildInsightCard('moveUpRight', 'NEXT MOVE', data.persona.deepDive.actionTitle, data.persona.deepDive.action));
 
-  var detailToggle = createEl('button', 'result-detail-toggle');
-  detailToggle.type = 'button';
-  detailToggle.textContent = '深入解讀 ▾';
-  detailToggle.addEventListener('click', function () {
-    detailSections.hidden = !detailSections.hidden;
-    detailToggle.textContent = detailSections.hidden ? '深入解讀 ▾' : '收合 ▴';
-  });
-
-  var tags = createEl('div', 'result-tags');
-  tags.appendChild(buildTag('bug', 'result-tag--bug', '職涯卡點：' + data.careerBugLabel, data.careerBugImage));
-  tags.appendChild(buildTag('zap', 'result-tag--buff', 'AI Buff：' + data.aiBuffLabel));
+  var statusGrid = createEl('div', 'result-status-grid');
+  statusGrid.appendChild(buildStatusCard('bug', 'bug', 'BUG DETECTED', data.careerBugLabel, data.careerBugImage));
+  statusGrid.appendChild(buildStatusCard('cpu', 'ai', 'AI STATUS', data.aiBuffLabel));
 
   var mission = buildMissionCard(data.goalLabel, data.goalImage);
 
-  [badge, name, englishName, scoreBlock, stats, highlight, detailToggle, detailSections, tags, mission].forEach(function (el) { card.appendChild(el); });
+  [badge, name, englishName, scoreBlock, stats, insightHero, insightGrid, statusGrid, mission].forEach(function (el) { card.appendChild(el); });
   screen.appendChild(card);
 
   var shareBtn = createEl('button', 'btn-primary');
@@ -465,12 +453,6 @@ export function renderResult(root, data, handlers) {
   shareBtn.textContent = '產生我的生存卡';
   shareBtn.addEventListener('click', handlers.onShare);
   screen.appendChild(shareBtn);
-
-  var continueBtn = createEl('button', 'btn-secondary');
-  continueBtn.type = 'button';
-  continueBtn.textContent = '看看 2026 工程師生存調查 →';
-  continueBtn.addEventListener('click', handlers.onContinue);
-  screen.appendChild(continueBtn);
 
   var restartBtn = createEl('button', 'btn-secondary');
   restartBtn.type = 'button';
@@ -506,32 +488,56 @@ function buildStatRow(iconKey, label, value) {
   return row;
 }
 
-function buildDetailSection(label, text) {
-  var section = createEl('div', 'result-detail-section');
-  var labelEl = createEl('p', 'result-detail-label');
-  labelEl.textContent = label;
-  var textEl = createEl('p', 'result-detail-text');
-  textEl.textContent = text;
-  section.appendChild(labelEl);
-  section.appendChild(textEl);
-  return section;
+function buildInsightHero(headline) {
+  var hero = createEl('div', 'result-insight-hero');
+  var eyebrow = createEl('p', 'result-insight-hero-eyebrow');
+  eyebrow.textContent = 'YOUR INSIGHT';
+  var text = createEl('p', 'result-insight-hero-text');
+  text.textContent = headline;
+  hero.appendChild(eyebrow);
+  hero.appendChild(text);
+  return hero;
 }
 
-function buildTag(iconKey, className, text, image) {
-  var tag = createEl('div', 'result-tag ' + className);
+function buildInsightCard(iconKey, eyebrow, title, description) {
+  var card = createEl('div', 'result-insight-card');
+  var iconBox = createEl('div', 'result-insight-icon');
+  iconBox.appendChild(buildIconSpan(STAT_ICONS[iconKey], 'result-insight-icon-svg'));
+  var eyebrowEl = createEl('p', 'result-insight-eyebrow');
+  eyebrowEl.textContent = eyebrow;
+  var titleEl = createEl('p', 'result-insight-title');
+  titleEl.textContent = title;
+  var descEl = createEl('p', 'result-insight-desc');
+  descEl.textContent = description;
+  card.appendChild(iconBox);
+  card.appendChild(eyebrowEl);
+  card.appendChild(titleEl);
+  card.appendChild(descEl);
+  return card;
+}
+
+function buildStatusCard(iconKey, variant, eyebrow, text, image) {
+  var card = createEl('div', 'result-status-card result-status-card--' + variant);
+  var iconBox = createEl('div', 'result-status-icon');
   if (image) {
     var img = document.createElement('img');
-    img.className = 'result-tag-image';
+    img.className = 'result-status-icon-image';
     img.src = image;
     img.alt = '';
-    tag.appendChild(img);
+    iconBox.appendChild(img);
   } else {
-    tag.appendChild(buildIconSpan(STAT_ICONS[iconKey], 'result-tag-icon'));
+    iconBox.appendChild(buildIconSpan(STAT_ICONS[iconKey], 'result-status-icon-svg'));
   }
-  var label = createEl('span', 'result-tag-label');
-  label.textContent = text;
-  tag.appendChild(label);
-  return tag;
+  var body = createEl('div', 'result-status-body');
+  var eyebrowEl = createEl('p', 'result-status-eyebrow');
+  eyebrowEl.textContent = eyebrow;
+  var textEl = createEl('p', 'result-status-text');
+  textEl.textContent = text;
+  body.appendChild(eyebrowEl);
+  body.appendChild(textEl);
+  card.appendChild(iconBox);
+  card.appendChild(body);
+  return card;
 }
 
 function buildIconSpan(svgMarkup, className) {
@@ -543,7 +549,10 @@ function buildIconSpan(svgMarkup, className) {
 function buildMissionCard(goalLabel, goalImage) {
   var mission = createEl('div', 'result-mission');
   var label = createEl('p', 'result-mission-label');
-  label.textContent = 'NEXT MISSION · 2027';
+  label.textContent = 'NEXT MISSION';
+
+  var year = createEl('p', 'result-mission-year');
+  year.textContent = '2027';
 
   var content = createEl('div', 'result-mission-content');
   var icon = buildIconSpan(STAT_ICONS.lock, 'result-mission-icon');
@@ -553,6 +562,7 @@ function buildMissionCard(goalLabel, goalImage) {
   content.appendChild(text);
 
   mission.appendChild(label);
+  mission.appendChild(year);
   mission.appendChild(content);
 
   setTimeout(function () {

@@ -7,14 +7,14 @@ var FONT = '"Inter", "PingFang TC", "Noto Sans TC", sans-serif';
 var HIGHLIGHT_Y = 990;
 var HIGHLIGHT_H = 100;
 var DEEP_DIVE_SECTIONS = [
-  { icon: '🎯', label: '核心動機', color: '#7DD3FC', key: 'motivation' },
-  { icon: '⚠️', label: '潛在風險', color: '#F87171', key: 'risk' },
-  { icon: '🧭', label: '建議行動', color: '#34D399', key: 'action' }
+  { type: 'target', label: '核心動機', color: '#7DD3FC', key: 'motivation' },
+  { type: 'warning', label: '潛在風險', color: '#F87171', key: 'risk' },
+  { type: 'compass', label: '建議行動', color: '#34D399', key: 'action' }
 ];
-var DEEP_DIVE_BLOCK_GAP = 40;
-var DEEP_DIVE_LABEL_HEIGHT = 34;
-var DEEP_DIVE_LINE_HEIGHT = 32;
-var DEEP_DIVE_TITLE_HEIGHT = 44;
+var DEEP_DIVE_BLOCK_GAP = 48;
+var DEEP_DIVE_LABEL_HEIGHT = 36;
+var DEEP_DIVE_LINE_HEIGHT = 34;
+var DEEP_DIVE_TITLE_HEIGHT = 48;
 var TAG_H = 58;
 
 function loadImage(src) {
@@ -34,8 +34,8 @@ export async function exportResultCardImage(data) {
   var measureCtx = document.createElement('canvas').getContext('2d');
   var deepDiveHeight = measureDeepDiveHeight(measureCtx, data.persona.deepDive);
 
-  var deepDiveY = HIGHLIGHT_Y + HIGHLIGHT_H + 55;
-  var tagsY = deepDiveY + deepDiveHeight + 30;
+  var deepDiveY = HIGHLIGHT_Y + HIGHLIGHT_H + 60;
+  var tagsY = deepDiveY + deepDiveHeight + 36;
   var missionLabelY = tagsY + TAG_H + 55;
   var missionContentY = missionLabelY + 34;
   var cardBottom = missionContentY + 46;
@@ -238,15 +238,19 @@ function measureDeepDiveHeight(ctx, deepDive) {
 
 function drawDeepDive(ctx, deepDive, accent, startY) {
   ctx.textAlign = 'left';
+  var titleIconSize = 24;
+  drawInlineIcon(ctx, 'search', 140, startY - titleIconSize * 0.78, titleIconSize, accent);
   ctx.fillStyle = accent;
   ctx.font = 'bold 26px ' + FONT;
-  ctx.fillText('🔍 深入解讀', 140, startY);
+  ctx.fillText('深入解讀', 140 + titleIconSize + 12, startY);
 
   var cursorY = startY + DEEP_DIVE_TITLE_HEIGHT;
   DEEP_DIVE_SECTIONS.forEach(function (section, i) {
+    var iconSize = 22;
+    drawInlineIcon(ctx, section.type, 140, cursorY - iconSize * 0.78, iconSize, section.color);
     ctx.fillStyle = section.color;
     ctx.font = 'bold 24px ' + FONT;
-    ctx.fillText(section.icon + ' ' + section.label, 140, cursorY);
+    ctx.fillText(section.label, 140 + iconSize + 10, cursorY);
     cursorY += DEEP_DIVE_LABEL_HEIGHT;
 
     ctx.fillStyle = '#E2E8F0';
@@ -264,11 +268,13 @@ function drawTags(ctx, data, bugY) {
   ctx.strokeStyle = 'rgba(255, 77, 77, 0.35)';
   roundRectPath(ctx, 140, bugY, 390, TAG_H, 14);
   ctx.stroke();
+  var bugIconSize = 22;
+  drawInlineIcon(ctx, 'bug', 160, bugY + TAG_H / 2 - bugIconSize / 2, bugIconSize, '#FF8A8A');
   ctx.fillStyle = '#FF8A8A';
   ctx.font = '22px ' + FONT;
   ctx.textBaseline = 'middle';
   ctx.textAlign = 'left';
-  wrapText(ctx, '🐛 職涯卡點：' + data.careerBugLabel, 160, bugY + TAG_H / 2 - 4, 350, 22);
+  wrapText(ctx, '職涯卡點：' + data.careerBugLabel, 160 + bugIconSize + 10, bugY + TAG_H / 2 - 4, 350 - bugIconSize - 10, 24);
   ctx.textBaseline = 'alphabetic';
 
   var buffX = 550;
@@ -278,9 +284,11 @@ function drawTags(ctx, data, bugY) {
   ctx.strokeStyle = 'rgba(139, 92, 246, 0.4)';
   roundRectPath(ctx, buffX, bugY, 390, TAG_H, TAG_H / 2);
   ctx.stroke();
+  var zapIconSize = 22;
+  drawInlineIcon(ctx, 'zap', buffX + 20, bugY + TAG_H / 2 - zapIconSize / 2, zapIconSize, '#C4B5FD');
   ctx.fillStyle = '#C4B5FD';
   ctx.textBaseline = 'middle';
-  wrapText(ctx, '⚡ ' + data.aiBuffLabel, buffX + 20, bugY + TAG_H / 2 - 4, 350, 22);
+  wrapText(ctx, data.aiBuffLabel, buffX + 20 + zapIconSize + 8, bugY + TAG_H / 2 - 4, 350 - zapIconSize - 8, 24);
   ctx.textBaseline = 'alphabetic';
 }
 
@@ -289,9 +297,100 @@ function drawMission(ctx, data, labelY, contentY) {
   ctx.fillStyle = '#94A3B8';
   ctx.font = 'bold 16px ' + FONT;
   ctx.fillText('NEXT MISSION · 2027', 540, labelY);
-  ctx.fillStyle = '#F8FAFC';
+
   ctx.font = 'bold 28px ' + FONT;
-  ctx.fillText('🏆 ' + data.goalLabel, 540, contentY);
+  var textWidth = ctx.measureText(data.goalLabel).width;
+  var iconSize = 26;
+  var gap = 10;
+  var startX = 540 - (iconSize + gap + textWidth) / 2;
+  drawInlineIcon(ctx, 'trophy', startX, contentY - iconSize * 0.78, iconSize, '#FBBF24');
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#F8FAFC';
+  ctx.fillText(data.goalLabel, startX + iconSize + gap, contentY);
+  ctx.textAlign = 'center';
+}
+
+function drawInlineIcon(ctx, type, x, y, size, color) {
+  var cx = x + size / 2;
+  var cy = y + size / 2;
+  var r = size / 2;
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  ctx.lineWidth = Math.max(1.5, size * 0.1);
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  if (type === 'search') {
+    ctx.beginPath();
+    ctx.arc(cx - r * 0.12, cy - r * 0.12, r * 0.52, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx + r * 0.28, cy + r * 0.28);
+    ctx.lineTo(cx + r * 0.78, cy + r * 0.78);
+    ctx.stroke();
+  } else if (type === 'target') {
+    ctx.beginPath(); ctx.arc(cx, cy, r * 0.82, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx, cy, r * 0.42, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx, cy, r * 0.1, 0, Math.PI * 2); ctx.fill();
+  } else if (type === 'warning') {
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - r * 0.85);
+    ctx.lineTo(cx + r * 0.85, cy + r * 0.65);
+    ctx.lineTo(cx - r * 0.85, cy + r * 0.65);
+    ctx.closePath();
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - r * 0.18);
+    ctx.lineTo(cx, cy + r * 0.14);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(cx, cy + r * 0.42, r * 0.06, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (type === 'compass') {
+    ctx.beginPath(); ctx.arc(cx, cy, r * 0.82, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx - r * 0.34, cy + r * 0.4);
+    ctx.lineTo(cx + r * 0.14, cy - r * 0.14);
+    ctx.lineTo(cx + r * 0.34, cy - r * 0.4);
+    ctx.lineTo(cx - r * 0.14, cy + r * 0.14);
+    ctx.closePath();
+    ctx.fill();
+  } else if (type === 'bug') {
+    ctx.beginPath();
+    ctx.ellipse(cx, cy + r * 0.05, r * 0.42, r * 0.58, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    [-1, 0, 1].forEach(function (t) {
+      ctx.beginPath(); ctx.moveTo(cx - r * 0.4, cy + t * r * 0.45); ctx.lineTo(cx - r * 0.85, cy + t * r * 0.6); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx + r * 0.4, cy + t * r * 0.45); ctx.lineTo(cx + r * 0.85, cy + t * r * 0.6); ctx.stroke();
+    });
+    ctx.beginPath(); ctx.moveTo(cx, cy - r * 0.58); ctx.lineTo(cx, cy - r * 0.9); ctx.stroke();
+  } else if (type === 'zap') {
+    ctx.beginPath();
+    ctx.moveTo(cx + r * 0.12, cy - r * 0.85);
+    ctx.lineTo(cx - r * 0.5, cy + r * 0.1);
+    ctx.lineTo(cx - r * 0.05, cy + r * 0.1);
+    ctx.lineTo(cx - r * 0.12, cy + r * 0.85);
+    ctx.lineTo(cx + r * 0.5, cy - r * 0.1);
+    ctx.lineTo(cx + r * 0.05, cy - r * 0.1);
+    ctx.closePath();
+    ctx.fill();
+  } else if (type === 'trophy') {
+    ctx.beginPath();
+    ctx.moveTo(cx - r * 0.45, cy - r * 0.8);
+    ctx.lineTo(cx - r * 0.45, cy - r * 0.05);
+    ctx.quadraticCurveTo(cx - r * 0.45, cy + r * 0.35, cx, cy + r * 0.35);
+    ctx.quadraticCurveTo(cx + r * 0.45, cy + r * 0.35, cx + r * 0.45, cy - r * 0.05);
+    ctx.lineTo(cx + r * 0.45, cy - r * 0.8);
+    ctx.closePath();
+    ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx - r * 0.6, cy - r * 0.45, r * 0.22, Math.PI * 0.25, Math.PI * 1.4); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx + r * 0.6, cy - r * 0.45, r * 0.22, Math.PI * 1.6, Math.PI * 0.75); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx, cy + r * 0.35); ctx.lineTo(cx, cy + r * 0.55); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx - r * 0.28, cy + r * 0.8); ctx.lineTo(cx + r * 0.28, cy + r * 0.8); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx, cy + r * 0.55); ctx.lineTo(cx, cy + r * 0.8); ctx.stroke();
+  }
+  ctx.restore();
 }
 
 function drawFooter(ctx, footerY) {

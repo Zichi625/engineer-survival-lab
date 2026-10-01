@@ -595,6 +595,7 @@ button {
   background: conic-gradient(#A78BFA 0% 72%, rgba(255, 255, 255, 0.08) 72% 100%);
   -webkit-mask: radial-gradient(circle, transparent 55%, black 56%);
   mask: radial-gradient(circle, transparent 55%, black 56%);
+  animation: hudSpin 14s linear infinite;
 }
 
 .hud-donut-label {

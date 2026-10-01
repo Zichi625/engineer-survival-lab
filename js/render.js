@@ -97,6 +97,7 @@ function buildHudPanel(variant, content) {
 function buildCodePanel() {
   var pre = createEl('pre', 'hud-panel-code');
   pre.textContent = "const future = {\n  career: 'You',\n  ai: 'Opportunity',\n  status: 'Loading...'\n}";
+  pre.appendChild(createEl('span', 'hud-code-caret'));
   return pre;
 }
 

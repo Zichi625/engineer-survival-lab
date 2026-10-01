@@ -52,12 +52,19 @@ OVERRIDE = {
     'mascot-overwhelmed': (4, 28, 28, 4),
     'mascot-idea': (28, 18, 28, 18),
 }
+# A few cells keep a stray speck of their neighbour's shadow at the default
+# cutoff and need a firmer one; raising it globally would eat thin artwork.
+THRESH_OVERRIDE = {
+    'growth-01-sprout': 80.0,
+    'bug-noopportunity': 80.0,
+}
+THRESH = {'mascot': 62.0, 'growth': 62.0, 'bugs': 62.0, 'badges': 62.0}
 MARGIN = {'mascot': 28, 'growth': 20, 'bugs': 10, 'ai': 14, 'badges': (4, 12, 12, 12)}
 # how big a blob must be (relative to the biggest kept blob) to survive
 KEEP_RATIO = {'mascot': 0.004, 'growth': 0.004, 'bugs': 0.05, 'ai': 0.02, 'badges': 0.02}
 
 
-def _matte(category, box, margin, lo, hi):
+def _matte(category, box, margin, thresh, feather):
     nx0, ny0, nx1, ny1 = box
     mt, mr, mb, ml = (margin if isinstance(margin, tuple) else (margin,) * 4)
     ex0, ey0 = max(0, nx0 - ml), max(0, ny0 - mt)
@@ -68,24 +75,30 @@ def _matte(category, box, margin, lo, hi):
     bg = model_background(crop)
     dist = box_blur(np.sqrt(((crop - bg) ** 2).sum(axis=2)), 1)
 
+    # Clean background sits around dist~1 and the artwork around dist~130, so a
+    # cutoff in the 30s separates them. The old build flood-filled from the
+    # border and kept everything the flood could not reach, which trapped each
+    # sprite's own soft glow -- invisible on a light checkerboard, but an ugly
+    # olive halo on the site's dark background.
+    # Clean background measures dist~1, the artwork ~130, and each sprite's
+    # baked-in glow lands in between. Cutting at ~60 drops the glow without
+    # eating the artwork; anything lower leaves a halo that is invisible on a
+    # light checkerboard but obvious on the site's dark background.
+    solid = dist > thresh
+
     border = np.zeros((h, w), bool)
     border[0, :] = border[-1, :] = True
     border[:, 0] = border[:, -1] = True
-    seed = border & (dist < lo)
-    if not seed.any():
-        seed = border
-
-    fg = ~flood_from_border(seed, dist > hi)
+    outside = flood_from_border(border & ~solid, solid)
+    silhouette = ~outside
+    holes = silhouette & ~solid
 
     cy0, cy1 = ny0 - ey0, ny1 - ey0
     cx0, cx1 = nx0 - ex0, nx1 - ex0
-
-    # A sprite sitting against the sheet's own edge is not "clipped" -- only
-    # borders that cut into the middle of the sheet mean a neighbour bleed.
     real = dict(top=ey0 > 0, bottom=ey1 < SH, left=ex0 > 0, right=ex1 < SW)
 
     blobs = []
-    for c in components(fg):
+    for c in components(silhouette):
         ys = np.array([p[0] for p in c]); xs = np.array([p[1] for p in c])
         centroid_in = (cy0 <= ys.mean() < cy1) and (cx0 <= xs.mean() < cx1)
         touches = ((real['top'] and ys.min() <= 1) or
@@ -111,16 +124,18 @@ def _matte(category, box, margin, lo, hi):
         elif b[0] >= max(main[0] * ratio, 20):
             keep[b[1], b[2]] = True
 
-    soft = np.clip((dist - lo) / (hi - lo), 0, 1)
-    alpha = box_blur(np.where(keep, soft, 0.0), 1)
-    alpha = np.where(keep, np.clip(alpha * 1.6, 0, 1), 0.0)
+    ramp = np.clip((dist - (thresh - feather)) / feather, 0, 1)
+    alpha = np.where(holes, 1.0, ramp)
+    alpha = np.where(keep, alpha, 0.0)
     return crop, alpha, main[4], dropped
 
 
-def extract_item(category, box, lo=22.0, hi=55.0, margin=None):
+def extract_item(category, box, thresh=None, feather=14.0, margin=None):
+    if thresh is None:
+        thresh = THRESH[category]
     if margin is None:
         margin = MARGIN[category]
-    crop, alpha, main_clipped, dropped = _matte(category, box, margin, lo, hi)
+    crop, alpha, main_clipped, dropped = _matte(category, box, margin, thresh, feather)
     return np.dstack([crop, alpha * 255]).astype(np.uint8), alpha, dropped, main_clipped, margin
 
 
@@ -137,7 +152,7 @@ def trim(rgba, pad=4):
 if __name__ == '__main__':
     report = []
     for cat, name, box in ITEMS:
-        rgba, alpha, dropped, main_clipped, margin = extract_item(cat, box, margin=OVERRIDE.get(name))
+        rgba, alpha, dropped, main_clipped, margin = extract_item(cat, box, thresh=THRESH_OVERRIDE.get(name), margin=OVERRIDE.get(name))
         t = trim(rgba)
         d = os.path.join(OUT, cat)
         os.makedirs(d, exist_ok=True)

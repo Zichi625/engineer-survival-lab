@@ -538,6 +538,22 @@ button {
   white-space: pre;
 }
 
+.hud-code-caret {
+  display: inline-block;
+  width: 6px;
+  height: 11px;
+  margin-left: 3px;
+  vertical-align: -1px;
+  background: #7DD3FC;
+  animation: caretBlink 2.4s steps(1, end) infinite;
+}
+
+@keyframes caretBlink {
+  0%, 45% { opacity: 1; }
+  50%, 95% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
 .hud-panel-checklist {
   display: flex;
   flex-direction: column;
@@ -579,6 +595,17 @@ button {
   flex: 1;
   border-radius: 3px 3px 0 0;
   background: linear-gradient(180deg, #7DD3FC, rgba(125, 211, 252, 0.15));
+  transform-origin: bottom;
+  animation: hudBarPulse 6.5s ease-in-out infinite;
+}
+
+.hud-bar:nth-child(2) { animation-duration: 8s; animation-delay: -1.2s; }
+.hud-bar:nth-child(3) { animation-duration: 7.2s; animation-delay: -2.6s; }
+.hud-bar:nth-child(4) { animation-duration: 9s; animation-delay: -4s; }
+
+@keyframes hudBarPulse {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.72); }
 }
 
 .hud-panel-donut {

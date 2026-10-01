@@ -597,7 +597,6 @@ export function renderLead(root, handlers) {
 
   var options = [
     { id: 'hexschoolInfo', label: '想收到六角學院的課程/活動資訊' },
-    { id: 'report', label: '想收到《2026 工程師生存調查》' },
     { id: 'jobs', label: '有適合我的職缺也可以找我' },
     { id: 'jobSeeking', label: '我最近正在找工作' },
     { id: 'justFun', label: '我只是來玩玩 😂' }

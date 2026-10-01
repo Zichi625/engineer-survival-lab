@@ -1,8 +1,17 @@
 import { QUESTIONS } from './questions.js';
-import { ROLE_ICONS, STAT_ICONS, OPTION_ICONS, UI_ICONS } from './icons.js';
+import { ROLE_ICONS, STAT_ICONS, OPTION_ICONS, UI_ICONS, BRAND_ICONS } from './icons.js';
 import { flashClass } from './animations.js';
 
 var TOTAL_LEVELS = QUESTIONS.length;
+
+var AI_TOOL_BRAND_KEYS = {
+  chatgpt: 'chatgpt',
+  claude: 'claude',
+  cursor: 'cursor',
+  copilot: 'githubcopilot',
+  gemini: 'googlegemini',
+  windsurf: 'windsurf'
+};
 
 function mascotSrc(mood) {
   return 'assets/mascot/mascot-' + (mood || 'coding') + '.png';
@@ -288,9 +297,13 @@ function buildOptionsGrid(question, state, handlers) {
     btn.type = 'button';
     btn.disabled = !isMulti && Boolean(selectedValue);
 
+    var isAiToolsBrand = question.id === 'aiTools';
     var iconMarkup = question.id === 'role'
       ? ROLE_ICONS[option.value]
-      : OPTION_ICONS[question.id + ':' + option.value];
+      : isAiToolsBrand
+        ? (BRAND_ICONS[AI_TOOL_BRAND_KEYS[option.value]] ||
+           (option.value === 'other' ? UI_ICONS.settings : option.value === 'none' ? UI_ICONS.moreHorizontal : null))
+        : OPTION_ICONS[question.id + ':' + option.value];
     if (option.image) {
       var optionImg = document.createElement('img');
       optionImg.className = 'option-image';
@@ -298,7 +311,7 @@ function buildOptionsGrid(question, state, handlers) {
       optionImg.alt = option.label;
       btn.appendChild(optionImg);
     } else if (iconMarkup) {
-      var icon = createEl('span', 'option-icon');
+      var icon = createEl('span', isAiToolsBrand ? 'option-icon option-icon--brand' : 'option-icon');
       icon.innerHTML = iconMarkup;
       btn.appendChild(icon);
     } else {

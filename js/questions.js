@@ -139,14 +139,14 @@ export const QUESTIONS = [
     maxSelections: 3,
     exclusiveOption: 'none',
     options: [
-      { value: 'chatgpt', label: 'ChatGPT', emoji: '💬', image: 'assets/ai/ai-tool-chatgpt.png', personaPoints: { aiEvolved: 1 } },
-      { value: 'claude', label: 'Claude', emoji: '🟣', image: 'assets/ai/ai-tool-generic.png', personaPoints: { aiEvolved: 1 } },
-      { value: 'cursor', label: 'Cursor', emoji: '⌨️', image: 'assets/ai/ai-tool-cube.png', personaPoints: { aiEvolved: 1 } },
-      { value: 'copilot', label: 'Copilot', emoji: '🧑‍✈️', image: 'assets/ai/ai-tool-copilot.png', personaPoints: { aiEvolved: 1 } },
-      { value: 'gemini', label: 'Gemini', emoji: '♊', image: 'assets/ai/ai-tool-sparkle.png', personaPoints: { aiEvolved: 1 } },
-      { value: 'windsurf', label: 'Windsurf', emoji: '🏄', image: 'assets/ai/ai-tool-windsurf.png', personaPoints: { aiEvolved: 1 } },
-      { value: 'other', label: '其他', emoji: '✨', image: 'assets/ai/ai-tool-gear.png', personaPoints: { aiEvolved: 1 } },
-      { value: 'none', label: '沒使用', emoji: '🚫', image: 'assets/ai/ai-tool-more.png', personaPoints: { careerDebugger: 1, aiEvolved: -1 } }
+      { value: 'chatgpt', label: 'ChatGPT', emoji: '💬', personaPoints: { aiEvolved: 1 } },
+      { value: 'claude', label: 'Claude', emoji: '🟣', personaPoints: { aiEvolved: 1 } },
+      { value: 'cursor', label: 'Cursor', emoji: '⌨️', personaPoints: { aiEvolved: 1 } },
+      { value: 'copilot', label: 'Copilot', emoji: '🧑‍✈️', personaPoints: { aiEvolved: 1 } },
+      { value: 'gemini', label: 'Gemini', emoji: '♊', personaPoints: { aiEvolved: 1 } },
+      { value: 'windsurf', label: 'Windsurf', emoji: '🏄', personaPoints: { aiEvolved: 1 } },
+      { value: 'other', label: '其他', emoji: '✨', personaPoints: { aiEvolved: 1 } },
+      { value: 'none', label: '沒使用', emoji: '🚫', personaPoints: { careerDebugger: 1, aiEvolved: -1 } }
     ]
   },
   {

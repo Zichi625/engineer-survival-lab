@@ -865,6 +865,20 @@ button {
   height: 100%;
 }
 
+.option-icon--brand {
+  width: 48px;
+  height: 52px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  color: var(--color-text-soft);
+  filter: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .option-image {
   max-width: 56px;
   max-height: 56px;

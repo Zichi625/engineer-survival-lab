@@ -422,10 +422,10 @@ button {
 }
 
 .intro-brand {
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  color: var(--color-text-soft);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--color-accent);
   margin: -4px 0 0;
 }
 

@@ -187,7 +187,7 @@ export function renderIntro(root, handlers) {
   screen.appendChild(fadeUp(subtitle));
 
   var brand = createEl('p', 'intro-brand');
-  brand.textContent = '六角學院 X 多角人才開發';
+  brand.textContent = '六角學院 X 多角人才共同開發';
   screen.appendChild(fadeUp(brand));
 
   var body = createEl('p', 'intro-body');
@@ -621,8 +621,7 @@ export function renderLead(root, handlers) {
   var options = [
     { id: 'hexschoolInfo', label: '想收到六角學院的課程/活動資訊' },
     { id: 'jobs', label: '有適合我的職缺也可以找我' },
-    { id: 'jobSeeking', label: '我最近正在找工作' },
-    { id: 'justFun', label: '我只是來玩玩 😂' }
+    { id: 'jobSeeking', label: '我最近正在找工作' }
   ];
   var checkedState = {};
   var checkboxList = createEl('div', 'lead-checkboxes');
@@ -659,7 +658,7 @@ export function renderLead(root, handlers) {
 
   var skipBtn = createEl('button', 'btn-secondary');
   skipBtn.type = 'button';
-  skipBtn.textContent = '不用了，直接完成';
+  skipBtn.textContent = '不用了，我只是來玩玩 😂';
   skipBtn.addEventListener('click', function () {
     handlers.onSkip(feedbackInput.value.trim());
   });

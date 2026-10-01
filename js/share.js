@@ -40,7 +40,7 @@ export async function exportResultCardImage(data) {
   var missionContentY = missionLabelY + 34;
   var cardBottom = missionContentY + 46;
   var footerY = cardBottom + 55;
-  var canvasHeight = footerY + 40;
+  var canvasHeight = footerY + 34 + 40;
 
   var canvas = document.createElement('canvas');
   canvas.width = CANVAS_WIDTH;
@@ -395,9 +395,13 @@ function drawInlineIcon(ctx, type, x, y, size, color) {
 
 function drawFooter(ctx, footerY) {
   ctx.textAlign = 'center';
+  ctx.font = '700 26px ' + FONT;
+  ctx.fillStyle = '#F8FAFC';
+  ctx.fillText('六角學院 X 多角人才', 540, footerY);
+
   ctx.font = '22px ' + FONT;
   ctx.fillStyle = '#94A3B8';
-  ctx.fillText('多角人才 × 工程師真心話研究所', 540, footerY);
+  ctx.fillText('多角人才 × 工程師真心話研究所', 540, footerY + 34);
 }
 
 function hexToRgba(hex, alpha) {

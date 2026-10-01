@@ -180,7 +180,7 @@ function drawStats(ctx, data, accent, accentStrong) {
     ['工作穩定度', data.dimensions.stability],
     ['AI 適應度', data.dimensions.aiAdapt],
     ['轉職雷達', data.dimensions.radar],
-    ['Career Bug 指數', data.dimensions.careerBugIndex]
+    ['職涯卡點指數', data.dimensions.careerBugIndex]
   ];
   var startY = 610;
   var rowHeight = 96;
@@ -268,7 +268,7 @@ function drawTags(ctx, data, bugY) {
   ctx.font = '22px ' + FONT;
   ctx.textBaseline = 'middle';
   ctx.textAlign = 'left';
-  wrapText(ctx, '🐛 ' + data.careerBugLabel, 160, bugY + TAG_H / 2 - 4, 350, 22);
+  wrapText(ctx, '🐛 職涯卡點：' + data.careerBugLabel, 160, bugY + TAG_H / 2 - 4, 350, 22);
   ctx.textBaseline = 'alphabetic';
 
   var buffX = 550;

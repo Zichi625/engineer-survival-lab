@@ -102,7 +102,7 @@ export const QUESTIONS = [
     type: 'single',
     visualStyle: 'bugs',
     characterMood: 'stressed',
-    prompt: '抓到你的 Career Bug！',
+    prompt: '抓到你的職涯卡點！',
     options: [
       { value: 'salary', label: '薪資卡住', emoji: '🐛', image: 'assets/bugs/bug-salary.png', personaPoints: { careerDebugger: 2 }, dimensionValues: { careerBugIndex: 4 } },
       { value: 'boss', label: '主管問題', emoji: '🐛', image: 'assets/bugs/bug-boss.png', personaPoints: { careerDebugger: 2 }, dimensionValues: { careerBugIndex: 5 } },

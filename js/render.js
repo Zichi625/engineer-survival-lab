@@ -341,7 +341,7 @@ function pad2(n) {
   return n < 10 ? '0' + n : String(n);
 }
 
-var CALCULATING_ITEMS = ['工作穩定度', 'AI Buff', 'Career Bug', '轉職雷達', '2027 任務'];
+var CALCULATING_ITEMS = ['工作穩定度', 'AI Buff', '職涯卡點', '轉職雷達', '2027 任務'];
 var CALCULATING_STAGGER_MS = 250;
 
 export function renderCalculating(root) {
@@ -417,7 +417,7 @@ export function renderResult(root, data, handlers) {
   stats.appendChild(buildStatRow('heart', '工作穩定度', data.dimensions.stability));
   stats.appendChild(buildStatRow('cpu', 'AI 適應度', data.dimensions.aiAdapt));
   stats.appendChild(buildStatRow('radar', '轉職雷達', data.dimensions.radar));
-  stats.appendChild(buildStatRow('bug', 'Career Bug 指數', data.dimensions.careerBugIndex));
+  stats.appendChild(buildStatRow('bug', '職涯卡點指數', data.dimensions.careerBugIndex));
 
   var highlight = createEl('div', 'result-highlight');
   var highlightText = createEl('p', 'result-highlight-text');
@@ -439,7 +439,7 @@ export function renderResult(root, data, handlers) {
   });
 
   var tags = createEl('div', 'result-tags');
-  tags.appendChild(buildTag('bug', 'result-tag--bug', 'Career Bug：' + data.careerBugLabel, data.careerBugImage));
+  tags.appendChild(buildTag('bug', 'result-tag--bug', '職涯卡點：' + data.careerBugLabel, data.careerBugImage));
   tags.appendChild(buildTag('zap', 'result-tag--buff', 'AI Buff：' + data.aiBuffLabel));
 
   var mission = buildMissionCard(data.goalLabel, data.goalImage);

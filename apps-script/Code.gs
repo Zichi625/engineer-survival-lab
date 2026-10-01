@@ -35,21 +35,21 @@ function appendResponse(ss, payload) {
   }
   sheet.appendRow([
     new Date(),
-    payload.role || '',
-    payload.experience || '',
-    payload.satisfaction || '',
-    payload.salary || '',
-    payload.headhunterReaction || '',
-    payload.jumpThreshold || '',
-    payload.careerBug || '',
-    payload.aiFrequency || '',
-    payload.aiTools || '',
-    payload.aiImpact || '',
-    payload.aiFear || '',
-    payload.goal2027 || '',
-    payload.persona || '',
+    safeCell(payload.role),
+    safeCell(payload.experience),
+    safeCell(payload.satisfaction),
+    safeCell(payload.salary),
+    safeCell(payload.headhunterReaction),
+    safeCell(payload.jumpThreshold),
+    safeCell(payload.careerBug),
+    safeCell(payload.aiFrequency),
+    safeCell(payload.aiTools),
+    safeCell(payload.aiImpact),
+    safeCell(payload.aiFear),
+    safeCell(payload.goal2027),
+    safeCell(payload.persona),
     payload.survivalIndex || '',
-    payload.openFeedback || ''
+    safeCell(payload.openFeedback)
   ]);
 }
 
@@ -60,11 +60,21 @@ function appendLead(ss, payload) {
   }
   sheet.appendRow([
     new Date(),
-    payload.email || '',
-    payload.interests || '',
-    payload.persona || '',
+    safeCell(payload.email),
+    safeCell(payload.interests),
+    safeCell(payload.persona),
     payload.survivalIndex || ''
   ]);
+}
+
+// Google Sheets treats a cell starting with =, +, -, or @ as a formula.
+// Anyone can POST directly to this endpoint (bypassing the quiz UI), so a
+// leading apostrophe forces every text field to be stored as plain text and
+// blocks formula-injection payloads (e.g. a fake "openFeedback" answer like
+// =HYPERLINK("http://evil","click") turning into a clickable link later).
+function safeCell(value) {
+  var str = String(value || '');
+  return /^[=+\-@]/.test(str) ? "'" + str : str;
 }
 
 function respond(obj) {

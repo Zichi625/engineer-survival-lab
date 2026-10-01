@@ -72,7 +72,7 @@ export const QUESTIONS = [
     type: 'single',
     visualStyle: 'comic',
     characterMood: 'searching',
-    prompt: '現在有人敲你 LinkedIn，你會？',
+    prompt: '現在有獵頭敲你，你會？',
     options: [
       { value: 'ignore', label: '不理', emoji: '🙅', personaPoints: { stableGrowth: 2 }, dimensionValues: { radar: 1 } },
       { value: 'peek', label: '看看', emoji: '👀', personaPoints: { radarWatcher: 2 }, dimensionValues: { radar: 3 } },

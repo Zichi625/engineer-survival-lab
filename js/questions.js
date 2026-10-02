@@ -24,7 +24,6 @@ export const QUESTIONS = [
     type: 'single',
     visualStyle: 'expBar',
     characterMood: 'idea',
-    fillProgressive: true,
     prompt: '你在工程師世界生存多久了？',
     options: [
       { value: 'lt1', label: '未滿1年', emoji: '🌱', image: 'assets/growth/growth-01-sprout.png', personaPoints: { careerDebugger: 1 } },

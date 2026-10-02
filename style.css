@@ -907,11 +907,6 @@ button {
   transform: scale(1.04);
 }
 
-.option-card--filled {
-  background: var(--color-selected);
-  border-color: var(--color-selected-border);
-}
-
 .option-emoji {
   font-size: 28px;
 }

@@ -288,20 +288,13 @@ function buildOptionsGrid(question, state, handlers) {
   var selectedValues = isMulti ? (state.answers[question.id] || []) : [];
   var grid = createEl('div', 'options-grid options-grid--' + question.visualStyle);
 
-  question.options.forEach(function (option, index) {
+  question.options.forEach(function (option) {
     var isSelected = isMulti
       ? selectedValues.indexOf(option.value) !== -1
       : selectedValue === option.value;
-    var isFilled = Boolean(
-      question.fillProgressive &&
-      !isMulti &&
-      selectedValue &&
-      indexOfValue(question.options, selectedValue) >= index
-    );
 
     var classNames = ['option-card'];
     if (isSelected) classNames.push('option-card--selected');
-    if (isFilled) classNames.push('option-card--filled');
 
     var btn = createEl('button', classNames.join(' '));
     btn.type = 'button';
@@ -354,13 +347,6 @@ function createEl(tag, className) {
   var el = document.createElement(tag);
   if (className) el.className = className;
   return el;
-}
-
-function indexOfValue(options, value) {
-  for (var i = 0; i < options.length; i++) {
-    if (options[i].value === value) return i;
-  }
-  return -1;
 }
 
 function pad2(n) {

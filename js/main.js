@@ -5,6 +5,7 @@ import { createInitialState, recordSingleAnswer, toggleMultiAnswer, isLastLevel,
 import { renderIntro, renderLevel, renderCalculating, renderResult, renderLead, renderDone } from './render.js';
 import { exportResultCardImage, shareOrDownloadImage } from './share.js';
 import { submitResponse, submitLead } from './submit.js';
+import { recommendCourse } from './courses.js';
 import { flashClass } from './animations.js';
 
 var SINGLE_SELECT_FIELDS = [
@@ -50,7 +51,8 @@ function buildResultData() {
     careerBugImage: findImage('careerBug', state.answers.careerBug),
     aiBuffLabel: findBuffLabel('aiFrequency', state.answers.aiFrequency),
     goalLabel: findLabel('goal2027', state.answers.goal2027),
-    goalImage: findImage('goal2027', state.answers.goal2027)
+    goalImage: findImage('goal2027', state.answers.goal2027),
+    course: recommendCourse(state.answers)
   };
 }
 

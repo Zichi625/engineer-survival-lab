@@ -443,8 +443,9 @@ export function renderResult(root, data, handlers) {
   statusGrid.appendChild(buildStatusCard('cpu', 'ai', 'AI STATUS', data.aiBuffLabel));
 
   var mission = buildMissionCard(data.goalLabel, data.goalImage);
+  var course = buildCourseCard(data.course);
 
-  [badge, name, englishName, scoreBlock, stats, insightHero, insightGrid, statusGrid, mission].forEach(function (el) { card.appendChild(el); });
+  [badge, name, englishName, scoreBlock, stats, insightHero, insightGrid, statusGrid, mission, course].forEach(function (el) { card.appendChild(el); });
   screen.appendChild(card);
 
   // The result card runs about two screens tall on a phone, so the main
@@ -550,6 +551,32 @@ function buildIconSpan(svgMarkup, className) {
   var span = createEl('span', className);
   span.innerHTML = svgMarkup;
   return span;
+}
+
+function buildCourseCard(course) {
+  var wrap = createEl('a', 'result-course');
+  wrap.href = course.url;
+  wrap.target = '_blank';
+  wrap.rel = 'noopener noreferrer';
+
+  var label = createEl('p', 'result-course-label');
+  label.textContent = 'RECOMMENDED FOR YOU';
+
+  var reason = createEl('p', 'result-course-reason');
+  reason.textContent = course.reason;
+
+  var row = createEl('div', 'result-course-row');
+  row.appendChild(buildIconSpan(UI_ICONS.layers, 'result-course-icon'));
+  var nameEl = createEl('span', 'result-course-name');
+  nameEl.textContent = course.name;
+  row.appendChild(nameEl);
+  row.appendChild(buildIconSpan(STAT_ICONS.moveUpRight, 'result-course-arrow'));
+
+  var source = createEl('p', 'result-course-source');
+  source.textContent = '六角學院';
+
+  [label, reason, row, source].forEach(function (el) { wrap.appendChild(el); });
+  return wrap;
 }
 
 function buildMissionCard(goalLabel, goalImage) {

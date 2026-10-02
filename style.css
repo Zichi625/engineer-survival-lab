@@ -1388,6 +1388,81 @@ button {
   overflow: hidden;
 }
 
+/* Reads as a suggestion rather than an ad: no accent fill, quiet border, and
+   the reason comes before the course name so it is clear it came from the
+   player's own answers. */
+.result-course {
+  display: block;
+  text-align: left;
+  padding: 18px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--color-card-border);
+  text-decoration: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.result-course:hover,
+.result-course:focus-visible {
+  border-color: var(--persona-accent, var(--color-selected-border));
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.result-course-label {
+  margin: 0 0 8px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--color-text-soft);
+}
+
+.result-course-reason {
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--color-text-soft);
+}
+
+.result-course-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.result-course-icon {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  color: var(--persona-accent, #7DD3FC);
+}
+
+.result-course-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #F8FAFC;
+}
+
+.result-course-arrow {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--persona-accent, #7DD3FC);
+}
+
+.result-course-icon svg,
+.result-course-arrow svg {
+  width: 100%;
+  height: 100%;
+}
+
+.result-course-source {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--color-text-soft);
+}
+
 .result-mission {
   text-align: center;
   padding: 20px 16px;

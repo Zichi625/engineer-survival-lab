@@ -102,7 +102,9 @@ button {
   width: 100%;
   max-width: 240px;
   height: auto;
-  filter: drop-shadow(0 0 28px rgba(255, 107, 107, 0.35)) drop-shadow(0 0 48px rgba(59, 130, 246, 0.18));
+  /* No coloured drop-shadow here: it hugged the mascot's silhouette and read
+     as a halo left over from a bad cutout. Ambient light comes from the
+     .intro-hud-wrap::before wash behind the character instead. */
   animation: float 3.6s ease-in-out infinite;
 }
 

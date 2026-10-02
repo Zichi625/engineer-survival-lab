@@ -1,7 +1,7 @@
 import { QUESTIONS } from './questions.js';
 import { PERSONAS } from './results.js';
 import { computeDimensions, computeSurvivalIndex, computePersona } from './scoring.js';
-import { createInitialState, recordSingleAnswer, toggleMultiAnswer, isLastLevel, advanceLevel } from './state.js';
+import { createInitialState, recordSingleAnswer, toggleMultiAnswer, isLastLevel, advanceLevel, goBackLevel } from './state.js';
 import { renderIntro, renderLevel, renderCalculating, renderResult, renderLead, renderDone } from './render.js';
 import { exportResultCardImage, shareOrDownloadImage } from './share.js';
 import { submitResponse, submitLead } from './submit.js';
@@ -22,7 +22,8 @@ function rerender() {
     renderLevel(root, QUESTIONS[state.levelIndex], state, {
       onSingleSelect: handleSingleSelect,
       onMultiToggle: handleMultiToggle,
-      onMultiNext: handleMultiNext
+      onMultiNext: handleMultiNext,
+      onBack: handleBack
     });
   } else if (state.screen === 'calculating') {
     renderCalculating(root);
@@ -96,8 +97,10 @@ function handleStart() {
 }
 
 function handleSingleSelect(value) {
+  if (state.isAdvancing) return;
   var question = QUESTIONS[state.levelIndex];
   recordSingleAnswer(state, question.id, value);
+  state.isAdvancing = true;
   rerender();
   var characterEl = root.querySelector('.character');
   if (characterEl) flashClass(characterEl, 'character--pop', 400);
@@ -114,7 +117,14 @@ function handleMultiNext() {
   goToNextLevelOrCalculate();
 }
 
+function handleBack() {
+  if (state.isAdvancing) return;
+  goBackLevel(state);
+  rerender();
+}
+
 function goToNextLevelOrCalculate() {
+  state.isAdvancing = false;
   if (isLastLevel(state, QUESTIONS)) {
     state.screen = 'calculating';
     setTimeout(handleCalculatingDone, 1700);

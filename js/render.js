@@ -257,6 +257,15 @@ export function renderLevel(root, question, state, handlers) {
     screen.appendChild(nextBtn);
   }
 
+  if (state.levelIndex > 0) {
+    var backBtn = createEl('button', 'btn-back');
+    backBtn.type = 'button';
+    backBtn.textContent = '← 上一題';
+    backBtn.disabled = Boolean(state.isAdvancing);
+    backBtn.addEventListener('click', handlers.onBack);
+    screen.appendChild(backBtn);
+  }
+
   root.appendChild(screen);
 }
 
@@ -296,7 +305,10 @@ function buildOptionsGrid(question, state, handlers) {
 
     var btn = createEl('button', classNames.join(' '));
     btn.type = 'button';
-    btn.disabled = !isMulti && Boolean(selectedValue);
+    // Locked only while the answer animation plays, so a double tap cannot
+    // skip a level. Keying this off the stored answer instead would leave the
+    // options dead after stepping back to change one.
+    btn.disabled = !isMulti && Boolean(state.isAdvancing);
 
     var isAiToolsBrand = question.id === 'aiTools';
     var iconMarkup = question.id === 'role'

@@ -6,6 +6,7 @@ export function createInitialState() {
     persona: null,
     survivalIndex: null,
     dimensions: null,
+    isAdvancing: false,
     isSubmitting: false,
     hasSubmitError: false
   };
@@ -43,5 +44,12 @@ export function isLastLevel(state, questions) {
 
 export function advanceLevel(state) {
   state.levelIndex += 1;
+  return state;
+}
+
+export function goBackLevel(state) {
+  if (state.levelIndex > 0) {
+    state.levelIndex -= 1;
+  }
   return state;
 }

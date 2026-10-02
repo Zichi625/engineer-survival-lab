@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createInitialState, recordSingleAnswer, toggleMultiAnswer, isLastLevel, advanceLevel } from '../js/state.js';
+import { createInitialState, recordSingleAnswer, toggleMultiAnswer, isLastLevel, advanceLevel, goBackLevel } from '../js/state.js';
 
 test('createInitialState starts on the intro screen with no answers', function () {
   var state = createInitialState();
@@ -79,4 +79,26 @@ test('advanceLevel increments levelIndex by one', function () {
   var state = createInitialState();
   advanceLevel(state);
   assert.equal(state.levelIndex, 1);
+});
+
+test('goBackLevel decrements levelIndex by one', function () {
+  var state = createInitialState();
+  advanceLevel(state);
+  advanceLevel(state);
+  goBackLevel(state);
+  assert.equal(state.levelIndex, 1);
+});
+
+test('goBackLevel stops at the first level', function () {
+  var state = createInitialState();
+  goBackLevel(state);
+  assert.equal(state.levelIndex, 0);
+});
+
+test('goBackLevel keeps the answer so it can be changed', function () {
+  var state = createInitialState();
+  recordSingleAnswer(state, 'role', 'frontend');
+  advanceLevel(state);
+  goBackLevel(state);
+  assert.equal(state.answers.role, 'frontend');
 });

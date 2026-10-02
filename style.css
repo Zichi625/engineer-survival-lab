@@ -154,6 +154,31 @@ button {
   transform: translateY(-2px);
 }
 
+/* Quiet by design: stepping back to fix a mis-tap should be available on every
+   level without competing with the answer options for attention. */
+.btn-back {
+  align-self: center;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid var(--color-card-border);
+  color: var(--color-text-soft);
+  font-size: 14px;
+  font-weight: 600;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-back:hover,
+.btn-back:focus-visible {
+  color: var(--color-text);
+  border-color: var(--color-selected-border);
+}
+
+.btn-back:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
 .screen--intro {
   position: relative;
   gap: 10px;

@@ -510,10 +510,12 @@ function buildInsightCard(iconKey, eyebrow, title, description) {
   titleEl.textContent = title;
   var descEl = createEl('p', 'result-insight-desc');
   descEl.textContent = description;
+  var body = createEl('div', 'result-insight-body');
+  body.appendChild(eyebrowEl);
+  body.appendChild(titleEl);
+  body.appendChild(descEl);
   card.appendChild(iconBox);
-  card.appendChild(eyebrowEl);
-  card.appendChild(titleEl);
-  card.appendChild(descEl);
+  card.appendChild(body);
   return card;
 }
 

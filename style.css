@@ -1196,23 +1196,20 @@ button {
   color: #F8FAFC;
 }
 
+/* Stacked rows, each laid out horizontally. Three columns inside the 480px
+   shell left roughly four characters per line, which broke every sentence
+   into a narrow ribbon. */
 .result-insight-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-
-@media (max-width: 480px) {
-  .result-insight-grid {
-    grid-template-columns: 1fr;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .result-insight-card {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: flex-start;
-  gap: 6px;
+  gap: 14px;
   padding: 16px 18px;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.035);
@@ -1220,7 +1217,15 @@ button {
   text-align: left;
 }
 
+.result-insight-body {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
 .result-insight-icon {
+  flex-shrink: 0;
   width: 34px;
   height: 34px;
   display: flex;
@@ -1230,7 +1235,7 @@ button {
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid var(--color-card-border);
   color: var(--persona-accent, #7DD3FC);
-  margin-bottom: 4px;
+  margin-top: 2px;
 }
 
 .result-insight-icon-svg {

@@ -461,11 +461,16 @@ export function renderResult(root, data, handlers) {
   [badge, name, englishName, scoreBlock, stats, insightHero, insightGrid, statusGrid, mission].forEach(function (el) { card.appendChild(el); });
   screen.appendChild(card);
 
+  // The result card runs about two screens tall on a phone, so the main
+  // action rides along at the bottom of the viewport instead of waiting at
+  // the very end where it has to be scrolled for.
   var shareBtn = createEl('button', 'btn-primary');
   shareBtn.type = 'button';
   shareBtn.textContent = '產生我的生存卡';
   shareBtn.addEventListener('click', handlers.onShare);
-  screen.appendChild(shareBtn);
+  var actions = createEl('div', 'result-actions');
+  actions.appendChild(shareBtn);
+  screen.appendChild(actions);
 
   var restartBtn = createEl('button', 'btn-secondary');
   restartBtn.type = 'button';

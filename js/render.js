@@ -445,7 +445,10 @@ export function renderResult(root, data, handlers) {
   var mission = buildMissionCard(data.goalLabel, data.goalImage);
   var course = buildCourseCard(data.course);
 
-  [badge, name, englishName, scoreBlock, stats, insightHero, insightGrid, statusGrid, mission, course].forEach(function (el) { card.appendChild(el); });
+  // Course sits right after the deep-dive analysis: the cards above end on
+  // 建議行動, so the suggestion follows straight on from it instead of
+  // trailing after the 2027 mission, which closes the card.
+  [badge, name, englishName, scoreBlock, stats, insightHero, insightGrid, course, statusGrid, mission].forEach(function (el) { card.appendChild(el); });
   screen.appendChild(card);
 
   // The result card runs about two screens tall on a phone, so the main
@@ -559,11 +562,10 @@ function buildCourseCard(course) {
   wrap.target = '_blank';
   wrap.rel = 'noopener noreferrer';
 
+  // Leads with the recommendation, then explains why, so it reads as advice
+  // following on from the analysis above rather than a footer ad.
   var label = createEl('p', 'result-course-label');
-  label.textContent = 'RECOMMENDED FOR YOU';
-
-  var reason = createEl('p', 'result-course-reason');
-  reason.textContent = course.reason;
+  label.textContent = '先推薦你這門課';
 
   var row = createEl('div', 'result-course-row');
   row.appendChild(buildIconSpan(UI_ICONS.layers, 'result-course-icon'));
@@ -572,10 +574,13 @@ function buildCourseCard(course) {
   row.appendChild(nameEl);
   row.appendChild(buildIconSpan(STAT_ICONS.moveUpRight, 'result-course-arrow'));
 
+  var reason = createEl('p', 'result-course-reason');
+  reason.textContent = course.reason;
+
   var source = createEl('p', 'result-course-source');
   source.textContent = '六角學院';
 
-  [label, reason, row, source].forEach(function (el) { wrap.appendChild(el); });
+  [label, row, reason, source].forEach(function (el) { wrap.appendChild(el); });
   return wrap;
 }
 

@@ -183,13 +183,13 @@ export function renderIntro(root, handlers) {
   title.textContent = '工程師生存實驗室';
   screen.appendChild(fadeUp(title));
 
-  var subtitle = createEl('p', 'intro-subtitle');
-  subtitle.textContent = 'AI 時代，你是哪一種工程師生存者？';
-  screen.appendChild(fadeUp(subtitle));
-
   var brand = createEl('p', 'intro-brand');
   brand.textContent = '六角學院 X 多角人才共同開發';
   screen.appendChild(fadeUp(brand));
+
+  var subtitle = createEl('p', 'intro-subtitle');
+  subtitle.textContent = 'AI 時代，你是哪一種工程師生存者？';
+  screen.appendChild(fadeUp(subtitle));
 
   var body = createEl('p', 'intro-body');
   body.innerHTML = '工程師每天都在 Debug，<br>這次換你的職涯上機測試。';

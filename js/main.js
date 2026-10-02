@@ -159,7 +159,7 @@ function handleGoToLead() {
 async function handleLeadSubmit(leadData) {
   if (state.isSubmitting) return;
   state.isSubmitting = true;
-  setLeadButtonsSubmitting(true);
+  setLeadButtonsSubmitting(true, 'submit');
   var personaName = PERSONAS[state.persona].name;
   var labeledAnswers = buildLabeledAnswers();
   var promises = [submitResponse(labeledAnswers, personaName, state.survivalIndex, leadData.openFeedback)];
@@ -177,7 +177,7 @@ async function handleLeadSubmit(leadData) {
 async function handleLeadSkip(openFeedback) {
   if (state.isSubmitting) return;
   state.isSubmitting = true;
-  setLeadButtonsSubmitting(true);
+  setLeadButtonsSubmitting(true, 'skip');
   var labeledAnswers = buildLabeledAnswers();
   var result = await submitResponse(labeledAnswers, PERSONAS[state.persona].name, state.survivalIndex, openFeedback);
   state.hasSubmitError = result.status === 'error';
@@ -186,16 +186,21 @@ async function handleLeadSkip(openFeedback) {
   rerender();
 }
 
-function setLeadButtonsSubmitting(isSubmitting) {
-  var submitBtn = document.querySelector('.screen--lead .btn-primary');
-  var skipBtn = document.querySelector('.screen--lead .btn-secondary');
-  if (submitBtn) {
-    submitBtn.disabled = isSubmitting;
-    submitBtn.textContent = isSubmitting ? '送出中…' : '送出';
-  }
-  if (skipBtn) {
-    skipBtn.disabled = isSubmitting;
-  }
+// Only the button the player actually pressed shows a busy label. The other
+// is disabled so it cannot be pressed too, but keeps its own wording -- having
+// 送出 flip to 送出中… after tapping 我只是來玩玩 read as if it had submitted.
+function setLeadButtonsSubmitting(isSubmitting, pressed) {
+  var buttons = [
+    { el: document.querySelector('.screen--lead .btn-primary'), key: 'submit', busy: '送出中…' },
+    { el: document.querySelector('.screen--lead .btn-secondary'), key: 'skip', busy: '完成中…' }
+  ];
+  buttons.forEach(function (btn) {
+    if (!btn.el) return;
+    btn.el.disabled = isSubmitting;
+    if (isSubmitting && btn.key === pressed) {
+      btn.el.textContent = btn.busy;
+    }
+  });
 }
 
 rerender();

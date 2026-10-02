@@ -11,7 +11,7 @@ ITEMS = [
     ('mascot', 'mascot-coding',        (0, 0, 256, 256)),
     ('mascot', 'mascot-thinking',      (256, 0, 512, 256)),
     ('mascot', 'mascot-idea',          (512, 0, 768, 256)),
-    ('mascot', 'mascot-stressed',      (768, 0, 1024, 256)),
+    ('mascot', 'mascot-stressed',      (768, 0, 1006, 256)),
     ('mascot', 'mascot-cheering',      (1024, 0, 1280, 256)),
     ('mascot', 'mascot-searching',     (1280, 0, 1536, 256)),
     ('mascot', 'mascot-money',         (0, 256, 256, 505)),
@@ -54,17 +54,37 @@ OVERRIDE = {
 }
 # A few cells keep a stray speck of their neighbour's shadow at the default
 # cutoff and need a firmer one; raising it globally would eat thin artwork.
-THRESH_OVERRIDE = {
-    'growth-01-sprout': 80.0,
-    'bug-noopportunity': 80.0,
-}
-THRESH = {'mascot': 62.0, 'growth': 62.0, 'bugs': 62.0, 'badges': 62.0}
+MAX_HOLE = 120  # px; above this an enclosed gap is background, not interior
+
+THRESH_OVERRIDE = {}
+EDGE_THR = 8           # gradient strength that counts as an artwork outline
+THRESH = {'mascot': 30.0, 'growth': 30.0, 'bugs': 30.0, 'badges': 30.0}  # background cut
 MARGIN = {'mascot': 28, 'growth': 20, 'bugs': 10, 'ai': 14, 'badges': (4, 12, 12, 12)}
 # how big a blob must be (relative to the biggest kept blob) to survive
 KEEP_RATIO = {'mascot': 0.004, 'growth': 0.004, 'bugs': 0.05, 'ai': 0.02, 'badges': 0.02}
 
 
-def _matte(category, box, margin, thresh, feather):
+def edge_barrier(crop, thr):
+    """Dilated gradient edges. The artwork is drawn with crisp outlines; the
+    glow painted around each sprite has none, so flooding in from the border
+    and stopping at edges lands exactly on the artwork's own boundary."""
+    a = crop.astype(np.int16)
+    h, w, _ = a.shape
+    g = np.zeros((h, w), np.int16)
+    g[1:, :] = np.maximum(g[1:, :], np.abs(a[1:, :] - a[:-1, :]).max(-1))
+    g[:-1, :] = np.maximum(g[:-1, :], np.abs(a[:-1, :] - a[1:, :]).max(-1))
+    g[:, 1:] = np.maximum(g[:, 1:], np.abs(a[:, 1:] - a[:, :-1]).max(-1))
+    g[:, :-1] = np.maximum(g[:, :-1], np.abs(a[:, :-1] - a[:, 1:]).max(-1))
+    b = g >= thr
+    o = b.copy()
+    o[1:, :] |= b[:-1, :]; o[:-1, :] |= b[1:, :]
+    o[:, 1:] |= b[:, :-1]; o[:, :-1] |= b[:, 1:]
+    o[1:, 1:] |= b[:-1, :-1]; o[:-1, :-1] |= b[1:, 1:]
+    o[1:, :-1] |= b[:-1, 1:]; o[:-1, 1:] |= b[1:, :-1]
+    return o
+
+
+def _matte(category, box, margin, edge_thr, bg_cut):
     nx0, ny0, nx1, ny1 = box
     mt, mr, mb, ml = (margin if isinstance(margin, tuple) else (margin,) * 4)
     ex0, ey0 = max(0, nx0 - ml), max(0, ny0 - mt)
@@ -72,26 +92,19 @@ def _matte(category, box, margin, thresh, feather):
     crop = SHEET[ey0:ey1, ex0:ex1]
     h, w, _ = crop.shape
 
-    bg = model_background(crop)
-    dist = box_blur(np.sqrt(((crop - bg) ** 2).sum(axis=2)), 1)
-
-    # Clean background sits around dist~1 and the artwork around dist~130, so a
-    # cutoff in the 30s separates them. The old build flood-filled from the
-    # border and kept everything the flood could not reach, which trapped each
-    # sprite's own soft glow -- invisible on a light checkerboard, but an ugly
-    # olive halo on the site's dark background.
-    # Clean background measures dist~1, the artwork ~130, and each sprite's
-    # baked-in glow lands in between. Cutting at ~60 drops the glow without
-    # eating the artwork; anything lower leaves a halo that is invisible on a
-    # light checkerboard but obvious on the site's dark background.
-    solid = dist > thresh
-
+    barrier = edge_barrier(crop, edge_thr)
     border = np.zeros((h, w), bool)
     border[0, :] = border[-1, :] = True
     border[:, 0] = border[:, -1] = True
-    outside = flood_from_border(border & ~solid, solid)
-    silhouette = ~outside
-    holes = silhouette & ~solid
+    silhouette = ~flood_from_border(border & ~barrier, barrier)
+
+    # Edges can also enclose a pocket of plain background (the block that used
+    # to sit behind the mascot's tail). Compare against a background model
+    # built by diffusing the border inward and drop anything that still looks
+    # like untouched background.
+    bg = model_background(crop)
+    dist = box_blur(np.sqrt(((crop - bg) ** 2).sum(axis=2)), 1)
+    silhouette &= dist >= bg_cut
 
     cy0, cy1 = ny0 - ey0, ny1 - ey0
     cx0, cx1 = nx0 - ex0, nx1 - ex0
@@ -124,18 +137,19 @@ def _matte(category, box, margin, thresh, feather):
         elif b[0] >= max(main[0] * ratio, 20):
             keep[b[1], b[2]] = True
 
-    ramp = np.clip((dist - (thresh - feather)) / feather, 0, 1)
-    alpha = np.where(holes, 1.0, ramp)
-    alpha = np.where(keep, alpha, 0.0)
+    # 1px feather so edges are not stair-stepped at display size.
+    alpha = np.clip((box_blur(keep.astype(np.float64), 1) - 0.22) / 0.5, 0, 1)
+    alpha = np.where(keep, np.maximum(alpha, 0.55), alpha)
+    alpha = np.where(box_blur(keep.astype(np.float64), 1) > 0, alpha, 0.0)
     return crop, alpha, main[4], dropped
 
 
-def extract_item(category, box, thresh=None, feather=14.0, margin=None):
+def extract_item(category, box, thresh=None, feather=None, margin=None):
     if thresh is None:
         thresh = THRESH[category]
     if margin is None:
         margin = MARGIN[category]
-    crop, alpha, main_clipped, dropped = _matte(category, box, margin, thresh, feather)
+    crop, alpha, main_clipped, dropped = _matte(category, box, margin, EDGE_THR, thresh)
     return np.dstack([crop, alpha * 255]).astype(np.uint8), alpha, dropped, main_clipped, margin
 
 

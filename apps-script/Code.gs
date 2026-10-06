@@ -60,6 +60,7 @@ function appendLead(ss, payload) {
   }
   sheet.appendRow([
     new Date(),
+    safeCell(payload.nickname),
     safeCell(payload.email),
     safeCell(payload.interests),
     safeCell(payload.persona),

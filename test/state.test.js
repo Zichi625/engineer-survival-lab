@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createInitialState, recordSingleAnswer, toggleMultiAnswer, isLastLevel, advanceLevel, goBackLevel } from '../js/state.js';
+import { createInitialState, recordSingleAnswer, toggleMultiAnswer, isLastLevel, advanceLevel, goBackLevel, recordRegistration, validateRegistration } from '../js/state.js';
 
 test('createInitialState starts on the intro screen with no answers', function () {
   var state = createInitialState();
@@ -101,4 +101,25 @@ test('goBackLevel keeps the answer so it can be changed', function () {
   advanceLevel(state);
   goBackLevel(state);
   assert.equal(state.answers.role, 'frontend');
+});
+
+test('validateRegistration 擋下空白暱稱', function () {
+  assert.equal(validateRegistration('', ''), 'nickname');
+  assert.equal(validateRegistration('   ', ''), 'nickname');
+});
+
+test('Email 目前是選填，留空也能開始', function () {
+  assert.equal(validateRegistration('小琪', ''), null);
+});
+
+test('Email 有填就要是合理格式', function () {
+  assert.equal(validateRegistration('小琪', 'not-an-email'), 'email');
+  assert.equal(validateRegistration('小琪', 'a@b.co'), null);
+});
+
+test('recordRegistration 會去掉前後空白', function () {
+  var state = createInitialState();
+  recordRegistration(state, '  小琪  ', '  a@b.co ');
+  assert.equal(state.nickname, '小琪');
+  assert.equal(state.email, 'a@b.co');
 });

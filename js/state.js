@@ -1,7 +1,13 @@
+// Flip to true when Email should block the start as well. Everything else
+// -- the field, the hint, the validation -- is already in place.
+export var EMAIL_REQUIRED = false;
+
 export function createInitialState() {
   return {
     screen: 'intro',
     levelIndex: 0,
+    nickname: '',
+    email: '',
     answers: {},
     persona: null,
     survivalIndex: null,
@@ -52,4 +58,18 @@ export function goBackLevel(state) {
     state.levelIndex -= 1;
   }
   return state;
+}
+
+export function recordRegistration(state, nickname, email) {
+  state.nickname = (nickname || '').trim();
+  state.email = (email || '').trim();
+  return state;
+}
+
+// Returns the field that is not acceptable yet, or null when good to go.
+export function validateRegistration(nickname, email) {
+  if (!(nickname || '').trim()) return 'nickname';
+  var mail = (email || '').trim();
+  if (!mail) return EMAIL_REQUIRED ? 'email' : null;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail) ? null : 'email';
 }

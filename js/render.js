@@ -1,6 +1,7 @@
 import { QUESTIONS } from './questions.js';
 import { ROLE_ICONS, STAT_ICONS, OPTION_ICONS, UI_ICONS, BRAND_ICONS } from './icons.js';
 import { flashClass } from './animations.js';
+import { EMAIL_REQUIRED } from './state.js';
 
 var TOTAL_LEVELS = QUESTIONS.length;
 
@@ -201,6 +202,102 @@ export function renderIntro(root, handlers) {
   root.appendChild(screen);
 }
 
+export function renderRegister(root, state, handlers) {
+  root.innerHTML = '';
+  var screen = createEl('div', 'screen screen--register');
+
+  var character = document.createElement('img');
+  character.className = 'character';
+  character.src = mascotSrc('cheering');
+  character.alt = '多角龍研究員';
+  screen.appendChild(character);
+
+  var title = createEl('h2', 'register-title');
+  title.textContent = '開始之前，先報到';
+  screen.appendChild(title);
+
+  var hint = createEl('p', 'register-hint');
+  hint.textContent = '暱稱會用在你的生存卡上，不用填真名。';
+  screen.appendChild(hint);
+
+  var error = createEl('p', 'register-error');
+  error.hidden = true;
+  screen.appendChild(error);
+
+  function field(labelText, note, input) {
+    var wrap = createEl('label', 'register-field');
+    var row = createEl('span', 'register-label-row');
+    var label = createEl('span', 'register-label');
+    label.textContent = labelText;
+    row.appendChild(label);
+    var tag = createEl('span', 'register-tag');
+    tag.textContent = note;
+    row.appendChild(tag);
+    wrap.appendChild(row);
+    wrap.appendChild(input);
+    return wrap;
+  }
+
+  var nicknameInput = document.createElement('input');
+  nicknameInput.type = 'text';
+  nicknameInput.className = 'register-input';
+  nicknameInput.placeholder = '例如：小琪、阿哲、每天都在修 bug';
+  nicknameInput.maxLength = 20;
+  nicknameInput.value = state.nickname || '';
+  nicknameInput.autocomplete = 'nickname';
+  screen.appendChild(field('暱稱', '必填', nicknameInput));
+
+  var emailInput = document.createElement('input');
+  emailInput.type = 'email';
+  emailInput.className = 'register-input';
+  emailInput.placeholder = 'you@example.com';
+  emailInput.value = state.email || '';
+  emailInput.autocomplete = 'email';
+  screen.appendChild(field('Email', EMAIL_REQUIRED ? '必填' : '選填', emailInput));
+
+  var emailNote = createEl('p', 'register-note');
+  emailNote.textContent = EMAIL_REQUIRED
+    ? '測驗結果與《2026 工程師生存調查》會寄到這裡。'
+    : '想收到《2026 工程師生存調查》再留就好，現在跳過也可以。';
+  screen.appendChild(emailNote);
+
+  function submit() {
+    var problem = handlers.onSubmit(nicknameInput.value, emailInput.value);
+    if (!problem) return;
+    error.hidden = false;
+    error.textContent = problem === 'nickname'
+      ? '請先填一個暱稱，隨便取都可以。'
+      : (EMAIL_REQUIRED && !emailInput.value.trim())
+        ? '請留下 Email。'
+        : 'Email 格式看起來不太對，再檢查一下。';
+    var bad = problem === 'nickname' ? nicknameInput : emailInput;
+    bad.classList.add('register-input--bad');
+    bad.focus();
+  }
+
+  [nicknameInput, emailInput].forEach(function (input) {
+    input.addEventListener('input', function () {
+      input.classList.remove('register-input--bad');
+      error.hidden = true;
+    });
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); submit(); }
+    });
+  });
+
+  var startBtn = createEl('button', 'btn-primary');
+  startBtn.type = 'button';
+  startBtn.textContent = '開始生存測驗 →';
+  startBtn.addEventListener('click', submit);
+  screen.appendChild(startBtn);
+
+  var privacy = createEl('p', 'register-privacy');
+  privacy.textContent = '12 題的作答結果一律匿名統計，不會和你的暱稱或 Email 綁在一起。';
+  screen.appendChild(privacy);
+
+  root.appendChild(screen);
+}
+
 export function renderLevel(root, question, state, handlers) {
   root.innerHTML = '';
   var screen = createEl('div', 'screen screen--level');
@@ -368,6 +465,12 @@ export function renderResult(root, data, handlers) {
   card.style.setProperty('--persona-accent', data.persona.accent);
   card.style.setProperty('--persona-accent-strong', data.persona.accentStrong);
   card.style.setProperty('--persona-glow', data.persona.accentGlow);
+
+  if (data.nickname) {
+    var greeting = createEl('p', 'result-greeting');
+    greeting.textContent = data.nickname + '，你的生存報告出爐了';
+    card.appendChild(greeting);
+  }
 
   var badge = createEl('div', 'result-badge');
   badge.textContent = 'SURVIVAL TYPE';
@@ -652,18 +755,11 @@ export function renderLead(root, handlers) {
   });
   screen.appendChild(checkboxList);
 
-  var emailInput = document.createElement('input');
-  emailInput.type = 'email';
-  emailInput.placeholder = 'Email（選填）';
-  emailInput.className = 'lead-email';
-  screen.appendChild(emailInput);
-
   var submitBtn = createEl('button', 'btn-primary');
   submitBtn.type = 'button';
   submitBtn.textContent = '送出';
   submitBtn.addEventListener('click', function () {
     handlers.onSubmit({
-      email: emailInput.value.trim(),
       interests: options.filter(function (opt) { return checkedState[opt.id]; }).map(function (opt) { return opt.label; }),
       openFeedback: feedbackInput.value.trim()
     });

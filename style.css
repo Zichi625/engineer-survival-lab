@@ -1505,6 +1505,101 @@ button {
   color: #F8FAFC;
 }
 
+/* ---------- register (nickname + email, before level 1) ---------- */
+.screen--register { gap: 14px; }
+
+.register-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #F8FAFC;
+}
+
+.register-hint {
+  margin: -6px 0 0;
+  font-size: 14px;
+  color: var(--color-text-soft);
+}
+
+.register-field {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  text-align: left;
+}
+
+.register-label-row { display: flex; align-items: baseline; gap: 8px; }
+
+.register-label { font-size: 14px; font-weight: 700; color: var(--color-text); }
+
+.register-tag {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: var(--color-text-soft);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--color-card-border);
+}
+
+.register-input {
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-card-border);
+  background: var(--color-card-bg);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 16px;
+  transition: border-color 0.15s ease;
+}
+
+.register-input::placeholder { color: var(--color-text-soft); }
+
+.register-input:focus {
+  outline: none;
+  border-color: #7DD3FC;
+}
+
+.register-input--bad { border-color: var(--color-accent); }
+
+.register-error {
+  margin: 0;
+  width: 100%;
+  text-align: left;
+  font-size: 13.5px;
+  color: var(--color-accent);
+}
+
+.register-error[hidden] { display: none; }
+
+.register-note {
+  margin: -4px 0 0;
+  width: 100%;
+  text-align: left;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--color-text-soft);
+}
+
+.register-privacy {
+  margin: 2px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--color-text-soft);
+  opacity: 0.85;
+}
+
+.result-greeting {
+  margin: 0 0 -4px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--persona-accent, #7DD3FC);
+}
+
 .lead-title {
   font-size: 20px;
   color: #F8FAFC;

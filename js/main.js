@@ -1,8 +1,8 @@
 import { QUESTIONS } from './questions.js';
 import { PERSONAS } from './results.js';
 import { computeDimensions, computeSurvivalIndex, computePersona } from './scoring.js';
-import { createInitialState, recordSingleAnswer, toggleMultiAnswer, isLastLevel, advanceLevel, goBackLevel } from './state.js';
-import { renderIntro, renderLevel, renderCalculating, renderResult, renderLead, renderDone } from './render.js';
+import { createInitialState, recordSingleAnswer, toggleMultiAnswer, isLastLevel, advanceLevel, goBackLevel, recordRegistration, validateRegistration } from './state.js';
+import { renderIntro, renderRegister, renderLevel, renderCalculating, renderResult, renderLead, renderDone } from './render.js';
 import { exportResultCardImage, shareOrDownloadImage } from './share.js';
 import { submitResponse, submitLead } from './submit.js';
 import { recommendCourse } from './courses.js';
@@ -19,6 +19,8 @@ var state = createInitialState();
 function rerender() {
   if (state.screen === 'intro') {
     renderIntro(root, { onStart: handleStart });
+  } else if (state.screen === 'register') {
+    renderRegister(root, state, { onSubmit: handleRegister });
   } else if (state.screen === 'level') {
     renderLevel(root, QUESTIONS[state.levelIndex], state, {
       onSingleSelect: handleSingleSelect,
@@ -52,7 +54,8 @@ function buildResultData() {
     aiBuffLabel: findBuffLabel('aiFrequency', state.answers.aiFrequency),
     goalLabel: findLabel('goal2027', state.answers.goal2027),
     goalImage: findImage('goal2027', state.answers.goal2027),
-    course: recommendCourse(state.answers)
+    course: recommendCourse(state.answers),
+    nickname: state.nickname
   };
 }
 
@@ -93,6 +96,15 @@ function buildLabeledAnswers() {
 }
 
 function handleStart() {
+  state.screen = 'register';
+  rerender();
+}
+
+// Returns the offending field name so the form can mark it, or nothing on success.
+function handleRegister(nickname, email) {
+  var problem = validateRegistration(nickname, email);
+  if (problem) return problem;
+  recordRegistration(state, nickname, email);
   state.screen = 'level';
   state.levelIndex = 0;
   rerender();
@@ -165,9 +177,13 @@ async function handleLeadSubmit(leadData) {
   var personaName = PERSONAS[state.persona].name;
   var labeledAnswers = buildLabeledAnswers();
   var promises = [submitResponse(labeledAnswers, personaName, state.survivalIndex, leadData.openFeedback)];
-  var hasLeadInfo = Boolean(leadData.email) || leadData.interests.length > 0;
+  var hasLeadInfo = Boolean(state.email) || leadData.interests.length > 0;
   if (hasLeadInfo) {
-    promises.push(submitLead(leadData, personaName, state.survivalIndex));
+    promises.push(submitLead({
+      nickname: state.nickname,
+      email: state.email,
+      interests: leadData.interests
+    }, personaName, state.survivalIndex));
   }
   var results = await Promise.all(promises);
   state.hasSubmitError = results.some(function (r) { return r.status === 'error'; });

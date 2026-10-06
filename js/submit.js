@@ -22,6 +22,7 @@ export function submitResponse(answers, persona, survivalIndex, openFeedback) {
 
 export function submitLead(leadData, persona, survivalIndex) {
   return postToSheet('leads', {
+    nickname: leadData.nickname || '',
     email: leadData.email || '',
     interests: (leadData.interests || []).join('、'),
     persona: persona || '',

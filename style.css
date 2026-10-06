@@ -279,7 +279,7 @@ button {
 .intro-hud-wrap {
   position: relative;
   width: 100%;
-  max-width: 210px;
+  max-width: 260px;
   aspect-ratio: 1;
   display: flex;
   align-items: center;
@@ -460,11 +460,11 @@ button {
 }
 
 .intro-brand {
-  font-size: 14px;
+  font-size: 17px;
   font-weight: 800;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   color: var(--color-accent);
-  margin: -6px 0 0;
+  margin: -4px 0 0;
 }
 
 .intro-body {
@@ -536,50 +536,7 @@ button {
   display: none;
 }
 
-@media (max-width: 899px) {
-  /* Grid rather than flex: the scanner needs a row of its own, and a flex
-     item cannot both span the line and keep a max-width. */
-  .intro-hero-stage {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    justify-items: center;
-    /* The base rule centres items; in grid that stops the two panels sharing
-       a height, so they sit at different tops. */
-    align-items: stretch;
-  }
 
-  /* Rows pinned explicitly: the panels sit before and after the scanner in
-     the DOM, so auto-placement would scatter them around it. */
-  .intro-hud-wrap {
-    grid-row: 1;
-    grid-column: 1 / -1;
-    max-width: 150px;
-  }
-
-  .hud-panel--chart-left,
-  .hud-panel--chart-right {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    min-width: 0;
-    padding: 10px 12px;
-    background: rgba(255, 255, 255, 0.035);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: var(--radius-md);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
-    opacity: 0.7;
-  }
-
-  .hud-panel--chart-left { grid-row: 2; grid-column: 1; }
-  .hud-panel--chart-right { grid-row: 2; grid-column: 2; }
-
-  .hud-panel--chart-left .hud-panel-bars { height: 38px; gap: 6px; }
-  .hud-panel--chart-right .hud-donut { width: 38px; height: 38px; }
-  .hud-panel--chart-right .hud-panel-donut { gap: 5px; }
-  .hud-panel--chart-right .hud-donut-label { font-size: 11px; }
-}
 
 @media (min-width: 900px) {
   .intro-hero-stage {
@@ -605,9 +562,7 @@ button {
   }
 
   .hud-panel--code { left: -60px; top: 24%; }
-  .hud-panel--chart-left { left: -10px; top: 74%; animation-delay: 0.6s; }
   .hud-panel--checklist { right: -60px; top: 24%; animation-delay: 1.2s; }
-  .hud-panel--chart-right { right: -10px; top: 74%; animation-delay: 1.8s; }
 }
 
 @keyframes hudFloat {
@@ -669,53 +624,12 @@ button {
   height: 100%;
 }
 
-.hud-panel-bars {
-  width: 100%;
-  height: 60px;
-  display: flex;
-  align-items: flex-end;
-  gap: 8px;
-}
 
-.hud-bar {
-  flex: 1;
-  border-radius: 3px 3px 0 0;
-  background: linear-gradient(180deg, #7DD3FC, rgba(125, 211, 252, 0.15));
-  transform-origin: bottom;
-  animation: hudBarPulse 6.5s ease-in-out infinite;
-}
 
-.hud-bar:nth-child(2) { animation-duration: 8s; animation-delay: -1.2s; }
-.hud-bar:nth-child(3) { animation-duration: 7.2s; animation-delay: -2.6s; }
-.hud-bar:nth-child(4) { animation-duration: 9s; animation-delay: -4s; }
 
-@keyframes hudBarPulse {
-  0%, 100% { transform: scaleY(1); }
-  50% { transform: scaleY(0.72); }
-}
 
-.hud-panel-donut {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
 
-.hud-donut {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: conic-gradient(#A78BFA 0% 72%, rgba(255, 255, 255, 0.08) 72% 100%);
-  -webkit-mask: radial-gradient(circle, transparent 55%, black 56%);
-  mask: radial-gradient(circle, transparent 55%, black 56%);
-  animation: hudSpin 14s linear infinite;
-}
 
-.hud-donut-label {
-  font-size: 12px;
-  font-weight: 700;
-  color: #C4B5FD;
-}
 
 .intro-info-grid {
   width: 100%;
@@ -1444,16 +1358,23 @@ button {
   text-align: left;
   padding: 18px;
   border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--color-card-border);
+  /* Solid tinted panel, not the translucent surface the other blocks use:
+     this is the only thing on the card that is tappable, so it has to look
+     different from the read-only sections around it. */
+  background:
+    linear-gradient(135deg, rgba(125, 211, 252, 0.16) 0%, rgba(167, 139, 250, 0.16) 100%),
+    #141C2B;
+  border: 1px solid rgba(125, 211, 252, 0.38);
+  box-shadow: 0 6px 20px rgba(8, 14, 28, 0.35);
   text-decoration: none;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
 
 .result-course:hover,
 .result-course:focus-visible {
-  border-color: var(--persona-accent, var(--color-selected-border));
-  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(125, 211, 252, 0.7);
+  box-shadow: 0 10px 26px rgba(8, 14, 28, 0.45);
+  transform: translateY(-2px);
 }
 
 .result-course-label {
@@ -1461,14 +1382,14 @@ button {
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.04em;
-  color: var(--persona-accent, #7DD3FC);
+  color: #7DD3FC;
 }
 
 .result-course-reason {
   margin: 10px 0 0;
   font-size: 13px;
   line-height: 1.65;
-  color: var(--color-text-soft);
+  color: #BAC6D8;
 }
 
 .result-course-row {
@@ -1481,7 +1402,7 @@ button {
   flex-shrink: 0;
   width: 18px;
   height: 18px;
-  color: var(--persona-accent, #7DD3FC);
+  color: #7DD3FC;
 }
 
 .result-course-name {
@@ -1496,7 +1417,7 @@ button {
   flex-shrink: 0;
   width: 16px;
   height: 16px;
-  color: var(--persona-accent, #7DD3FC);
+  color: #7DD3FC;
 }
 
 .result-course-icon svg,

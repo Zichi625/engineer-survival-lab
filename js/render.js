@@ -114,25 +114,7 @@ function buildChecklistPanel() {
   return list;
 }
 
-function buildBarChartPanel() {
-  var chart = createEl('div', 'hud-panel-bars');
-  [40, 65, 50, 85].forEach(function (h) {
-    var bar = createEl('span', 'hud-bar');
-    bar.style.height = h + '%';
-    chart.appendChild(bar);
-  });
-  return chart;
-}
 
-function buildDonutPanel() {
-  var wrap = createEl('div', 'hud-panel-donut');
-  var donut = createEl('div', 'hud-donut');
-  var label = createEl('span', 'hud-donut-label');
-  label.textContent = '72%';
-  wrap.appendChild(donut);
-  wrap.appendChild(label);
-  return wrap;
-}
 
 function buildInitializeButton(handlers) {
   var startBtn = createEl('button', 'btn-cta');
@@ -165,10 +147,8 @@ export function renderIntro(root, handlers) {
 
   var heroStage = createEl('div', 'intro-hero-stage');
   heroStage.appendChild(buildHudPanel('code', buildCodePanel()));
-  heroStage.appendChild(buildHudPanel('chart-left', buildBarChartPanel()));
   heroStage.appendChild(buildMascotScanner());
   heroStage.appendChild(buildHudPanel('checklist', buildChecklistPanel()));
-  heroStage.appendChild(buildHudPanel('chart-right', buildDonutPanel()));
   screen.appendChild(fadeUp(heroStage));
 
   var eyebrowRow = createEl('div', 'intro-eyebrow-row');
@@ -190,10 +170,6 @@ export function renderIntro(root, handlers) {
   var subtitle = createEl('p', 'intro-subtitle');
   subtitle.textContent = 'AI 時代，你是哪一種工程師生存者？';
   screen.appendChild(fadeUp(subtitle));
-
-  var body = createEl('p', 'intro-body');
-  body.innerHTML = '工程師每天都在 Debug，<br>這次換你的職涯上機測試。';
-  screen.appendChild(fadeUp(body));
 
   var bodyTags = createEl('p', 'intro-body intro-body--tags');
   bodyTags.appendChild(document.createTextNode('完成 12 個生存關卡，分析你的'));

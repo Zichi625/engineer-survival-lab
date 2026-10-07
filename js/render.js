@@ -194,7 +194,9 @@ export function renderIntro(root, handlers) {
   var infoDefs = [
     { icon: UI_ICONS.layers, value: '12', label: 'LEVELS', sub: '生存關卡' },
     { icon: UI_ICONS.clock, value: '60–90s', label: 'EST. TIME', sub: '預計完成時間' },
-    { icon: STAT_ICONS.lock, value: 'ANONYMOUS MODE', label: 'NO LOGIN REQUIRED', sub: '前 12 題完全匿名' }
+    // Not 'ANONYMOUS MODE' any more: registration now takes an Email, so a
+    // blanket anonymity claim would not match what the data actually does.
+    { icon: STAT_ICONS.lock, value: 'NO LOGIN', label: 'QUICK START', sub: '免註冊帳號' }
   ];
   infoDefs.forEach(function (def) { infoGrid.appendChild(buildGameInfoCard(def)); });
   screen.appendChild(fadeUp(infoGrid));

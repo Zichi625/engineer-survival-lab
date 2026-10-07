@@ -271,7 +271,7 @@ function buildConsentCheckbox(opts) {
 
 function buildMarketingConsent() {
   return buildConsentCheckbox({
-    parts: ['我願意收到工程師課程、學習、活動及職涯相關資訊'],
+    parts: ['我願意收到六角課程、學習、活動及職涯相關資訊'],
     tag: '選填'
   });
 }
@@ -389,7 +389,7 @@ function buildPersonalDataNotice(onClose) {
   ]);
 
   section('八、課程及相關資訊', [
-    '如您另外勾選「我願意收到工程師課程、學習、活動及職涯相關資訊」，我們將依您的同意，透過電子郵件寄送相關內容。',
+    '如您另外勾選「我願意收到六角課程、學習、活動及職涯相關資訊」，我們將依您的同意，透過電子郵件寄送相關內容。',
     '您可以隨時透過電子郵件中的「取消訂閱」功能，或聯絡 ' + orPlaceholder(cfg.contactEmail) + '，停止接收相關資訊。',
     '取消訂閱不影響您參與本次活動及已取得之生存卡。'
   ]);

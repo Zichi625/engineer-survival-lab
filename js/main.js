@@ -10,7 +10,7 @@ import { flashClass } from './animations.js';
 
 var SINGLE_SELECT_FIELDS = [
   'role', 'experience', 'satisfaction', 'salary', 'headhunterReaction',
-  'jumpThreshold', 'careerBug', 'aiFrequency', 'aiImpact', 'aiFear', 'goal2027'
+  'jumpThreshold', 'aiFrequency', 'aiImpact', 'aiFear', 'goal2027'
 ];
 
 var root = document.getElementById('app');
@@ -49,8 +49,8 @@ function buildResultData() {
     persona: PERSONAS[state.persona],
     dimensions: state.dimensions,
     survivalIndex: state.survivalIndex,
-    careerBugLabel: findLabel('careerBug', state.answers.careerBug),
-    careerBugImage: findImage('careerBug', state.answers.careerBug),
+    careerBugLabel: findLabels('careerBug', state.answers.careerBug).join('、'),
+    careerBugImage: findImage('careerBug', (state.answers.careerBug || [])[0]),
     aiBuffLabel: findBuffLabel('aiFrequency', state.answers.aiFrequency),
     goalLabel: findLabel('goal2027', state.answers.goal2027),
     goalImage: findImage('goal2027', state.answers.goal2027),
@@ -79,6 +79,11 @@ function findImage(questionId, value) {
   return option && option.image ? option.image : '';
 }
 
+function findLabels(questionId, values) {
+  return (values || []).map(function (value) { return findLabel(questionId, value); })
+    .filter(function (label) { return label; });
+}
+
 function findBuffLabel(questionId, value) {
   var option = findOption(questionId, value);
   return option && option.buffLabel ? option.buffLabel : '';
@@ -89,9 +94,8 @@ function buildLabeledAnswers() {
   SINGLE_SELECT_FIELDS.forEach(function (fieldId) {
     labeled[fieldId] = findLabel(fieldId, state.answers[fieldId]);
   });
-  labeled.aiTools = (state.answers.aiTools || []).map(function (value) {
-    return findLabel('aiTools', value);
-  });
+  labeled.aiTools = findLabels('aiTools', state.answers.aiTools);
+  labeled.careerBug = findLabels('careerBug', state.answers.careerBug);
   return labeled;
 }
 

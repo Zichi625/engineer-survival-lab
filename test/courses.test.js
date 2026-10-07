@@ -33,7 +33,7 @@ test('後端其他情況推後端就業班', function () {
 });
 
 test('前端卡在技術焦慮推 JavaScript 核心篇', function () {
-  var r = recommendCourse({ role: 'frontend', careerBug: 'skill' });
+  var r = recommendCourse({ role: 'frontend', careerBug: ['skill'] });
   assert.equal(r.name, COURSES.jsCore.name);
 });
 

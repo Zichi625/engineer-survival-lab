@@ -8,6 +8,11 @@
 
 var BASE = 'https://www.hexschool.com';
 
+// careerBug is multi-select, so rules test membership rather than equality.
+function hasBug(answers, value) {
+  return (answers.careerBug || []).indexOf(value) !== -1;
+}
+
 export var COURSES = {
   aiUpgrade: { name: 'AI 開發進化營', url: BASE + '/courses/ai-year-upgrade.html' },
   english: { name: '40 天高效職場英文班', url: BASE + '/courses/cln-40-days-english.html' },
@@ -31,7 +36,7 @@ var RULES = [
     reason: '你把 2027 的目標放在轉進 AI，與其自己摸索，不如直接照著走一遍。'
   },
   {
-    when: function (a) { return a.aiFear === 'skillGap' || a.careerBug === 'aiAnxiety'; },
+    when: function (a) { return a.aiFear === 'skillGap' || hasBug(a, 'aiAnxiety'); },
     course: 'aiUpgrade',
     reason: '你最擔心的是 AI 時代技術跟不上——擔心沒有用，動手用過一輪才會踏實。'
   },
@@ -51,7 +56,7 @@ var RULES = [
     reason: '依你的後端／維運背景，把這塊能力補完整，接得住的題目會多很多。'
   },
   {
-    when: function (a) { return a.role === 'frontend' && a.careerBug === 'skill'; },
+    when: function (a) { return a.role === 'frontend' && hasBug(a, 'skill'); },
     course: 'jsCore',
     reason: '技術焦慮多半來自基礎沒踩穩，從核心補起會最有感。'
   },

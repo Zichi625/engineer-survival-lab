@@ -36,7 +36,12 @@ export async function exportResultCardImage(data) {
 
   var deepDiveY = HIGHLIGHT_Y + HIGHLIGHT_H + 60;
   var tagsY = deepDiveY + deepDiveHeight + 36;
-  var missionLabelY = tagsY + TAG_H + 55;
+  // Up to three career bugs can be picked. Side by side, a 390px tag only
+  // fits two of them, so a multi answer takes a full-width row of its own
+  // and pushes the buff tag underneath.
+  var stackTags = (data.careerBugLabel || '').indexOf('、') !== -1;
+  var tagsHeight = stackTags ? TAG_H * 2 + 12 : TAG_H;
+  var missionLabelY = tagsY + tagsHeight + 55;
   var missionContentY = missionLabelY + 34;
   var cardBottom = missionContentY + 46;
   var footerY = cardBottom + 55;
@@ -54,7 +59,7 @@ export async function exportResultCardImage(data) {
   drawStats(ctx, data, accent, accentStrong);
   drawHighlight(ctx, data, accent);
   drawDeepDive(ctx, data.persona.deepDive, accent, deepDiveY);
-  drawTags(ctx, data, tagsY);
+  drawTags(ctx, data, tagsY, stackTags);
   drawMission(ctx, data, missionLabelY, missionContentY);
   drawFooter(ctx, footerY);
 
@@ -260,13 +265,14 @@ function drawDeepDive(ctx, deepDive, accent, startY) {
   });
 }
 
-function drawTags(ctx, data, bugY) {
-  roundRectPath(ctx, 140, bugY, 390, TAG_H, 14);
+function drawTags(ctx, data, bugY, stackTags) {
+  var bugWidth = stackTags ? 800 : 390;
+  roundRectPath(ctx, 140, bugY, bugWidth, TAG_H, 14);
   ctx.fillStyle = 'rgba(255, 77, 77, 0.08)';
   ctx.fill();
   ctx.lineWidth = 2;
   ctx.strokeStyle = 'rgba(255, 77, 77, 0.35)';
-  roundRectPath(ctx, 140, bugY, 390, TAG_H, 14);
+  roundRectPath(ctx, 140, bugY, bugWidth, TAG_H, 14);
   ctx.stroke();
   var bugIconSize = 22;
   drawInlineIcon(ctx, 'bug', 160, bugY + TAG_H / 2 - bugIconSize / 2, bugIconSize, '#FF8A8A');
@@ -274,10 +280,11 @@ function drawTags(ctx, data, bugY) {
   ctx.font = '22px ' + FONT;
   ctx.textBaseline = 'middle';
   ctx.textAlign = 'left';
-  wrapText(ctx, '職涯卡點：' + data.careerBugLabel, 160 + bugIconSize + 10, bugY + TAG_H / 2 - 4, 350 - bugIconSize - 10, 24);
+  wrapText(ctx, '職涯卡點：' + data.careerBugLabel, 160 + bugIconSize + 10, bugY + TAG_H / 2 - 4, bugWidth - 40 - bugIconSize - 10, 24);
   ctx.textBaseline = 'alphabetic';
 
-  var buffX = 550;
+  var buffX = stackTags ? 140 : 550;
+  if (stackTags) bugY = bugY + TAG_H + 12;
   roundRectPath(ctx, buffX, bugY, 390, TAG_H, TAG_H / 2);
   ctx.fillStyle = 'rgba(139, 92, 246, 0.12)';
   ctx.fill();

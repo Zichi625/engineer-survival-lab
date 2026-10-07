@@ -1270,6 +1270,14 @@ button {
   gap: 12px;
 }
 
+.result-status-card--wide {
+  grid-column: 1 / -1;
+}
+
+.result-status-card--wide .result-status-text {
+  -webkit-line-clamp: 3;
+}
+
 .result-status-card {
   display: flex;
   align-items: center;

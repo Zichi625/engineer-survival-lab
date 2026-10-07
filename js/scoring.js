@@ -9,9 +9,13 @@ export function computeDimensions(answers) {
       addDimensionValues(dims, findOption(question, answers[question.id]));
     } else {
       var selected = answers[question.id] || [];
-      selected.forEach(function (value) {
-        addDimensionValues(dims, findOption(question, value));
-      });
+      if (question.blendMultiScores) {
+        addBlendedDimensionValues(dims, question, selected);
+      } else {
+        selected.forEach(function (value) {
+          addDimensionValues(dims, findOption(question, value));
+        });
+      }
       if (question.id === 'aiTools') {
         var toolCount = selected.filter(function (value) { return value !== 'none'; }).length;
         dims.aiAdapt.push(toolCountToValue(toolCount));
@@ -39,9 +43,14 @@ export function computePersona(answers) {
     if (question.type === 'single') {
       addPersonaPoints(totals, findOption(question, answers[question.id]));
     } else {
-      (answers[question.id] || []).forEach(function (value) {
-        addPersonaPoints(totals, findOption(question, value));
-      });
+      var chosen = answers[question.id] || [];
+      if (question.blendMultiScores) {
+        addBlendedPersonaPoints(totals, question, chosen);
+      } else {
+        chosen.forEach(function (value) {
+          addPersonaPoints(totals, findOption(question, value));
+        });
+      }
     }
   });
 
@@ -70,6 +79,41 @@ function addDimensionValues(dims, option) {
   if (!option || !option.dimensionValues) return;
   Object.keys(option.dimensionValues).forEach(function (dim) {
     dims[dim].push(option.dimensionValues[dim]);
+  });
+}
+
+// A blended multi question contributes once, as the average of what was
+// picked, so it carries the same weight as a single-answer question. Summing
+// instead would let one question with three picks outvote every other.
+function addBlendedDimensionValues(dims, question, selected) {
+  if (selected.length === 0) return;
+  var buckets = {};
+  selected.forEach(function (value) {
+    var option = findOption(question, value);
+    if (!option || !option.dimensionValues) return;
+    Object.keys(option.dimensionValues).forEach(function (dim) {
+      (buckets[dim] = buckets[dim] || []).push(option.dimensionValues[dim]);
+    });
+  });
+  Object.keys(buckets).forEach(function (dim) {
+    dims[dim].push(average(buckets[dim]));
+  });
+}
+
+function addBlendedPersonaPoints(totals, question, selected) {
+  if (selected.length === 0) return;
+  var buckets = {};
+  selected.forEach(function (value) {
+    var option = findOption(question, value);
+    if (!option || !option.personaPoints) return;
+    Object.keys(option.personaPoints).forEach(function (id) {
+      (buckets[id] = buckets[id] || []).push(option.personaPoints[id]);
+    });
+  });
+  Object.keys(buckets).forEach(function (id) {
+    // Divide by how many were picked, not by how many mention this persona,
+    // so a trait shared by one of three picks counts for a third.
+    totals[id] += buckets[id].reduce(function (a, b) { return a + b; }, 0) / selected.length;
   });
 }
 

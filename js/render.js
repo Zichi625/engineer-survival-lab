@@ -518,7 +518,12 @@ export function renderResult(root, data, handlers) {
   insightGrid.appendChild(buildInsightCard('moveUpRight', 'NEXT MOVE', data.persona.deepDive.actionTitle, data.persona.deepDive.action));
 
   var statusGrid = createEl('div', 'result-status-grid');
-  statusGrid.appendChild(buildStatusCard('bug', 'bug', 'BUG DETECTED', data.careerBugLabel, data.careerBugImage));
+  var bugCard = buildStatusCard('bug', 'bug', 'BUG DETECTED', data.careerBugLabel, data.careerBugImage);
+  // Up to three bugs can be picked; two or more need the full row to fit.
+  if ((data.careerBugLabel || '').indexOf('、') !== -1) {
+    bugCard.classList.add('result-status-card--wide');
+  }
+  statusGrid.appendChild(bugCard);
   statusGrid.appendChild(buildStatusCard('cpu', 'ai', 'AI STATUS', data.aiBuffLabel));
 
   var mission = buildMissionCard(data.goalLabel, data.goalImage);

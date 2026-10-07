@@ -10,7 +10,7 @@ function baseAnswers(overrides) {
     salary: 'over100',
     headhunterReaction: 'ignore',
     jumpThreshold: 'jobFit',
-    careerBug: 'skill',
+    careerBug: ['skill'],
     aiFrequency: 'sometimes',
     aiTools: ['chatgpt'],
     aiImpact: 'noDiff',
@@ -35,7 +35,7 @@ test('computeSurvivalIndex is the four-dimension average scaled to a percentage,
 test('a high career-bug profile produces a high careerBugIndex that pulls survivalIndex down', function () {
   var answers = baseAnswers({
     satisfaction: 'terrible',
-    careerBug: 'boss',
+    careerBug: ['boss'],
     aiFear: 'workloadSurge'
   });
   var dims = computeDimensions(answers);
@@ -63,7 +63,7 @@ test('computePersona picks aiEvolved for a heavy multi-tool AI user', function (
     aiTools: ['chatgpt', 'claude', 'cursor'],
     aiImpact: 'faster',
     goal2027: 'switchToAI',
-    careerBug: 'promotion'
+    careerBug: ['promotion']
   }));
   assert.equal(persona, 'aiEvolved');
 });
@@ -79,4 +79,36 @@ test('pickHighestByPriority breaks ties using priority order', function () {
     ['aiEvolved', 'jobHopper', 'careerDebugger', 'radarWatcher', 'stableGrowth']
   );
   assert.equal(result, 'aiEvolved');
+});
+
+test('職涯卡點選 3 個時，分數是平均而不是相加', function () {
+  var base = {
+    role: 'frontend', experience: '3to5', satisfaction: 'ok', salary: '60to80',
+    headhunterReaction: 'peek', jumpThreshold: 'plus20', aiFrequency: 'sometimes',
+    aiTools: ['chatgpt'], aiImpact: 'faster', aiFear: 'notScared', goal2027: 'senior'
+  };
+  // salary 跟 boss 的 careerBugIndex 是 4 跟 5，平均 4.5，不是相加的 9
+  var one = computeDimensions(Object.assign({}, base, { careerBug: ['boss'] }));
+  var three = computeDimensions(Object.assign({}, base, { careerBug: ['salary', 'boss', 'hours'] }));
+  assert.ok(three.careerBugIndex <= one.careerBugIndex,
+    '多選不應該讓卡點指數被灌高');
+  assert.ok(three.careerBugIndex >= 1 && three.careerBugIndex <= 5);
+});
+
+test('選 3 個卡點不會讓職涯Debug型輾壓其他類型', function () {
+  var base = {
+    role: 'frontend', experience: 'gt10', satisfaction: 'great', salary: 'over100',
+    headhunterReaction: 'ignore', jumpThreshold: 'jobFit', aiFrequency: 'daily',
+    aiTools: ['chatgpt'], aiImpact: 'faster', aiFear: 'notScared', goal2027: 'remote'
+  };
+  // 這份作答每一題都指向穩定發育型，就算卡點選了三個偏 Debug 的也不該翻盤
+  var persona = computePersona(Object.assign({}, base, {
+    careerBug: ['salary', 'boss', 'aiAnxiety']
+  }));
+  assert.equal(persona, 'stableGrowth');
+});
+
+test('職涯卡點沒選也算得出結果', function () {
+  var dims = computeDimensions({ careerBug: [] });
+  assert.ok(dims.careerBugIndex >= 1 && dims.careerBugIndex <= 5);
 });

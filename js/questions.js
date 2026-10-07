@@ -98,10 +98,15 @@ export const QUESTIONS = [
   {
     id: 'careerBug',
     level: 7,
-    type: 'single',
+    type: 'multi',
     visualStyle: 'bugs',
     characterMood: 'stressed',
-    prompt: '抓到你的職涯卡點！',
+    prompt: '抓到你的職涯卡點！（最多選 3 個）',
+    maxSelections: 3,
+    exclusiveOption: 'noBug',
+    // Averaged rather than summed: picking three bugs says something about
+    // which bugs, not that this one question should outweigh every other.
+    blendMultiScores: true,
     options: [
       { value: 'salary', label: '薪資卡住', emoji: '🐛', image: 'assets/bugs/bug-salary.png', personaPoints: { careerDebugger: 2 }, dimensionValues: { careerBugIndex: 4 } },
       { value: 'boss', label: '主管問題', emoji: '🐛', image: 'assets/bugs/bug-boss.png', personaPoints: { careerDebugger: 2 }, dimensionValues: { careerBugIndex: 5 } },

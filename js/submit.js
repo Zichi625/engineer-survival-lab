@@ -8,7 +8,7 @@ export function submitResponse(answers, persona, survivalIndex, openFeedback) {
     salary: answers.salary || '',
     headhunterReaction: answers.headhunterReaction || '',
     jumpThreshold: answers.jumpThreshold || '',
-    careerBug: answers.careerBug || '',
+    careerBug: (answers.careerBug || []).join('、'),
     aiFrequency: answers.aiFrequency || '',
     aiTools: (answers.aiTools || []).join('、'),
     aiImpact: answers.aiImpact || '',

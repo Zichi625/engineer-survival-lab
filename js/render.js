@@ -3,10 +3,11 @@ import { ROLE_ICONS, STAT_ICONS, OPTION_ICONS, UI_ICONS, BRAND_ICONS } from './i
 import { flashClass } from './animations.js';
 import { PRIVACY_CONFIG } from '../privacy-config.js';
 
-// The notice quotes these word for word, so both read from here.
+// The notice quotes this word for word, so both read from here. One tick
+// covers both 主辦單位 -- section 一 of the notice names them, which is what
+// makes a single combined consent workable.
 var CONSENT_LABELS = {
-  course: '我願意收到六角學院的課程／活動資訊',
-  job: '有適合我的職缺時，多角人才可以聯絡我'
+  marketing: '我願意收到課程、活動、職缺及職涯相關資訊'
 };
 
 var TOTAL_LEVELS = QUESTIONS.length;
@@ -277,8 +278,8 @@ function buildConsentCheckbox(opts) {
   return { row: row, input: input };
 }
 
-function buildMarketingConsent(kind) {
-  return buildConsentCheckbox({ parts: [CONSENT_LABELS[kind]], tag: '選填' });
+function buildMarketingConsent() {
+  return buildConsentCheckbox({ parts: [CONSENT_LABELS.marketing], tag: '選填' });
 }
 
 function buildStartTestButton(onClick) {
@@ -372,15 +373,15 @@ function buildPersonalDataNotice(onClose) {
     '活動參與、線上報到及必要聯繫。',
     '產生個人化工程師生存測驗結果及生存卡。',
     '進行工程師職涯、工作狀態、AI 使用情形及相關趨勢之統計與分析。',
-    '如您另行同意接收六角學院課程及活動資訊，' + cfg.courseProvider + '得透過電子郵件提供工程師學習、課程、講座、活動及相關服務資訊。',
-    '如您另行同意接受職缺聯繫，' + cfg.jobProvider + '得依您提供之資料及職涯需求，提供職缺、人才媒合及相關職涯服務資訊。'
+    '如您另行同意接收相關資訊，' + cfg.courseProvider + '得透過電子郵件提供工程師學習、課程、講座、活動及相關服務資訊。',
+    '如您另行同意接收相關資訊，' + cfg.jobProvider + '得依您提供之資料及職涯需求，提供職缺、人才媒合、職涯發展建議及相關職涯服務資訊。'
   ]]);
 
   section('三、蒐集之個人資料類別', ['本活動可能蒐集下列資料：', [
     '暱稱／實驗代號。',
     '電子郵件地址。',
     '本活動問卷及測驗作答資料。',
-    '求職狀態，以及您自行選擇提供之課程資訊接收、職缺媒合等意願。',
+    '求職狀態，以及您自行選擇是否接收課程、活動、職缺及職涯相關資訊之意願。',
     '活動參與及系統運作所必要之紀錄。'
   ]]);
 
@@ -415,18 +416,18 @@ function buildPersonalDataNotice(onClose) {
   section('七、不提供個人資料之影響', [
     '暱稱／實驗代號為選填。如未提供，系統得以隨機實驗代號顯示於您的生存卡。',
     'Email 為本活動線上報到之必要資料。如不提供 Email，將無法完成本活動之線上報到及進入測驗。',
-    '是否同意接收六角學院之課程／活動資訊，以及是否同意接受多角人才之職缺／人才媒合聯繫，均由您自由選擇。',
+    '是否同意接收課程、活動、職缺及職涯相關資訊，由您自由選擇。',
     '未勾選上述選填項目，不影響您參與本次活動、完成測驗及取得工程師生存卡。'
   ]);
 
   section('八、課程、活動資訊及人才媒合', [
-    { sub: '六角學院課程／活動資訊' },
-    '如您勾選「' + CONSENT_LABELS.course + '」，即表示您同意' + cfg.courseProvider + '依本告知事項所載方式，透過電子郵件提供工程師學習、課程、講座、活動及相關服務資訊。',
-    '您可隨時透過電子郵件中的「取消訂閱」功能，或聯絡 ' + cfg.contactEmail + '，停止接收相關資訊。',
-    { sub: '多角人才職缺／人才媒合' },
-    '如您勾選「' + CONSENT_LABELS.job + '」，即表示您同意' + cfg.jobProvider + '依本告知事項所載方式，依您提供之資料及職涯需求，提供職缺、人才媒合及相關職涯服務資訊。',
-    '如您日後不希望再接受相關聯繫，可聯絡 ' + cfg.contactEmail + ' 提出停止利用之要求。',
-    '上述兩項均為自由選擇，未勾選或日後取消，不影響您參與本次活動或已取得之測驗結果及生存卡。'
+    '如您勾選「' + CONSENT_LABELS.marketing + '」，即表示您同意主辦單位依本告知事項所載方式，提供下列資訊：',
+    [
+      cfg.courseProvider + '：透過電子郵件提供工程師學習、課程、講座、活動及相關服務資訊。',
+      cfg.jobProvider + '：依您提供之資料及職涯需求，提供職缺、人才媒合、職涯發展建議、產業與人才市場趨勢及相關職涯服務資訊。'
+    ],
+    '您可隨時透過電子郵件中的「取消訂閱」功能，或聯絡 ' + cfg.contactEmail + '，停止接收上述資訊或提出停止利用之要求。',
+    '本項為自由選擇，未勾選或日後取消，不影響您參與本次活動或已取得之測驗結果及生存卡。'
   ]);
 
   section('九、其他說明', [
@@ -529,11 +530,8 @@ export function renderRegister(root, state, handlers) {
   privacy.row.classList.add('consent-row--required');
   form.appendChild(privacy.row);
 
-  var courseConsent = buildMarketingConsent('course');
-  form.appendChild(courseConsent.row);
-
-  var jobConsent = buildMarketingConsent('job');
-  form.appendChild(jobConsent.row);
+  var marketing = buildMarketingConsent();
+  form.appendChild(marketing.row);
 
   function submit() {
     if (!privacy.input.checked) {
@@ -547,8 +545,7 @@ export function renderRegister(root, state, handlers) {
       nickname: nickname.input.value,
       email: email.input.value,
       privacyAccepted: true,
-      marketingOptIn: courseConsent.input.checked,
-      jobMatchOptIn: jobConsent.input.checked
+      marketingOptIn: marketing.input.checked
     });
     if (!problem) return;
     error.hidden = false;

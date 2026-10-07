@@ -67,8 +67,6 @@ function appendLead(ss, payload) {
     safeCell(payload.privacyNoticeAcceptedAt),
     safeCell(payload.marketingOptIn),
     safeCell(payload.marketingOptInAt),
-    safeCell(payload.jobMatchOptIn),
-    safeCell(payload.jobMatchOptInAt),
     safeCell(payload.createdAt),
     safeCell(payload.persona),
     payload.survivalIndex || ''

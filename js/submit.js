@@ -31,6 +31,9 @@ export function submitLead(leadData, persona, survivalIndex) {
     // Only TRUE here may be added to the course/event mailing list.
     marketingOptIn: consent.marketingOptIn ? 'TRUE' : 'FALSE',
     marketingOptInAt: consent.marketingOptInAt || '',
+    // Only TRUE here may be contacted about jobs by 多角人才.
+    jobMatchOptIn: consent.jobMatchOptIn ? 'TRUE' : 'FALSE',
+    jobMatchOptInAt: consent.jobMatchOptInAt || '',
     createdAt: consent.createdAt || '',
     persona: persona || '',
     survivalIndex: survivalIndex

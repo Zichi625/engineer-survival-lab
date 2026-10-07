@@ -162,3 +162,25 @@ test('同意時間寫的是台灣時間，不是 UTC', function () {
   }).format(new Date()).replace(/-/g, '/');
   assert.equal(state.consent.createdAt.slice(0, 10), expected);
 });
+
+test('兩個選填同意是分開記錄的，不會互相套用', function () {
+  var state = createInitialState();
+  recordRegistration(state, {
+    email: 'a@b.co', privacyAccepted: true, marketingOptIn: true, jobMatchOptIn: false
+  });
+  assert.equal(state.consent.marketingOptIn, true);
+  assert.ok(state.consent.marketingOptInAt);
+  assert.equal(state.consent.jobMatchOptIn, false);
+  assert.equal(state.consent.jobMatchOptInAt, '');
+});
+
+test('只同意職缺聯繫時不會被當成同意課程資訊', function () {
+  var state = createInitialState();
+  recordRegistration(state, {
+    email: 'a@b.co', privacyAccepted: true, marketingOptIn: false, jobMatchOptIn: true
+  });
+  assert.equal(state.consent.marketingOptIn, false);
+  assert.equal(state.consent.marketingOptInAt, '');
+  assert.equal(state.consent.jobMatchOptIn, true);
+  assert.ok(state.consent.jobMatchOptInAt);
+});

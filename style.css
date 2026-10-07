@@ -1886,6 +1886,13 @@ body.notice-open { overflow: hidden; }
   color: var(--color-text-soft);
 }
 
+.notice-subheading {
+  margin: 6px 0 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #CBD5E1;
+}
+
 .notice-updated {
   margin: 4px 0 0;
   font-size: 12px;

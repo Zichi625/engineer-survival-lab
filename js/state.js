@@ -95,6 +95,8 @@ export function recordRegistration(state, profile) {
     privacyNoticeAcceptedAt: profile.privacyAccepted ? now : '',
     marketingOptIn: Boolean(profile.marketingOptIn),
     marketingOptInAt: profile.marketingOptIn ? now : '',
+    jobMatchOptIn: Boolean(profile.jobMatchOptIn),
+    jobMatchOptInAt: profile.jobMatchOptIn ? now : '',
     createdAt: now
   };
   return state;

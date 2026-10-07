@@ -1933,7 +1933,7 @@ body.notice-open { overflow: hidden; }
   .notice-overlay, .notice-sheet { animation: none; }
 }
 
-.result-greeting {.result-greeting {
+.result-greeting {
   margin: 0 0 -4px;
   text-align: center;
   font-size: 15px;
@@ -1946,33 +1946,9 @@ body.notice-open { overflow: hidden; }
   color: #F8FAFC;
 }
 
-.lead-checkboxes {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  text-align: left;
-}
 
-.lead-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
 
-.lead-email {
-  width: 100%;
-  padding: 14px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-card-border);
-  background: var(--color-card-bg);
-  color: var(--color-text);
-  font-size: 16px;
-}
 
-.lead-email::placeholder {
-  color: var(--color-text-soft);
-}
 
 .lead-feedback-hint {
   font-size: 13px;
@@ -1980,16 +1956,26 @@ body.notice-open { overflow: hidden; }
   margin-top: -6px;
 }
 
+/* Same treatment as the profile-page inputs so the form fields look like
+   one family across the whole flow. */
 .lead-feedback {
   width: 100%;
-  padding: 14px;
-  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  border-radius: 12px;
   border: 1px solid var(--color-card-border);
-  background: var(--color-card-bg);
+  background: rgba(255, 255, 255, 0.04);
   color: var(--color-text);
-  font-size: 15px;
+  font-size: 16px;
   font-family: inherit;
+  line-height: 1.7;
   resize: vertical;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.lead-feedback:focus {
+  outline: none;
+  border-color: #7DD3FC;
+  box-shadow: 0 0 0 3px rgba(125, 211, 252, 0.15);
 }
 
 .lead-feedback::placeholder {

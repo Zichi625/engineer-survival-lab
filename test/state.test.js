@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createInitialState, recordSingleAnswer, toggleMultiAnswer, isLastLevel, advanceLevel, goBackLevel, recordRegistration, validateRegistration } from '../js/state.js';
+import { PRIVACY_CONFIG } from '../privacy-config.js';
 
 test('createInitialState starts on the intro screen with no answers', function () {
   var state = createInitialState();
@@ -103,23 +104,51 @@ test('goBackLevel keeps the answer so it can be changed', function () {
   assert.equal(state.answers.role, 'frontend');
 });
 
-test('validateRegistration 擋下空白暱稱', function () {
-  assert.equal(validateRegistration('', ''), 'nickname');
-  assert.equal(validateRegistration('   ', ''), 'nickname');
+test('沒勾個資告知就不能開始', function () {
+  assert.equal(validateRegistration({ email: 'a@b.co', privacyAccepted: false }), 'privacy');
 });
 
-test('Email 目前是選填，留空也能開始', function () {
-  assert.equal(validateRegistration('小琪', ''), null);
+test('Email 現在是必填', function () {
+  assert.equal(validateRegistration({ email: '', privacyAccepted: true }), 'email');
+  assert.equal(validateRegistration({ email: '   ', privacyAccepted: true }), 'email');
 });
 
-test('Email 有填就要是合理格式', function () {
-  assert.equal(validateRegistration('小琪', 'not-an-email'), 'email');
-  assert.equal(validateRegistration('小琪', 'a@b.co'), null);
+test('Email 要是合理格式', function () {
+  assert.equal(validateRegistration({ email: 'not-an-email', privacyAccepted: true }), 'email');
+  assert.equal(validateRegistration({ email: 'a@b.co', privacyAccepted: true }), null);
 });
 
-test('recordRegistration 會去掉前後空白', function () {
+test('暱稱留空會自動產生實驗代號', function () {
   var state = createInitialState();
-  recordRegistration(state, '  小琪  ', '  a@b.co ');
+  recordRegistration(state, { nickname: '  ', email: 'a@b.co', privacyAccepted: true });
+  assert.match(state.nickname, /^ENGINEER_\d{4}$/);
+});
+
+test('有填暱稱就用他填的，並去掉前後空白', function () {
+  var state = createInitialState();
+  recordRegistration(state, { nickname: '  小琪  ', email: '  a@b.co ', privacyAccepted: true });
   assert.equal(state.nickname, '小琪');
   assert.equal(state.email, 'a@b.co');
+});
+
+test('同意紀錄會留下版本與時間，不是只有 true/false', function () {
+  var state = createInitialState();
+  recordRegistration(state, {
+    nickname: '小琪', email: 'a@b.co', privacyAccepted: true, marketingOptIn: true
+  });
+  assert.equal(state.consent.privacyNoticeAccepted, true);
+  assert.equal(state.consent.privacyNoticeVersion, PRIVACY_CONFIG.noticeVersion);
+  assert.match(state.consent.privacyNoticeAcceptedAt, /^\d{4}-\d{2}-\d{2}T/);
+  assert.equal(state.consent.marketingOptIn, true);
+  assert.match(state.consent.marketingOptInAt, /^\d{4}-\d{2}-\d{2}T/);
+  assert.match(state.consent.createdAt, /^\d{4}-\d{2}-\d{2}T/);
+});
+
+test('沒同意行銷時不留行銷同意時間', function () {
+  var state = createInitialState();
+  recordRegistration(state, {
+    nickname: '小琪', email: 'a@b.co', privacyAccepted: true, marketingOptIn: false
+  });
+  assert.equal(state.consent.marketingOptIn, false);
+  assert.equal(state.consent.marketingOptInAt, '');
 });

@@ -105,10 +105,10 @@ function handleStart() {
 }
 
 // Returns the offending field name so the form can mark it, or nothing on success.
-function handleRegister(nickname, email) {
-  var problem = validateRegistration(nickname, email);
+function handleRegister(profile) {
+  var problem = validateRegistration(profile);
   if (problem) return problem;
-  recordRegistration(state, nickname, email);
+  recordRegistration(state, profile);
   state.screen = 'level';
   state.levelIndex = 0;
   rerender();
@@ -181,12 +181,11 @@ async function handleLeadSubmit(leadData) {
   var personaName = PERSONAS[state.persona].name;
   var labeledAnswers = buildLabeledAnswers();
   var promises = [submitResponse(labeledAnswers, personaName, state.survivalIndex, leadData.openFeedback)];
-  var hasLeadInfo = Boolean(state.email) || leadData.interests.length > 0;
-  if (hasLeadInfo) {
+  if (state.email) {
     promises.push(submitLead({
       nickname: state.nickname,
       email: state.email,
-      interests: leadData.interests
+      consent: state.consent
     }, personaName, state.survivalIndex));
   }
   var results = await Promise.all(promises);

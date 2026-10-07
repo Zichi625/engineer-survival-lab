@@ -62,7 +62,12 @@ function appendLead(ss, payload) {
     new Date(),
     safeCell(payload.nickname),
     safeCell(payload.email),
-    safeCell(payload.interests),
+    safeCell(payload.privacyNoticeAccepted),
+    safeCell(payload.privacyNoticeVersion),
+    safeCell(payload.privacyNoticeAcceptedAt),
+    safeCell(payload.marketingOptIn),
+    safeCell(payload.marketingOptInAt),
+    safeCell(payload.createdAt),
     safeCell(payload.persona),
     payload.survivalIndex || ''
   ]);

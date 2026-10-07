@@ -1,6 +1,4 @@
-// Flip to true when Email should block the start as well. Everything else
-// -- the field, the hint, the validation -- is already in place.
-export var EMAIL_REQUIRED = false;
+import { PRIVACY_CONFIG } from '../privacy-config.js';
 
 export function createInitialState() {
   return {
@@ -8,6 +6,7 @@ export function createInitialState() {
     levelIndex: 0,
     nickname: '',
     email: '',
+    consent: null,
     answers: {},
     persona: null,
     survivalIndex: null,
@@ -60,16 +59,33 @@ export function goBackLevel(state) {
   return state;
 }
 
-export function recordRegistration(state, nickname, email) {
-  state.nickname = (nickname || '').trim();
-  state.email = (email || '').trim();
+// Nickname is optional; anyone who skips it gets a code so the survival card
+// still has something to show and we never push people into giving a name.
+export function generateExperimentCode() {
+  return 'ENGINEER_' + String(Math.floor(Math.random() * 10000)).padStart(4, '0');
+}
+
+export function recordRegistration(state, profile) {
+  var now = new Date().toISOString();
+  state.nickname = (profile.nickname || '').trim() || generateExperimentCode();
+  state.email = (profile.email || '').trim();
+  // Stored as a record rather than a bare boolean: which version of the
+  // notice was agreed to, and when, is the part that matters later.
+  state.consent = {
+    privacyNoticeAccepted: Boolean(profile.privacyAccepted),
+    privacyNoticeVersion: PRIVACY_CONFIG.noticeVersion,
+    privacyNoticeAcceptedAt: profile.privacyAccepted ? now : '',
+    marketingOptIn: Boolean(profile.marketingOptIn),
+    marketingOptInAt: profile.marketingOptIn ? now : '',
+    createdAt: now
+  };
   return state;
 }
 
 // Returns the field that is not acceptable yet, or null when good to go.
-export function validateRegistration(nickname, email) {
-  if (!(nickname || '').trim()) return 'nickname';
-  var mail = (email || '').trim();
-  if (!mail) return EMAIL_REQUIRED ? 'email' : null;
+export function validateRegistration(profile) {
+  if (!profile.privacyAccepted) return 'privacy';
+  var mail = (profile.email || '').trim();
+  if (!mail) return 'email';
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail) ? null : 'email';
 }

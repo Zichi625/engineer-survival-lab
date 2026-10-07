@@ -1,7 +1,7 @@
 import { QUESTIONS } from './questions.js';
 import { ROLE_ICONS, STAT_ICONS, OPTION_ICONS, UI_ICONS, BRAND_ICONS } from './icons.js';
 import { flashClass } from './animations.js';
-import { EMAIL_REQUIRED } from './state.js';
+import { PRIVACY_CONFIG, orPlaceholder } from '../privacy-config.js';
 
 var TOTAL_LEVELS = QUESTIONS.length;
 
@@ -202,99 +202,347 @@ export function renderIntro(root, handlers) {
   root.appendChild(screen);
 }
 
+function buildFormField(opts) {
+  var wrap = createEl('div', 'profile-field');
+  var row = createEl('label', 'profile-label-row');
+  row.setAttribute('for', opts.id);
+  var label = createEl('span', 'profile-label');
+  label.appendChild(buildIconSpan(opts.icon, 'profile-label-icon'));
+  label.appendChild(document.createTextNode(opts.label));
+  row.appendChild(label);
+  var tag = createEl('span', 'profile-tag' + (opts.required ? ' profile-tag--required' : ''));
+  tag.textContent = opts.required ? '必填' : '選填';
+  row.appendChild(tag);
+  wrap.appendChild(row);
+
+  var input = document.createElement('input');
+  input.type = opts.type || 'text';
+  input.id = opts.id;
+  input.className = 'profile-input';
+  input.placeholder = opts.placeholder;
+  if (opts.maxLength) input.maxLength = opts.maxLength;
+  if (opts.autocomplete) input.autocomplete = opts.autocomplete;
+  input.value = opts.value || '';
+  wrap.appendChild(input);
+
+  var help = createEl('p', 'profile-help');
+  help.textContent = opts.help;
+  wrap.appendChild(help);
+
+  return { wrap: wrap, input: input };
+}
+
+function buildConsentCheckbox(opts) {
+  var row = createEl('label', 'consent-row');
+  var input = document.createElement('input');
+  input.type = 'checkbox';
+  input.className = 'consent-box';
+  input.checked = false;          // never pre-ticked
+  row.appendChild(input);
+
+  var body = createEl('span', 'consent-body');
+  var text = createEl('span', 'consent-text');
+  opts.parts.forEach(function (part) {
+    if (typeof part === 'string') {
+      text.appendChild(document.createTextNode(part));
+      return;
+    }
+    // A link inside a <label> would toggle the box, so it is a button that
+    // stops the click from reaching the label.
+    var link = createEl('button', 'consent-link');
+    link.type = 'button';
+    link.textContent = part.label;
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      part.onClick();
+    });
+    text.appendChild(link);
+  });
+  body.appendChild(text);
+  if (opts.tag) {
+    var tag = createEl('span', 'consent-tag');
+    tag.textContent = opts.tag;
+    body.appendChild(tag);
+  }
+  row.appendChild(body);
+  return { row: row, input: input };
+}
+
+function buildMarketingConsent() {
+  return buildConsentCheckbox({
+    parts: ['我願意收到工程師課程、學習、活動及職涯相關資訊'],
+    tag: '選填'
+  });
+}
+
+function buildStartTestButton(onClick) {
+  var btn = createEl('button', 'btn-start');
+  btn.type = 'button';
+  var label = createEl('span', 'btn-start-label');
+  label.textContent = '開始生存測驗';
+  btn.appendChild(label);
+  var arrow = createEl('span', 'btn-start-arrow');
+  arrow.innerHTML = UI_ICONS.chevronRight;
+  btn.appendChild(arrow);
+  btn.addEventListener('click', onClick);
+  return btn;
+}
+
+function buildPersonalDataNotice(onClose) {
+  var cfg = PRIVACY_CONFIG;
+  var sharedWith = (cfg.sharedWith || []).filter(function (n) { return n && n.trim(); });
+
+  var overlay = createEl('div', 'notice-overlay');
+  var sheet = createEl('div', 'notice-sheet');
+  sheet.setAttribute('role', 'dialog');
+  sheet.setAttribute('aria-modal', 'true');
+  sheet.setAttribute('aria-labelledby', 'notice-heading');
+
+  var header = createEl('div', 'notice-header');
+  var heading = createEl('div', 'notice-heading-group');
+  var h = createEl('h2', 'notice-title');
+  h.id = 'notice-heading';
+  h.textContent = '個人資料蒐集告知事項';
+  var sub = createEl('p', 'notice-subtitle');
+  sub.textContent = 'PERSONAL DATA NOTICE';
+  heading.appendChild(h);
+  heading.appendChild(sub);
+  header.appendChild(heading);
+  var closeBtn = createEl('button', 'notice-close');
+  closeBtn.type = 'button';
+  closeBtn.setAttribute('aria-label', '關閉');
+  closeBtn.innerHTML = UI_ICONS.close;
+  closeBtn.addEventListener('click', onClose);
+  header.appendChild(closeBtn);
+  sheet.appendChild(header);
+
+  var body = createEl('div', 'notice-body');
+
+  function section(title, blocks) {
+    var sec = createEl('section', 'notice-section');
+    var t = createEl('h3', 'notice-section-title');
+    t.textContent = title;
+    sec.appendChild(t);
+    blocks.forEach(function (block) {
+      if (Array.isArray(block)) {
+        var ul = createEl('ul', 'notice-list');
+        block.forEach(function (item) {
+          var li = createEl('li');
+          li.textContent = item;
+          ul.appendChild(li);
+        });
+        sec.appendChild(ul);
+        return;
+      }
+      var p = createEl('p', 'notice-text');
+      p.textContent = block;
+      sec.appendChild(p);
+    });
+    body.appendChild(sec);
+  }
+
+  var intro = createEl('p', 'notice-lead');
+  intro.textContent = '為辦理「2026 工程師生存實驗室」活動及提供相關服務，依個人資料保護法相關規定，向您說明下列事項：';
+  body.appendChild(intro);
+
+  section('一、蒐集單位', [orPlaceholder(cfg.collectorName)]);
+
+  section('二、蒐集目的', ['蒐集資料將用於：', [
+    '辦理「2026 工程師生存實驗室」活動',
+    '活動參與及必要聯繫',
+    '產生個人化工程師生存測驗結果及生存卡',
+    '工程師職涯、工作狀態、AI 使用與相關趨勢之統計分析',
+    '如您另行同意接收相關資訊，將用於寄送工程師學習、課程、講座、活動、職涯發展及相關服務資訊'
+  ]]);
+
+  section('三、蒐集之個人資料類別', ['本活動可能蒐集：', [
+    '暱稱／實驗代號',
+    '電子郵件地址',
+    '本活動問卷及測驗作答資料',
+    '活動參與及系統必要紀錄'
+  ]]);
+
+  section('四、個人資料來源', ['由您本人於「2026 工程師生存實驗室」活動頁面直接提供。']);
+
+  section('五、個人資料利用之期間、地區、對象及方式', [
+    '期間：' + orPlaceholder(cfg.retentionPeriod),
+    '地區：中華民國（臺灣）及提供本服務所必要之資訊系統或雲端服務所在地區。',
+    '對象：' + (sharedWith.length
+      ? sharedWith.join('、') + '，以及為提供本活動、資訊系統、電子郵件寄送等服務所必要之受託服務提供者。'
+      : orPlaceholder(cfg.collectorName) + '，以及為提供本活動、資訊系統、電子郵件寄送等服務所必要之受託服務提供者。'),
+    '方式：以自動化或非自動化方式進行蒐集、處理、統計分析、活動聯繫及其他符合上述蒐集目的之利用。'
+  ]);
+
+  section('六、當事人權利', ['您得依個人資料保護法相關規定，就您的個人資料行使：', [
+    '查詢或請求閱覽',
+    '請求製給複製本',
+    '請求補充或更正',
+    '請求停止蒐集、處理或利用',
+    '請求刪除'
+  ], '如需行使上述權利，請聯絡：' + orPlaceholder(cfg.contactEmail)]);
+
+  section('七、不提供個人資料之影響', [
+    '暱稱為選填；如未提供，系統將以隨機實驗代號顯示於生存卡。',
+    'Email 為本活動所設定之必要資料；如不提供 Email，將無法完成本活動的線上報到及進入測驗。',
+    '是否同意接收工程師課程、學習、活動及職涯相關資訊為自由選擇；不同意不影響您參與本次活動及取得測驗結果。'
+  ]);
+
+  section('八、課程及相關資訊', [
+    '如您另外勾選「我願意收到工程師課程、學習、活動及職涯相關資訊」，我們將依您的同意，透過電子郵件寄送相關內容。',
+    '您可以隨時透過電子郵件中的「取消訂閱」功能，或聯絡 ' + orPlaceholder(cfg.contactEmail) + '，停止接收相關資訊。',
+    '取消訂閱不影響您參與本次活動及已取得之生存卡。'
+  ]);
+
+  var updated = createEl('p', 'notice-updated');
+  updated.textContent = '最後更新：' + orPlaceholder(cfg.lastUpdated);
+  body.appendChild(updated);
+
+  sheet.appendChild(body);
+
+  var footer = createEl('div', 'notice-footer');
+  var done = createEl('button', 'btn-notice-done');
+  done.type = 'button';
+  done.textContent = '我已了解並返回';
+  done.addEventListener('click', onClose);
+  footer.appendChild(done);
+  sheet.appendChild(footer);
+
+  overlay.appendChild(sheet);
+  overlay.addEventListener('click', function (e) {
+    if (e.target === overlay) onClose();
+  });
+  return { overlay: overlay, sheet: sheet, done: done };
+}
+
 export function renderRegister(root, state, handlers) {
   root.innerHTML = '';
-  var screen = createEl('div', 'screen screen--register');
+  var screen = createEl('div', 'screen screen--profile');
+  var form = createEl('div', 'profile-form');
 
-  var character = document.createElement('img');
-  character.className = 'character';
-  character.src = mascotSrc('cheering');
-  character.alt = '多角龍研究員';
-  screen.appendChild(character);
+  var eyebrow = createEl('p', 'profile-eyebrow');
+  eyebrow.textContent = 'ENGINEER PROFILE';
+  form.appendChild(eyebrow);
 
-  var title = createEl('h2', 'register-title');
-  title.textContent = '開始之前，先報到';
-  screen.appendChild(title);
+  var headRow = createEl('div', 'profile-head');
+  var mascot = document.createElement('img');
+  mascot.className = 'profile-mascot';
+  mascot.src = mascotSrc('idea');
+  mascot.alt = '多角龍研究員';
+  headRow.appendChild(mascot);
+  var headText = createEl('div', 'profile-head-text');
+  var title = createEl('h2', 'profile-title');
+  title.textContent = '建立你的生存檔案';
+  var subtitle = createEl('p', 'profile-subtitle');
+  subtitle.textContent = '留下你的實驗代號，完成 12 道關卡後，解鎖專屬工程師生存卡。';
+  headText.appendChild(title);
+  headText.appendChild(subtitle);
+  headRow.appendChild(headText);
+  form.appendChild(headRow);
 
-  var hint = createEl('p', 'register-hint');
-  hint.textContent = '暱稱會用在你的生存卡上，不用填真名。';
-  screen.appendChild(hint);
-
-  var error = createEl('p', 'register-error');
+  var error = createEl('p', 'profile-error');
+  error.setAttribute('role', 'alert');
   error.hidden = true;
-  screen.appendChild(error);
+  form.appendChild(error);
 
-  function field(labelText, note, input) {
-    var wrap = createEl('label', 'register-field');
-    var row = createEl('span', 'register-label-row');
-    var label = createEl('span', 'register-label');
-    label.textContent = labelText;
-    row.appendChild(label);
-    var tag = createEl('span', 'register-tag');
-    tag.textContent = note;
-    row.appendChild(tag);
-    wrap.appendChild(row);
-    wrap.appendChild(input);
-    return wrap;
-  }
+  var nickname = buildFormField({
+    id: 'profile-nickname',
+    icon: UI_ICONS.fileText,
+    label: '實驗代號',
+    required: false,
+    placeholder: '例如：每天都在 Debug',
+    help: '會顯示在你的生存卡上，不用填真名。留空會自動產生一組代號。',
+    maxLength: 20,
+    autocomplete: 'nickname',
+    value: state.nickname
+  });
+  form.appendChild(nickname.wrap);
 
-  var nicknameInput = document.createElement('input');
-  nicknameInput.type = 'text';
-  nicknameInput.className = 'register-input';
-  nicknameInput.placeholder = '例如：小琪、阿哲、每天都在修 bug';
-  nicknameInput.maxLength = 20;
-  nicknameInput.value = state.nickname || '';
-  nicknameInput.autocomplete = 'nickname';
-  screen.appendChild(field('暱稱', '必填', nicknameInput));
+  var email = buildFormField({
+    id: 'profile-email',
+    icon: UI_ICONS.mail,
+    label: 'Email',
+    required: true,
+    type: 'email',
+    placeholder: 'you@example.com',
+    help: '用於本次活動聯繫；若你另外同意，也會寄送工程師課程、學習、活動與職涯相關資訊。',
+    autocomplete: 'email',
+    value: state.email
+  });
+  form.appendChild(email.wrap);
 
-  var emailInput = document.createElement('input');
-  emailInput.type = 'email';
-  emailInput.className = 'register-input';
-  emailInput.placeholder = 'you@example.com';
-  emailInput.value = state.email || '';
-  emailInput.autocomplete = 'email';
-  screen.appendChild(field('Email', EMAIL_REQUIRED ? '必填' : '選填', emailInput));
+  var noticeHost = createEl('div', 'notice-host');
+  var openNotice = function () {
+    var notice = buildPersonalDataNotice(function () {
+      noticeHost.innerHTML = '';
+      document.body.classList.remove('notice-open');
+      privacy.input.focus();
+    });
+    noticeHost.appendChild(notice.overlay);
+    document.body.classList.add('notice-open');
+    notice.done.focus();
+  };
 
-  var emailNote = createEl('p', 'register-note');
-  emailNote.textContent = EMAIL_REQUIRED
-    ? '測驗結果與《2026 工程師生存調查》會寄到這裡。'
-    : '想收到《2026 工程師生存調查》再留就好，現在跳過也可以。';
-  screen.appendChild(emailNote);
+  var privacy = buildConsentCheckbox({
+    parts: ['我已閱讀並了解', { label: '個人資料蒐集告知事項', onClick: openNotice }]
+  });
+  privacy.row.classList.add('consent-row--required');
+  form.appendChild(privacy.row);
+
+  var marketing = buildMarketingConsent();
+  form.appendChild(marketing.row);
 
   function submit() {
-    var problem = handlers.onSubmit(nicknameInput.value, emailInput.value);
+    if (!privacy.input.checked) {
+      error.hidden = false;
+      error.textContent = '請先閱讀並確認個人資料蒐集告知事項';
+      privacy.row.classList.add('consent-row--bad');
+      privacy.input.focus();
+      return;
+    }
+    var problem = handlers.onSubmit({
+      nickname: nickname.input.value,
+      email: email.input.value,
+      privacyAccepted: true,
+      marketingOptIn: marketing.input.checked
+    });
     if (!problem) return;
     error.hidden = false;
-    error.textContent = problem === 'nickname'
-      ? '請先填一個暱稱，隨便取都可以。'
-      : (EMAIL_REQUIRED && !emailInput.value.trim())
-        ? '請留下 Email。'
-        : 'Email 格式看起來不太對，再檢查一下。';
-    var bad = problem === 'nickname' ? nicknameInput : emailInput;
-    bad.classList.add('register-input--bad');
-    bad.focus();
+    error.textContent = problem === 'email'
+      ? (email.input.value.trim() ? 'Email 格式看起來不太對，再檢查一下。' : '請留下 Email，這是本次活動的必要資料。')
+      : '還有欄位需要補一下。';
+    email.input.classList.add('profile-input--bad');
+    email.input.focus();
   }
 
-  [nicknameInput, emailInput].forEach(function (input) {
+  [nickname.input, email.input].forEach(function (input) {
     input.addEventListener('input', function () {
-      input.classList.remove('register-input--bad');
+      input.classList.remove('profile-input--bad');
       error.hidden = true;
     });
     input.addEventListener('keydown', function (e) {
       if (e.key === 'Enter') { e.preventDefault(); submit(); }
     });
   });
+  privacy.input.addEventListener('change', function () {
+    privacy.row.classList.remove('consent-row--bad');
+    error.hidden = true;
+  });
 
-  var startBtn = createEl('button', 'btn-primary');
-  startBtn.type = 'button';
-  startBtn.textContent = '開始生存測驗 →';
-  startBtn.addEventListener('click', submit);
-  screen.appendChild(startBtn);
+  form.appendChild(buildStartTestButton(submit));
 
-  var privacy = createEl('p', 'register-privacy');
-  privacy.textContent = '12 題的作答結果一律匿名統計，不會和你的暱稱或 Email 綁在一起。';
-  screen.appendChild(privacy);
+  var micro = createEl('p', 'profile-micro');
+  micro.appendChild(buildIconSpan(UI_ICONS.clock3, 'profile-micro-icon'));
+  micro.appendChild(document.createTextNode('約 60–90 秒完成'));
+  var divider = createEl('span', 'profile-micro-sep');
+  divider.textContent = '｜';
+  micro.appendChild(divider);
+  micro.appendChild(buildIconSpan(UI_ICONS.lockKeyhole, 'profile-micro-icon'));
+  micro.appendChild(document.createTextNode('你的 Email 不會顯示於生存卡'));
+  form.appendChild(micro);
 
+  form.appendChild(noticeHost);
+  screen.appendChild(form);
   root.appendChild(screen);
 }
 
@@ -722,8 +970,10 @@ export function renderLead(root, handlers) {
   root.innerHTML = '';
   var screen = createEl('div', 'screen screen--lead');
 
+  // Marketing consent is taken once, on the profile page. Asking again here
+  // would leave two answers to the same question and no way to say which wins.
   var feedbackTitle = createEl('h2', 'lead-title');
-  feedbackTitle.textContent = '💬 還有什麼想說的嗎？';
+  feedbackTitle.textContent = '還有什麼想說的嗎？';
   screen.appendChild(feedbackTitle);
 
   var feedbackHint = createEl('p', 'lead-feedback-hint');
@@ -733,47 +983,20 @@ export function renderLead(root, handlers) {
   var feedbackInput = document.createElement('textarea');
   feedbackInput.className = 'lead-feedback';
   feedbackInput.placeholder = '例如：希望公司多重視什麼、面試時最想被問到什麼⋯⋯';
-  feedbackInput.rows = 3;
+  feedbackInput.rows = 4;
   screen.appendChild(feedbackInput);
-
-  var title = createEl('h2', 'lead-title');
-  title.textContent = '📮 想收到後續消息嗎？';
-  screen.appendChild(title);
-
-  var options = [
-    { id: 'hexschoolInfo', label: '想收到六角學院的課程/活動資訊' },
-    { id: 'jobs', label: '有適合我的職缺也可以找我' },
-    { id: 'jobSeeking', label: '我最近正在找工作' }
-  ];
-  var checkedState = {};
-  var checkboxList = createEl('div', 'lead-checkboxes');
-  options.forEach(function (opt) {
-    var label = createEl('label', 'lead-checkbox');
-    var input = document.createElement('input');
-    input.type = 'checkbox';
-    input.addEventListener('change', function () {
-      checkedState[opt.id] = input.checked;
-    });
-    label.appendChild(input);
-    label.appendChild(document.createTextNode(opt.label));
-    checkboxList.appendChild(label);
-  });
-  screen.appendChild(checkboxList);
 
   var submitBtn = createEl('button', 'btn-primary');
   submitBtn.type = 'button';
   submitBtn.textContent = '送出';
   submitBtn.addEventListener('click', function () {
-    handlers.onSubmit({
-      interests: options.filter(function (opt) { return checkedState[opt.id]; }).map(function (opt) { return opt.label; }),
-      openFeedback: feedbackInput.value.trim()
-    });
+    handlers.onSubmit({ openFeedback: feedbackInput.value.trim() });
   });
   screen.appendChild(submitBtn);
 
   var skipBtn = createEl('button', 'btn-secondary');
   skipBtn.type = 'button';
-  skipBtn.textContent = '不用了，我只是來玩玩 😂';
+  skipBtn.textContent = '不用了，直接完成';
   skipBtn.addEventListener('click', function () {
     handlers.onSkip(feedbackInput.value.trim());
   });

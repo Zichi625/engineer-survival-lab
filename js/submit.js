@@ -21,10 +21,17 @@ export function submitResponse(answers, persona, survivalIndex, openFeedback) {
 }
 
 export function submitLead(leadData, persona, survivalIndex) {
+  var consent = leadData.consent || {};
   return postToSheet('leads', {
     nickname: leadData.nickname || '',
     email: leadData.email || '',
-    interests: (leadData.interests || []).join('、'),
+    privacyNoticeAccepted: consent.privacyNoticeAccepted ? 'TRUE' : 'FALSE',
+    privacyNoticeVersion: consent.privacyNoticeVersion || '',
+    privacyNoticeAcceptedAt: consent.privacyNoticeAcceptedAt || '',
+    // Only TRUE here may be added to the course/event mailing list.
+    marketingOptIn: consent.marketingOptIn ? 'TRUE' : 'FALSE',
+    marketingOptInAt: consent.marketingOptInAt || '',
+    createdAt: consent.createdAt || '',
     persona: persona || '',
     survivalIndex: survivalIndex
   });

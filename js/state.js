@@ -59,6 +59,24 @@ export function goBackLevel(state) {
   return state;
 }
 
+// Consent timestamps are read by a person in a spreadsheet, so they are
+// written as Taipei wall-clock time rather than a UTC ISO string: the booth
+// runs in Taiwan and 05:29Z next to a 13:29 row reads like a bug. Pinned to
+// Asia/Taipei rather than the device clock so every row is comparable.
+function taipeiTimestamp(date) {
+  var parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Taipei',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+    hourCycle: 'h23'
+  }).formatToParts(date).reduce(function (acc, part) {
+    acc[part.type] = part.value;
+    return acc;
+  }, {});
+  return parts.year + '/' + parts.month + '/' + parts.day + ' ' +
+    parts.hour + ':' + parts.minute + ':' + parts.second;
+}
+
 // Nickname is optional; anyone who skips it gets a code so the survival card
 // still has something to show and we never push people into giving a name.
 export function generateExperimentCode() {
@@ -66,7 +84,7 @@ export function generateExperimentCode() {
 }
 
 export function recordRegistration(state, profile) {
-  var now = new Date().toISOString();
+  var now = taipeiTimestamp(new Date());
   state.nickname = (profile.nickname || '').trim() || generateExperimentCode();
   state.email = (profile.email || '').trim();
   // Stored as a record rather than a bare boolean: which version of the

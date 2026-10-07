@@ -138,10 +138,10 @@ test('同意紀錄會留下版本與時間，不是只有 true/false', function 
   });
   assert.equal(state.consent.privacyNoticeAccepted, true);
   assert.equal(state.consent.privacyNoticeVersion, PRIVACY_CONFIG.noticeVersion);
-  assert.match(state.consent.privacyNoticeAcceptedAt, /^\d{4}-\d{2}-\d{2}T/);
+  assert.match(state.consent.privacyNoticeAcceptedAt, /^\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}$/);
   assert.equal(state.consent.marketingOptIn, true);
-  assert.match(state.consent.marketingOptInAt, /^\d{4}-\d{2}-\d{2}T/);
-  assert.match(state.consent.createdAt, /^\d{4}-\d{2}-\d{2}T/);
+  assert.match(state.consent.marketingOptInAt, /^\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}$/);
+  assert.match(state.consent.createdAt, /^\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}$/);
 });
 
 test('沒同意行銷時不留行銷同意時間', function () {
@@ -151,4 +151,14 @@ test('沒同意行銷時不留行銷同意時間', function () {
   });
   assert.equal(state.consent.marketingOptIn, false);
   assert.equal(state.consent.marketingOptInAt, '');
+});
+
+test('同意時間寫的是台灣時間，不是 UTC', function () {
+  var state = createInitialState();
+  recordRegistration(state, { email: 'a@b.co', privacyAccepted: true });
+  // 不管填答者的手機時區設在哪，都要換算成台灣時間才對得起試算表
+  var expected = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit', hourCycle: 'h23'
+  }).format(new Date()).replace(/-/g, '/');
+  assert.equal(state.consent.createdAt.slice(0, 10), expected);
 });

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createInitialState, recordSingleAnswer, toggleMultiAnswer, isLastLevel, advanceLevel, goBackLevel, recordRegistration, validateRegistration } from '../js/state.js';
+import { createInitialState, recordSingleAnswer, toggleMultiAnswer, isLastLevel, advanceLevel, goBackLevel, recordRegistration, validateRegistration, generateSessionCode } from '../js/state.js';
 import { PRIVACY_CONFIG } from '../privacy-config.js';
 
 test('createInitialState starts on the intro screen with no answers', function () {
@@ -168,4 +168,26 @@ test('一個勾選同時涵蓋課程與職缺資訊', function () {
   recordRegistration(state, { email: 'a@b.co', privacyAccepted: true, marketingOptIn: true });
   assert.equal(state.consent.marketingOptIn, true);
   assert.ok(state.consent.marketingOptInAt);
+});
+
+test('報到時會產生作答代號，兩張分頁才對得起來', function () {
+  var state = createInitialState();
+  assert.equal(state.sessionCode, '');
+  recordRegistration(state, { email: 'a@b.co', privacyAccepted: true });
+  assert.match(state.sessionCode, /^LAB-[A-Z2-9]{6}$/);
+});
+
+test('作答代號不會用到容易看錯的 0 O 1 I', function () {
+  for (var i = 0; i < 200; i++) {
+    assert.doesNotMatch(generateSessionCode().slice(4), /[01OI]/);
+  }
+});
+
+test('每個人的作答代號都不一樣', function () {
+  var seen = {};
+  for (var i = 0; i < 500; i++) {
+    var code = generateSessionCode();
+    assert.equal(seen[code], undefined, '出現重複代號：' + code);
+    seen[code] = true;
+  }
 });

@@ -99,6 +99,18 @@ function buildLabeledAnswers() {
   return labeled;
 }
 
+function buildSubmission(personaName, openFeedback) {
+  return {
+    answers: buildLabeledAnswers(),
+    persona: personaName,
+    survivalIndex: state.survivalIndex,
+    dimensions: state.dimensions,
+    course: recommendCourse(state.answers),
+    sessionCode: state.sessionCode,
+    openFeedback: openFeedback
+  };
+}
+
 function handleStart() {
   state.screen = 'register';
   rerender();
@@ -179,13 +191,13 @@ async function handleLeadSubmit(leadData) {
   state.isSubmitting = true;
   setLeadButtonsSubmitting(true, 'submit');
   var personaName = PERSONAS[state.persona].name;
-  var labeledAnswers = buildLabeledAnswers();
-  var promises = [submitResponse(labeledAnswers, personaName, state.survivalIndex, leadData.openFeedback)];
+  var promises = [submitResponse(buildSubmission(personaName, leadData.openFeedback))];
   if (state.email) {
     promises.push(submitLead({
       nickname: state.nickname,
       email: state.email,
-      consent: state.consent
+      consent: state.consent,
+      sessionCode: state.sessionCode
     }, personaName, state.survivalIndex));
   }
   var results = await Promise.all(promises);
@@ -199,8 +211,9 @@ async function handleLeadSkip(openFeedback) {
   if (state.isSubmitting) return;
   state.isSubmitting = true;
   setLeadButtonsSubmitting(true, 'skip');
-  var labeledAnswers = buildLabeledAnswers();
-  var result = await submitResponse(labeledAnswers, PERSONAS[state.persona].name, state.survivalIndex, openFeedback);
+  // No lead row for someone who only came to play, so this session code lands
+  // in the answer tab alone -- which is exactly what an unlinked answer is.
+  var result = await submitResponse(buildSubmission(PERSONAS[state.persona].name, openFeedback));
   state.hasSubmitError = result.status === 'error';
   state.isSubmitting = false;
   state.screen = 'done';

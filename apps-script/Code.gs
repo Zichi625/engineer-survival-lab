@@ -49,7 +49,13 @@ function appendResponse(ss, payload) {
     safeCell(payload.goal2027),
     safeCell(payload.persona),
     payload.survivalIndex || '',
-    safeCell(payload.openFeedback)
+    safeCell(payload.openFeedback),
+    payload.stability || '',
+    payload.radar || '',
+    payload.aiAdapt || '',
+    payload.careerBugIndex || '',
+    safeCell(payload.recommendedCourse),
+    safeCell(payload.sessionCode)
   ]);
 }
 
@@ -69,7 +75,8 @@ function appendLead(ss, payload) {
     safeCell(payload.marketingOptInAt),
     safeCell(payload.createdAt),
     safeCell(payload.persona),
-    payload.survivalIndex || ''
+    payload.survivalIndex || '',
+    safeCell(payload.sessionCode)
   ]);
 }
 

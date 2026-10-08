@@ -4,6 +4,7 @@ export function createInitialState() {
   return {
     screen: 'intro',
     levelIndex: 0,
+    sessionCode: '',
     nickname: '',
     email: '',
     consent: null,
@@ -83,8 +84,24 @@ export function generateExperimentCode() {
   return 'ENGINEER_' + String(Math.floor(Math.random() * 10000)).padStart(4, '0');
 }
 
+// The two tabs are written by two separate requests, so they need something in
+// common to be joined up later. A random code rather than the Email: the answer
+// tab can then be sorted, shared and analysed without carrying anyone's address,
+// and only someone holding both tabs can put a row back together.
+// Alphabet skips 0/O and 1/I so a code read off a screen is not ambiguous.
+var CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+export function generateSessionCode() {
+  var code = '';
+  for (var i = 0; i < 6; i++) {
+    code += CODE_ALPHABET.charAt(Math.floor(Math.random() * CODE_ALPHABET.length));
+  }
+  return 'LAB-' + code;
+}
+
 export function recordRegistration(state, profile) {
   var now = taipeiTimestamp(new Date());
+  state.sessionCode = generateSessionCode();
   state.nickname = (profile.nickname || '').trim() || generateExperimentCode();
   state.email = (profile.email || '').trim();
   // Stored as a record rather than a bare boolean: which version of the

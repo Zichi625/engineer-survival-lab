@@ -1,6 +1,12 @@
 import { GAS_WEB_APP_URL, GAS_SHARED_SECRET } from '../config.js';
 
-export function submitResponse(answers, persona, survivalIndex, openFeedback) {
+// Takes one object rather than a positional list: with the four dimension
+// scores and the recommended course added, the argument order was becoming the
+// kind of thing you have to count on your fingers.
+export function submitResponse(data) {
+  var answers = data.answers || {};
+  var dims = data.dimensions || {};
+  var course = data.course || {};
   return postToSheet('responses', {
     role: answers.role || '',
     experience: answers.experience || '',
@@ -14,9 +20,17 @@ export function submitResponse(answers, persona, survivalIndex, openFeedback) {
     aiImpact: answers.aiImpact || '',
     aiFear: answers.aiFear || '',
     goal2027: answers.goal2027 || '',
-    persona: persona || '',
-    survivalIndex: survivalIndex,
-    openFeedback: openFeedback || ''
+    persona: data.persona || '',
+    survivalIndex: data.survivalIndex,
+    openFeedback: data.openFeedback || '',
+    // The four scores behind the result card, kept so trends can be read off
+    // the sheet instead of being recomputed by hand.
+    stability: dims.stability || '',
+    radar: dims.radar || '',
+    aiAdapt: dims.aiAdapt || '',
+    careerBugIndex: dims.careerBugIndex || '',
+    recommendedCourse: course.name || '',
+    sessionCode: data.sessionCode || ''
   });
 }
 
@@ -34,7 +48,8 @@ export function submitLead(leadData, persona, survivalIndex) {
     marketingOptInAt: consent.marketingOptInAt || '',
     createdAt: consent.createdAt || '',
     persona: persona || '',
-    survivalIndex: survivalIndex
+    survivalIndex: survivalIndex,
+    sessionCode: leadData.sessionCode || ''
   });
 }
 
